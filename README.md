@@ -13,7 +13,7 @@ Stack:
 
 
 ## Use .env.build, process.env.VAR within svelte.config.js
-Use .env.build or .env.build.any to use variables that affects the build-output for different projects.
+Use variables within .env.build or .env.build.any for different project builds.
 
 #### .env.development
 bun run dev - and use PHP inside /src/routes/.../+page.server.php (similar as +page.server.js)
