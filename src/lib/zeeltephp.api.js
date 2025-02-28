@@ -12,9 +12,9 @@ export function zp_getApiRoute() {
       let url = ''
       try {
             // get the current route
-            //let route1 = page
-            //route1     = route1.replace(base, '');
-            //console.log('zp_getApiRoute/route1 :', route1, page);
+            let route1 = page
+            route1     = route1.replace(base, '');
+            console.log('zp_getApiRoute/route1 :', route1, page);
 
             // bkp   
             let route2 = window.location.pathname;
