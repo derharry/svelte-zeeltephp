@@ -13,7 +13,7 @@ const config = {
 			entries: ['*']
 		  },
 		  paths: {
-			base: ''
+			base: process.env.BASE
 		  }
 	},
 	trailingSlash: 'always'
