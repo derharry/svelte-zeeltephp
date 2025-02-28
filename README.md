@@ -1,15 +1,20 @@
 # Svelte-ZeeltePHP
 
-This repo holds some configurations as "base template" to use PHP as Svelte(Kit) backend.
+This repo holds some configuration as "base template" to use PHP as Svelte(Kit) backend.
 Use load() or actions() within +page.server.php similar to SvelteKit +page.server.js or api/+server.js
 
 Its intended for SSG (CRS/SPA) apps which will run on static-webhosting like apache-httpd when NodeJS is not possible, but we still want to develop the SvelteKit way. 
 
+Stack:
+* SvelteKit + adapter-static
+* PHP
+* .env files
+* https://svelte.dev/docs/kit/adapter-static
 
-## Use of .env.build  and  process.env.VAR within svelte.config.js
+
+## Use .env.build, process.env.VAR within svelte.config.js
 Use .env.build or .env.build.any to use variables that affects the build-output for different projects.
 
-### .env Examples
 #### .env.development
 bun run dev - and use PHP inside /src/routes/.../+page.server.php (similar as +page.server.js)
 ```
@@ -30,7 +35,7 @@ ZEELTEPHP_DATABASE_URL=mysql://<username>:<password>@<host>:<port>/<database_nam
 ```
 
 
-### vite.config.js
+#### vite.config.js
 this is the default vite.config.js - modified to use mode and load .env.build into process.env
 ```
 import { sveltekit } from '@sveltejs/kit/vite';
@@ -45,7 +50,7 @@ export default defineConfig(({ mode }) => {
 });
 ```
 
-### svelte.config.js
+#### svelte.config.js
 now we can use the variables defined in .env as process.env.VAR
 ```
 import adapter from "@sveltejs/adapter-static";
@@ -71,5 +76,16 @@ const config = {
 export default config;
 ```
 
+#### +layout.js
+activate SSG 
+```
+export const prerender = true;
+export const ssr = false;
+export const csr = true;
+export const trailingSlash = 'always';
+```
+
 thats it to use "almost" out of the box bun run build --mode 'env'.
 
+
+## ZeeltePHP
