@@ -9,9 +9,9 @@
 </script>
 
 
-<h1>Welcome to ZeeltePHP</h1>
+<h1>SubPage to ZeeltePHP</h1>
 <ul>
-      <li><a href="{base}/test/">Route subpage test</a></li>
+      <li><a href="{base}/">Route home</a></li>
       <li>.env BASE = {base}</li>
       <li>data.res_page = {data.res_page}</li>
       <li>data.res_php &nbsp;= {data.res_php}</li>
