@@ -1,18 +1,11 @@
 <script>
-
       import { base } from "$app/paths";
-
-      export let data;
-
-      $: console.log(data);
+      import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 
 </script>
 
-
-<h1>SubPage to ZeeltePHP</h1>
+<h1>ZeeltePHP Subpage</h1>
 <ul>
-      <li><a href="{base}/">Route home</a></li>
-      <li>.env BASE = {base}</li>
-      <li>data.res_page = {data.res_page}</li>
-      <li>data.res_php2 = {data.res_php2}</li>
+      <li><a href="{base}/">Route TEST</a></li>
+      <li>{PUBLIC_ZEELTEPHP_BASE}</li>
 </ul>
