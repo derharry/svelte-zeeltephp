@@ -85,7 +85,6 @@ export const csr = true;
 export const trailingSlash = 'always';
 ```
 
-thats it to use "almost" out of the box bun run build --mode 'env'.
+Thats it to use "almost" out of the box bun run build --mode 'env'.
 
 
-## ZeeltePHP
