@@ -27,7 +27,7 @@ export function zp_getApiRoute(url) {
         method: 'GET'
       }
       try {
-            const debug = false;
+            const debug = true;
             if (debug) console.log(' zp_getApiRoute() ');
             //if (debug) console.log('  ', 'route1', page.route);          // page is current route - we need new route
             //if (debug) console.log('  ', 'route2', page.url.pathname);   // page is current route - we need new route

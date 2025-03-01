@@ -7,6 +7,7 @@
 
      //#region import
           # minimum-requirments as for boot.php
+          require_once('zeeltephp/lib/io/io.dir.php');
           require_once('zeeltephp/lib/sveltekit/actionDetails.php');
           require_once('zeeltephp/lib/sveltekit/serverDetails.php');
           include_once('zeeltephp/lib/request/json.response.php');
@@ -14,8 +15,6 @@
           require_once('zeeltephp/lib/cfg/cfg.env.php');
           require_once('zeeltephp/lib/db/db.wordpress.php');
      //#endregion
-
-
 
      //#region set defaults
 
@@ -30,6 +29,19 @@
           }
   
      //#endregion
+
+     //#region methods
+
+          function read_custom_lib() {
+               $files = zp_scandir('lib');
+               //var_dump($files);
+               foreach ($files as $file) {
+                    include_once('lib/' . $file);
+               }
+          }
+          
+     //#endregion
+
      
 
      function main_init_zeeltephp() {
@@ -66,6 +78,8 @@
 
                     // set default DB-Provider
                     $db = new ZeeltePHP_DB_WordPress($cfg['ZEELTEPHP_DATABASE_URL']);
+
+                    read_custom_lib();
 
                     // include the +page.server.php
                     include($server->routeFile);
