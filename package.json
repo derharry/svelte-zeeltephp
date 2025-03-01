@@ -4,8 +4,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
+		"dev": "vite dev --mode dev",
+		"build": "vite build --mode build && ./zeeltephp-post-build.sh build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''"
 	},
