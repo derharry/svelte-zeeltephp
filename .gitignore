@@ -26,3 +26,7 @@ vite.config.ts.timestamp-*
 # Bun 
 bun.lock
 *.lock
+
+# Project
+!.env.build
+!.env.dev
