@@ -3,6 +3,7 @@
       import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 
       export let data;
+      $: console.log(data);
 </script>
 
 <h1>Welcome to ZeeltePHP</h1>
