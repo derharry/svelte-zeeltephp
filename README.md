@@ -1,4 +1,5 @@
 # Svelte-ZeeltePHP
+#	Svelte + PHP
 
 This repo holds some configuration as "base template" to use PHP as Svelte(Kit) backend.
 Use load() or actions() within +page.server.php similar to SvelteKit +page.server.js or api/+server.js
@@ -6,85 +7,68 @@ Use load() or actions() within +page.server.php similar to SvelteKit +page.serve
 Its intended for SSG (CRS/SPA) apps which will run on static-webhosting like apache-httpd when NodeJS is not possible, but we still want to develop the SvelteKit way. 
 
 Stack:
-* SvelteKit + adapter-static
-* PHP
-* .env files
-* https://svelte.dev/docs/kit/adapter-static
+* SvelteKit (or Zeelte-LIB)
+* PHP 8
+* README.env.md for .env within svelte.config.js
 
 
-## Use .env.build, process.env.VAR within svelte.config.js
-Use variables within .env.build or .env.build.any for different project builds.
-
-#### .env.development
-bun run dev - and use PHP inside /src/routes/.../+page.server.php (similar as +page.server.js)
+have the PHP logic like
+/src/routes/*/+page.server.php
 ```
-BUILD_DIR=build-dev
-BASE=
-PUBLIC_ZEELTEPHP_BASE=http://localhost/project-xyz/static/api/
-ZEELTEPHP_DATABASE_URL=wordpress://../wordpress-project/
-```
+<?php
 
-#### .env.build.xyz
-bun run build --mode build.xyz
-```
-BUILD_DIR=../build-xyz
-BASE=/build-xyz
-PUBLIC_ZEELTEPHP_BASE=/build-xyz/api
-ZEELTEPHP_DATABASE_URL=wordpress://../..
-ZEELTEPHP_DATABASE_URL=mysql://<username>:<password>@<host>:<port>/<database_name>
-```
+      function load() {
+            global $jsonResponse, $action, $server, $db, $env;
+            // do anything
+            $jsonResponse->data = [
+                  'res_php'       => 'Hello from PHP/home',
+                  'res_phpstatic' => lib_static()
+            ];
+            $jsonResponse->ok = true;
+      }
 
 
-#### vite.config.js
-this is the default vite.config.js - modified to use mode and load .env.build into process.env
-```
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig, loadEnv } from 'vite';
+      function actions() {
+		// tbd
+	}
 
-export default defineConfig(({ mode }) => {
-	console.log('Current mode:', mode); // Logs "build.zp" when --mode build.zp is used
-	process.env = loadEnv(mode, process.cwd(),'');
-	return {
-		plugins: [sveltekit()]
-	};
-});
+?>
 ```
 
-#### svelte.config.js
-now we can use the variables defined in .env as process.env.VAR
-```
-import adapter from "@sveltejs/adapter-static";
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+## Install
+1. copy /static/api to you project
+2. copy /static/api/zeeltephp/core/project_root-zeeltephp-post-build.sh to /project-root/zeeltephp-post-build.sh
+3. follow steps of README.env.md
+	set the variables of BUILD_DIR, BASE, PUBLIC_ZEELTEPHP_BASE, ZEELTEPHP_DATABASE_URL
+4. modify package.json/scripts to `bun run dev|build` or manually `bun run dev|build --mode dev|build && ./zeeltephp-post-build.sh build`
+	"dev": "vite dev --mode dev",
+	"build": "vite build --mode build && ./zeeltephp-post-build.sh build",
+5. 
 
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-	preprocess: vitePreprocess(),
-	kit: {
-		adapter: adapter({
-			pages: process.env.BUILD_DIR,
-			assets: process.env.BUILD_DIR,
-		}),
-		prerender: {
-			entries: ['*']
-		  },
-		  paths: {
-			base: process.env.BASE
-		  }
-	},
-	trailingSlash: 'always'
-};
-export default config;
+
+#### example /src/routes/*/+page.js
+```
+//import zeeltephp.api - or use Zeelte-LIB
+import { fetch_api } from "$lib/zeeltephp.api";
+
+export async function load( { fetch, url } ) {
+      const res_php = await fetch_api( fetch , url ); 
+}
 ```
 
-#### +layout.js
-activate SSG 
-```
-export const prerender = true;
-export const ssr = false;
-export const csr = true;
-export const trailingSlash = 'always';
-```
-
-Thats it to use "almost" out of the box bun run build --mode 'env'.
+#### example /src/routes/*/+page.server.php
+see into
 
 
+## Descriptions
+
+### Paths
+
+
+### .env variables
+
+
+### +page/load
+
+
+### fetch_api( fetch , url )
