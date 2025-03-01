@@ -31,8 +31,8 @@ function zp_getActionDetails() {
         "queryParams"  => []
     ];
     try {
-        // Use the actual query string from the server
-        $queryString = "route1/route2&/btn=hi&var1=hi&foo=bar";
+        // Use the actual query string from the client
+        $queryString = "route1/route2&/&btn=hi?var1=hi&foo=bar";
         $queryString = $_SERVER['QUERY_STRING'];
         
         // Split the query string into parts

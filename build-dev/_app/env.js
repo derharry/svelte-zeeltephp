@@ -1,1 +1,0 @@
-export const env={"PUBLIC_ZEELTEPHP_BASE":"http://localhost/sv-zeeltephp/static/api/"}

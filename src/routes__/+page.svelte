@@ -4,7 +4,6 @@
       import { base } from "$app/paths";
 
       export let data;
-
       $: console.log(data);
 
 </script>

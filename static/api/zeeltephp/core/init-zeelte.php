@@ -72,9 +72,9 @@
 
                     //var_dump($action);
                     if (is_null($action->action)) {
-                         load();
+                         if (function_exists('load')) load();
                     } else {
-                         actions();
+                         if (function_exists('actions')) actions();
                     }
 
                     // load or post/get/etc...
