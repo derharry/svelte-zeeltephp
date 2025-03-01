@@ -33,8 +33,13 @@ grep "^PUBLIC_" $env_file > $BUILD_DIR/api/zeeltephp/.env
 grep "^ZEELTEPHP_" $env_file >> $BUILD_DIR/api/zeeltephp/.env 
 
 
+# copy /src/lib/zplib to /build/api/lib/
+echo "  ✔ Copying /src/lib/zplib/ to $BUILD/api/lib/"
+cp -r src/lib/zplib/* $BUILD_DIR/api/lib/
+
+
 # ZeeltePHP  +page.server.php
-#    copy all /src/routes/.../+page.server.php to /static/api/routes/...
+#    copy all /src/routes/.../+page.server.php to /build/api/routes/...
 echo "  ✔ Copying +page.server.php files"
 SRC_DIR="src/routes"
 DEST_DIR="$BUILD_DIR/api/routes"

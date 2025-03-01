@@ -6,8 +6,9 @@ export async function load({ params, fetch, url }) {
       const res_php2 = await fetch_api(fetch, url);
       return {
             res_page: 'hello from /test/+page.js',
-            res_php2:  res_php2.data.res_php2,
-            res_phpt:  res_php2.data.res_phpt,
+            res_php1:  res_php2.data.res_php,
+            res_php2:  res_php2.data.res_phpstatic,
+            res_php3:  res_php2.data.res_phpzplib,
       }
 }
 

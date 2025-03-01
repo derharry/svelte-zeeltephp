@@ -13,5 +13,5 @@
       <li>BASE = {base}</li>
       <li>{data.res_page}</li>
       <li>{data.res_php1}</li>
-      <li>{data.res_phpt}</li>
+      <li>{data.res_php2}</li>
 </ul>

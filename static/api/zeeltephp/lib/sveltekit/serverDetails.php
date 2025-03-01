@@ -26,21 +26,25 @@ class ZP_ServerDetails {
                   //var_dump($path_api);
                   //var_dump($path_build);
 
-                  if (is_file($path_src)) {
-                        $this->routeFile   = $path_src;
-                        $this->environment = 'dev-src';
-                  }
-                  else if (is_file($path_api)) {
-                        $this->routeFile   = $path_api;
-                        $this->environment = 'dev-api';
-                  }
-                  else if (is_file($path_build)) {
-                        $this->routeFile   = $path_build;
+                  //check build mode or dev mode (src/routes/..)
+                  if (is_file('zeeltephp/.env')) {
                         $this->environment = 'build';
-                  } 
+                        $this->routeFile   = $path_build;
+                  } else if (is_file($path_src)) {
+                        $this->environment = 'dev-src';
+                        $this->routeFile   = $path_src;
+                  } else if (is_file($path_api)) {
+                        $this->environment = 'dev-api';
+                        $this->routeFile   = $path_api;
+                  }
+                  // moved to if (is_file('zeeltephp/.env')) {
+                  //else if (is_file($path_build)) {
+                  //      $this->routeFile   = $path_build;
+                  //      $this->environment = 'build';
+                  //} 
                   else {
                         $this->environment = 'unknown';
-                        $this->error       = 'could not find route/+page.server.php';
+                        $this->error       = 'ZP: Could not find set Environment and not found the route/+page.server.php';
                   }
             }
             catch (Exception $exp) {

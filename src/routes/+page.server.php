@@ -4,8 +4,8 @@
             global $jsonResponse, $action, $server, $db, $env;
             // do anything
             $jsonResponse->data = [
-                  'res_php1' => 'Hello from PHP/home',
-                  'res_phpt' => lib_test()
+                  'res_php'       => 'Hello from PHP/home',
+                  'res_phpstatic' => lib_static()
             ];
             $jsonResponse->ok = true;
       }
