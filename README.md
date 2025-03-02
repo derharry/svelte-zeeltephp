@@ -1,5 +1,6 @@
 # Svelte-ZeeltePHP
-#	Svelte + PHP
+Svelte + PHP <br>
+PHP Backend for SvelteKit
 
 This repo holds some configuration as "base template" to use PHP as Svelte(Kit) backend.
 Use load() or actions() within +page.server.php similar to SvelteKit +page.server.js or api/+server.js
@@ -8,13 +9,13 @@ Its intended for SSG (CRS/SPA) apps which will run on static-webhosting like apa
 
 ### Stack:
 * SvelteKit (or Zeelte-LIB)
-* HTTPD on http://localhost or https://
+* HTTPD on http://localhost 
 * 	+ PHP 8 
-*     or like XAMPP (ApacheFriends)
+* or XAMPP (like ApacheFriends)
 
 
 ## have the PHP logic like /src/routes/*/+page.server.php
-```
+```PHP
 <?php
 
       function load() {
@@ -35,7 +36,7 @@ Its intended for SSG (CRS/SPA) apps which will run on static-webhosting like apa
 ?>
 ```
 or 
-```
+```PHP
 <?php
 
 	// do any PHP
@@ -55,10 +56,10 @@ or both.
 
 
 ## Tested and developed on
-Windows + XAMPP as http://localhost/<any-project>
+Windows + XAMPP as http://localhost/any-project
 WSL-Ubuntu + BUN
 
-<any-project> is a sub-folder to the SvelteKit-project. it can have be any path-depth.
+any-project can be any sub-folder to the SvelteKit-project. 
 The builds run completly on any httpd/root or /any-folder 
 
 
@@ -74,7 +75,7 @@ The builds run completly on any httpd/root or /any-folder
 
 
 #### example load in /src/routes/*/+page.js
-```
+```JS
 import { fetch_api } from "$lib/zeeltephp.api";
 
 export async function load( { fetch, url } ) {
@@ -83,71 +84,74 @@ export async function load( { fetch, url } ) {
 ```
 
 #### example /src/routes/*/+page.server.php
-see example at intro
+> see example at intro
 
 
 ## Description
 
 ### tl;tr
-dive into /src which includes examples.
+> dive into /src which includes examples.
 
 ### Paths - development and build environment
-/src/lib/zeeltephp.api.js -> fetch_api(fetch, url)
-	- standalone - Can be saved to any path. (origin Zeelte-LIB) -
-	- .env:PUBLIC_ZEELTEPHP_BASE is requied -
-	Acts as API between Svelte-project and PHP.
-	Use it in +page.js|ts or *.svelte.
+/src/lib/zeeltephp.api.js -> fetch_api(fetch, url) 
+> ` standalone - Can be saved to any path. (origin Zeelte-LIB) `
+> .env:PUBLIC_ZEELTEPHP_BASE is requied -
+> Acts as API between Svelte-project and PHP.
+> Use it in +page.js|ts or *.svelte.
 	
 
 /src/lib/zplib/
-	- optional, but recommended to use (in cases of like backup the /src-folder and not also /static)
-	You can place any library-PHP files here.
-	If this folder exists ZeeltePHP will auto-load all PHP files to be available in any +page.server.php route.
+> ` optional, but recommended to use (in cases of like backup the /src-folder and not also /static) `
+> You can place any library-PHP files here.
+> If this folder exists ZeeltePHP will auto-load all PHP files to be available in any +page.server.php route.
 
 /src/routes/*
-	Place +page.server.php at any route.
-	From +page.js or *.svelte call fetch_api( fetch, url , params );
+> Place +page.server.php at any route.
+> From +page.js or *.svelte call fetch_api( fetch, url , params );
 
 /static/api/ 
-	This is the PHP (aka ZeeltePHP) folder which acts as server-side SvelteKit for backend.
-	BUILD: this folder is copied to /BUILD/api/
+> This is the PHP (aka ZeeltePHP) folder which acts as server-side SvelteKit for backend.
+> BUILD: this folder is copied to /BUILD/api/
 
 /static/api/index.php
-	- default php start file of httpd-server -
-	fetch_api() will request to here which includes any +page.server.php and load lib, zplib
+> ` default php start file of httpd-server `
+fetch_api() will request to here which includes any +page.server.php and load lib, zplib
 
 /static/api/lib/
-	Same as zplib, but zplib is preferred to use.
-	Use your lib-file here or in zplib, or use both. 
-	But in case of both, path-to/lib-file.php must be unique!
-	BUILD: /lib/zplib/ will be copied into this folder - and priorized if already exists here (replaced).
+> Same as zplib, but zplib is preferred to use.
+> Use your lib-file here or in zplib, or use both. 
+> But in case of both, path-to/lib-file.php must be unique!
+> BUILD: /lib/zplib/ will be copied into this folder - and priorized if already exists here (replaced).
 
 /static/api/routes/*/
-	You can place +page.server.php files here, at /src/routes, or both.
-	But in case of both, /path-route/+page.server.php must be unique!
-	BUILD: /src/routes/* will be copied into this folder - and priorized if already exists here (replaced).
-
+> You can place +page.server.php files here, at /src/routes, or both.
+> But in case of both, /path-route/+page.server.php must be unique!
+> BUILD: /src/routes/* will be copied into this folder - and priorized if already exists here (replaced).
 
 
 ### .env variables
-- BUILD_DIR 	path for build-output
-- BASE 		path where build will running. 
-- PUBLIC_ZEELTEPHP_BASE 	http://localhost/<path-to-project> or /path-to-build-on-httpd-server
-- ZEELTEPHP_DATABASE_URL	ZeeltePHP supported DB-providers like Wordpress, MySQL, ...
-                              Currently only wordpress://path-to-wordpress-project-root
+BUILD_DIR
+> path for build-output
+BASE
+> path where build will running. 
+PUBLIC_ZEELTEPHP_BASE
+> http://localhost/<path-to-project> or /path-to-build-on-httpd-server
+ZEELTEPHP_DATABASE_URL
+> ZeeltePHP supported DB-providers like Wordpress, MySQL, ...
+> Currently only wordpress://path-to-wordpress-project-root
 
 
 ### fetch_api( fetch , url )
 ###   at +page/load ({ fetch, url })
-tbd
+> tbd
 
 
 ### What happens in the background
-tbd
+> tbd
 
 
-## Roadmap ideas (if required i'm willing to develop them earlier)
+## Roadmap ideas 
 * support for +hooks.php, +server.php, ... including route-placements
 * SvelteKit Actions deep dive
-* ZeeltePHP can be loaded from composer or as NPM-Package which then will run from /node_modules/
+* Run as Vite/Svelte Plugin for development, static at /BUILD
 * Support for DB-MySQL
