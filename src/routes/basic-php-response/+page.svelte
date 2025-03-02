@@ -6,9 +6,9 @@
       $: console.log(data);
 </script>
 
-<h1>ZeeltePHP Subpage</h1>
+
+<h2>Basic PHP response</h2>
 <ul>
-      <li><a href="{base}/">Route TEST</a></li>
       <li>{PUBLIC_ZEELTEPHP_BASE}</li>
       <li>BASE = {base}</li>
       <li>{data.res_page}</li>

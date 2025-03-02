@@ -6,9 +6,9 @@
       $: console.log(data);
 </script>
 
-<h1>Welcome to ZeeltePHP</h1>
+
+<h2>Home</h2>
 <ul>
-      <li><a href="{base}/test">Route subpage test</a></li>
       <li>{PUBLIC_ZEELTEPHP_BASE}</li>
       <li>BASE = {base}</li>
       <li>{data.res_page}</li>
