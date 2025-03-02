@@ -45,7 +45,7 @@ ZEELTEPHP_DATABASE_URL=mysql://<username>:<password>@<host>:<port>/<database_nam
 
 #### vite.config.js
 added loadEnv and modified default defineConfig to use mode and load the .env.build file into process.env
-```
+```JS
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, loadEnv } from 'vite';
 
@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
 
 #### svelte.config.js
 now we can use the variables defined in .env with process.env
-```
+```JS
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
