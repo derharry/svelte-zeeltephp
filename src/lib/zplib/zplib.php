@@ -1,7 +1,7 @@
 <?php
 
       function lib_zplib() {
-            return "hello from zplib.php";
+            return "hello from \$lib/zplib.php";
       }
 
 ?>

@@ -11,6 +11,7 @@
           require_once('zeeltephp/lib/helper/load.php.files.php');
           require_once('zeeltephp/lib/sveltekit/actionDetails.php');
           require_once('zeeltephp/lib/sveltekit/serverDetails.php');
+          require_once('zeeltephp/lib/sveltekit/class.zp.apirouter.php');
           require_once('zeeltephp/lib/request/json.response.php');
           require_once('zeeltephp/lib/request/headers.php');
           require_once('zeeltephp/lib/cfg/cfg.env.php');
@@ -20,7 +21,10 @@
      //#region set defaults
 
           global $db;
-          global $cfg;
+          global $env;
+          global $zpAR;
+          global $action;
+          global $server;
           global $jsonResponse;
 
           function zp_setDefaults() {
@@ -36,7 +40,7 @@
           function zp_load_lib($environment) {
                // if dev-env load the /src/lib/zplib files
                //var_dump($environment);
-               if (str_starts_with($environment, 'dev-') && is_dir('../../src/lib/zplib/'))
+               if ($environment == 'dev' && is_dir('../../src/lib/zplib/'))
                     zp_load_php_files( '../../src/lib/zplib/' );
                // load default /api/lib
                zp_load_php_files( 'lib' );
@@ -47,7 +51,7 @@
      
 
      function main_init_zeeltephp() {
-          global $jsonResponse, $cfg, $db;
+          global $jsonResponse, $env, $db, $zpAR;
           try {
                
                // set JSON Response
@@ -58,44 +62,48 @@
                zp_setDefaults();
 
                // read config .env_file
-               $cfg = zp_read_env_file();
-               if (!$cfg) throw Error('could not find .env file');
-               //var_dump($cfg);
+               $env = zp_read_env_file();
+               if (!$env) throw Error('could not find .env file');
+               //var_dump($env);
 
                //
-               //if (isset($cfg['PUBLIC_PathToWPload'])) {
-               //     load_wordpress( $cfg["PUBLIC_PathToWPload"] );
+               //if (isset($env['PUBLIC_PathToWPload'])) {
+               //     load_wordpress( $env["PUBLIC_PathToWPload"] );
                //}
 
                // fetch action details : route, params, ...
-               $action  = new ZP_ActionDetails();
-               $server  = new ZP_ServerDetails();
-               
-               // include the +page.server.php file
-               if (!is_null($server->error)) {
-                    $jsonResponse->error = $server->error;
-                    error_log('ZeeltePHP: '. $jsonResponse->error);
-               }
-               else {
+               $zpAR = new ZP_ApiRouter();
 
-                    // set default DB-Provider
-                    $db = new ZeeltePHP_DB_WordPress($cfg['ZEELTEPHP_DATABASE_URL']);
+               // include the +page.server.php
+               if (is_file($zpAR->routeFile)) {
 
                     // load lib files
-                    zp_load_lib($server->environment);
+                    zp_load_lib($zpAR->environment);
 
-                    // include the +page.server.php
-                    include($server->routeFile);
+                    // set default DB-Provider
+                    $db = new ZeeltePHP_DB_WordPress($env['ZEELTEPHP_DATABASE_URL']);
 
-                    //var_dump($action);
-                    if (is_null($action->action)) {
+                    // include +page.sever.php
+                    include($zpAR->routeFile);
+
+          
+                    if (is_null($zpAR->action)) {
                          if (function_exists('load')) load();
                     } else {
-                         if (function_exists('actions')) actions();
+                         $action_function_name = 'action_'.$zpAR->action;
+                         if (function_exists($action_function_name)) 
+                              $action_function_name($zpAR->value);
+                         else 
+                              if (function_exists('actions')) 
+                                   actions($zpAR->action, $zpAR->value);
                     }
 
-                    // load or post/get/etc...
+               } else {
+                    //$zpAR->Dump();
+                    $jsonResponse->error = $zpAR->error;
+                    error_log('ZeeltePHP: '. $jsonResponse->error);
                }
+               $jsonResponse->message = $zpAR;
           } 
           catch (Exception $th) {
                error_log($th);

@@ -7,13 +7,6 @@ import { base } from "$app/paths";
 //import { page } from "$app/state";
 
 
-export function zp_getApiRoute_dev(url) {
-    if (typeof url === 'string') {
-        return url;
-    } else if (typeof url === 'URL') {
-        return url.pathname;
-    }
-}
 export function zp_getApiRoute(url) {
       if (!browser) return;
       // set default path "/$base/api.php?route&"
@@ -58,7 +51,7 @@ export function zp_getApiRoute(url) {
 }
 
 
-export function fetch_api(fetch, url, params = undefined) {
+export function zp_fetch_api(fetch, url, params = undefined) {
     //console.log(' zp_getApiRoute/fetch_api() ', url);
     const url_fetch = zp_getApiRoute(url);
     return new Promise((resolve, reject) => {

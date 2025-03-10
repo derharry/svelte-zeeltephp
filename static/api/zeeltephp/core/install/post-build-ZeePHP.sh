@@ -35,6 +35,7 @@ grep "^ZEELTEPHP_" $env_file >> $BUILD_DIR/api/zeeltephp/.env
 
 
 # copy /src/lib/zplib to /build/api/lib/
+mkdir "$BUILD_DIR/api/lib/"
 if [ -d "src/lib/zplib" ]; then
     echo "  ✔ Copying /src/lib/zplib/ to $BUILD/api/lib/"
     cp -r src/lib/zplib/* $BUILD_DIR/api/lib/
@@ -44,6 +45,7 @@ fi
 # ZeeltePHP  +page.server.php
 #    copy all /src/routes/.../+page.server.php to /build/api/routes/...
 echo "  ✔ Copying /src/routes/*/+page.server.php files to $BUILD_DIR/api/routes/"
+mkdir "$BUILD_DIR/api/routes/"
 SRC_DIR="src/routes"
 DEST_DIR="$BUILD_DIR/api/routes"
 # Find all +page.server.php files and copy them to the destination
