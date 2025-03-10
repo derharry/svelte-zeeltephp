@@ -3,6 +3,7 @@
     import { get_event_action_details } from "$lib/zeeltephp/event.helper"
 	import { page } from '$app/state';
     import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
+    import { onMount } from "svelte";
 
     let form = {
         ok      : false,
@@ -43,6 +44,9 @@
     form.message = crypto.randomUUID()
 
 
+    onMount(() => {
+
+    })
 
 </script>
 
@@ -65,7 +69,7 @@
 
 {:else}
 
-    <form action="hello.php" on:submit={handle_form_submit}>
+    <form bind:this={} action="hello.php" on:submit={handle_form_submit}>
 
 
         <center>
