@@ -4,8 +4,7 @@
             global $jsonResponse, $zpAR;
             // do anything
             $jsonResponse->data = [
-                  'zp_send'       => 'Hello from ZP_send-form_load',
-                  'zp_route'      => $zpAR
+                  'load'       => 'Hello from ZP_send-form_load'
             ];
             $jsonResponse->ok = true;
       }
@@ -16,12 +15,22 @@
             // do anything
 
             switch ($action) {
-                  case 'send':
+                  case '?/send':
                               $jsonResponse->data = [
                                     'msg' => 'Hello from send-form/actions/'.$action.' '.$value,
                                     'data' => $_GET,
                               ];
                               return true;
+                        break;
+                  case '?/sendform':
+                                    $jsonResponse->data = [
+                                          'msg' => 'Hello from send-form/actions/'.$action.' '.$value,
+                                          'data' => $_POST['name'],
+                                    ];
+                                    return [
+                                          'message' => 'Hello from send-form/actions/'.$action.' '.$value,
+                                          'data' => $_POST['name'],
+                                    ];
                         break;
             }
       }
@@ -37,7 +46,7 @@
             return true;
       }
 
-      function action_goGo($value) {
+      function action_sendform($value) {
             global $jsonResponse, $zpAR;
             // do anything
             return [

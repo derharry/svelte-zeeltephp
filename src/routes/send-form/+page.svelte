@@ -18,10 +18,7 @@
             console.clear();
             event.preventDefault();
 
-            const zpar = new ZP_ApiRouter()
-            zpar.action = 'goGo'
-            zpar.value  = '69'
-            zpar.data   = form;
+            const zpar = new ZP_ApiRouter(event)
             zpar.prepare()
             //console.log(zpar.fetch_options);
 

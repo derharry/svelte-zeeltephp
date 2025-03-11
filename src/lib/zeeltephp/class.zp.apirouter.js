@@ -4,6 +4,7 @@ import { dev } from "$app/environment";
 import { base } from "$app/paths";
 import { json } from "@sveltejs/kit";
 import { page } from '$app/state';
+import { get_event_action_details } from "./event.helper";
 
 
 export class ZP_ApiRouter 
@@ -24,15 +25,6 @@ export class ZP_ApiRouter
       // CSR specfic -> zp_fetch_api() 
       fetch_url     = null
       fetch_options = null
-      fetch_data    = {
-            zp: {
-                  route:  null,
-                  method: this.method,
-                  action: this.action,
-                  value:  this.value,
-                  body_data: this.data
-            }
-      }
       dataIsInstanceOfFormData = false
 
 
@@ -77,16 +69,22 @@ export class ZP_ApiRouter
                   }
                   else if (typeof routeUrl === 'string') {
                         console.log('STRING', routeUrl)
-                        //this.parse_url_string(routeUrl)
+                        this.parse_url_string(routeUrl)
                   }
                   else if (routeUrl?.pathname) {
                         // parse :URL 
                         //this.zp_baseUrl= PUBLIC_ZEELTEPHP_BASE;
                         this.route = routeUrl.pathname.replace(base, '')
                         console.log('PATHNAME', routeUrl)
-
+                  }
+                  else if (routeUrl instanceof SubmitEvent) {
+                        console.log('SubmitEvent', routeUrl)
+                        const ed = get_event_action_details(routeUrl);
+                        this.action = ed.action;
+                        this.value  = ed.value;
+                        this.set_data(ed.formData);
                   } else {
-                        console.log('WHAT', routeUrl)
+                        console.log('WHAT', {routeUrl}, typeof routeUrl)
                   }
             } catch (error) {
                   console.error({ error })
@@ -200,8 +198,10 @@ export class ZP_ApiRouter
 
 
       set_data(data) {
-            this.data = data
-            this.dataIsInstanceOfFormData = data instanceof FormData ? true : false;
+            if (data) {
+                  this.data = data
+                  this.dataIsInstanceOfFormData = data instanceof FormData ? true : false;
+            }
       }
 
 
@@ -260,11 +260,10 @@ export class ZP_ApiRouter
                                           this.fetch_options.body.append('zp_route', this.route)
                                           this.fetch_options.body.append('zp_action', this.action)
                                           this.fetch_options.body.append('zp_value', this.value)
-                                          if (typeof(this.data) == 'array')
-                                          this.data?.forEach((key,value) => {
-                                                this.fetch_options.body.append(key, value)
-                                          });
-                                          
+                                          //this.fetch_options.body.append(this.data)
+                                          for (let [key, val] of this.data.entries()) {
+                                                this.fetch_options.body.append(key, val)
+                                          };
                                     } else {
                                           this.fetch_options.headers['Content-Type'] = 'application/json';
                                           this.fetch_options.body = JSON.stringify({
