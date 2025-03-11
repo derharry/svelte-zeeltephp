@@ -54,7 +54,7 @@ export class ZP_ApiRouter
 
       /**
        * Set de default url - default should be URL or PAGE.URL, string if you want to override URL
-       * @param {*} url string | URL:+page.js/load | PAGE.URL:+page.svelte 
+       * @param {*} url string | URL:+page.js/load | PAGE.URL:+page.svelte | SubmitEvent 
        */
       set_routeURL(routeUrl) {
             try {
@@ -138,59 +138,6 @@ export class ZP_ApiRouter
                   parse(second) //parseResponse(parse(second))
                   if (params.length > 0) this.params = this.params.concat(params)
                   if (third.length  > 0) this.params = this.params.concat(third)
-
-                  /*
-                        previous code before parse() and parseResponse()
-
-                        // check first action?
-                        if (action) {
-                              if (action.startsWith('?/') || action.startsWith('/'))
-                                    this.action = action.startsWith('?') ? action : '?'+action
-                              else if (action.includes('='))
-                                    //second = action +'&'+ second
-                                    this.params.push(action)
-                              else 
-                                    console.log(' ??????? ', {action})
-                        }
-
-                        // check route
-                        if (route) {
-                              if (route.startsWith('?/') || route.startsWith('/')) {
-                                    if (this.action == null) {
-                                          this.action = route.startsWith('?') ? route : '?'+route
-                                    } else
-                                          console.log(' ??????? ', {route})
-                              } else if (route.includes('=')) {
-                                    //second = route +'&'+ second
-                                    this.params.push(route)
-                              } else {
-                                    this.route = route || ''
-                              }
-                        }
-
-                        if (second) {
-                              if (second.startsWith('?/') || second.startsWith('/')) {
-                                    if (this.action == null) {
-                                          this.action = second.startsWith('?') ? second : '?'+second
-                                    } else
-                                          console.log(' ??????? ', {second})
-                              } else if (second.includes('=')) {
-                                    //second = route +'&'+ second
-                                    this.params.push(second)
-                              } else {
-                                    console.log(' ??????? ', {second})
-                              }
-                        }
-
-                        if (params.length > 0) {
-                              console.log(' AAAAAAAA', {params})
-                              this.params = this.params.concat(params)
-                        }
-                        if (third.length > 0) {
-                              console.log(' AAAAAAAA', {third})
-                              this.params = this.params.concat(third)
-                        }
-                  */
             } catch (error) {
                 console.error({ error });
             }
