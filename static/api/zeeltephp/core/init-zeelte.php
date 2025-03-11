@@ -30,6 +30,7 @@
           function zp_setDefaults() {
                global $jsonResponse;
                // default json-response
+               //set_request_headers_to_allow_from_anywhere();
                set_request_headers_to_json_api();
           }
   
@@ -56,7 +57,8 @@
                
                // set JSON Response
                $jsonResponse = new JSONResponse();
-
+               
+               
                //echo "<h1>init-zeelte.php</h1>";
                //echo "<p>". getcwd() . "</p>\n";
                zp_setDefaults();
@@ -66,13 +68,11 @@
                if (!$env) throw Error('could not find .env file');
                //var_dump($env);
 
-               //
-               //if (isset($env['PUBLIC_PathToWPload'])) {
-               //     load_wordpress( $env["PUBLIC_PathToWPload"] );
-               //}
-
+               
                // fetch action details : route, params, ...
                $zpAR = new ZP_ApiRouter();
+               $jsonResponse->message = $zpAR;
+               $jsonResponse->data    = $zpAR->data;
 
                // include the +page.server.php
                if (is_file($zpAR->routeFile)) {
@@ -86,24 +86,37 @@
                     // include +page.sever.php
                     include($zpAR->routeFile);
 
-          
+     
+                    // if no action then just call load()
                     if (is_null($zpAR->action)) {
                          if (function_exists('load')) load();
                     } else {
+                         // does action_ACTION exist ? do so else take actions()
                          $action_function_name = 'action_'.$zpAR->action;
-                         if (function_exists($action_function_name)) 
-                              $action_function_name($zpAR->value);
+                         $action_response = false;
+                         if (function_exists($action_function_name))
+                              $action_response = $action_function_name($zpAR->value);
                          else 
                               if (function_exists('actions')) 
-                                   actions($zpAR->action, $zpAR->value);
+                                   $action_response = actions($zpAR->action, $zpAR->value);
+
+                         // leave a message or error
+                         if (!$action_response) 
+                              $jsonResponse->error = "No ?/action or response";
+                         if (is_array($action_response)) {
+                              foreach ($action_response as $k=>$v) {
+                                   $jsonResponse->$k = $v;
+                              }
+                         }
                     }
 
                } else {
                     //$zpAR->Dump();
                     $jsonResponse->error = $zpAR->error;
-                    error_log('ZeeltePHP: '. $jsonResponse->error);
+                    //error_log('ZeeltePHP: '. $jsonResponse->error);
                }
-               $jsonResponse->message = $zpAR;
+               //$jsonResponse->message = $zpAR;
+
           } 
           catch (Exception $th) {
                error_log($th);

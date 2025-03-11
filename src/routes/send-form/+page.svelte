@@ -1,7 +1,6 @@
 <script>
-    import { zp_fetch_api, zp_fetch_api_event_action, zp_get_api_router } from "$lib/zeeltephp/zeeltephp.api";
+    import { zp_fetch_api, zp_fetch_api_event_action } from "$lib/zeeltephp/zeeltephp.api";
     import { get_event_action_details } from "$lib/zeeltephp/event.helper"
-	import { page } from '$app/state';
     import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
     import { onMount } from "svelte";
 
@@ -20,9 +19,28 @@
             event.preventDefault();
 
             const zpar = new ZP_ApiRouter()
+            zpar.action = 'goGo'
+            zpar.value  = '69'
+            zpar.data   = form;
+            zpar.prepare()
+            //console.log(zpar.fetch_options);
+
+
+            console.log('***********************')
+            console.log(zpar.fetch_url)
+            console.log(zpar.fetch_options);
+            /*
+            const xxx = fetch(zpar.fetch_url, zpar.fetch_options)
+                .then(response => response.json())
+                .then((data) =>{ console.log('data1', data); })
+                .catch((error) => console.error(error))
+            console.log('***********************')
+            */
+            const response = zp_fetch_api(fetch, zpar, event)
+                .then((data) => console.log('data2', data))
+                .catch((error) => console.error(error))
+            console.log('***********************')
             
-            zp_fetch_api_event_action(fetch, page.url, event)
-            console.log(ad)
 
             //const zp = zp_get_api_router(event, url)
             //zp_fetch_api(fetch, page.url, ad.formData)
@@ -43,9 +61,10 @@
     form.email   = crypto.randomUUID()
     form.message = crypto.randomUUID()
 
+    let xform;
 
     onMount(() => {
-
+       // xform.submit();
     })
 
 </script>
@@ -69,7 +88,7 @@
 
 {:else}
 
-    <form bind:this={} action="hello.php" on:submit={handle_form_submit}>
+    <form bind:this={xform} on:submit={handle_form_submit}>
 
 
         <center>

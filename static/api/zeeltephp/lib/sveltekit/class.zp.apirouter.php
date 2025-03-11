@@ -2,6 +2,7 @@
 // import ENV for PUBLIC_ZEELTEPHP_BASE
 // import ENV for BASE
 // import JSON via 
+require_once('zeeltephp/lib/request/api.helper.php');
 
 class ZP_ApiRouter 
 {
@@ -82,31 +83,32 @@ class ZP_ApiRouter
             //else if ($_SERVER['REQUEST_METHOD'] == 'PATCH') 
             //else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE') 
             //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') 
-            else if ($_SERVER['REQUEST_METHOD'] == 'POST')  {
+            else if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
                   $this->method = 'POST';
-
                   $contentType  = $_SERVER['CONTENT_TYPE'];
-                  //var_dump($_SERVER);
 
                   if (str_contains($contentType, 'application/json')) {
                         // parse json
-                        $this->method = 'JSON'; //?
-                        $this->data   = $_POST;
-                        var_dump('JSON');
-                        var_dump($_POST);
+                        $jsonData     = read_json_input();
+                        $this->route  = $jsonData['zp_route'];
+                        $this->action = $jsonData['zp_action'];
+                        $this->value  = $jsonData['zp_value'];
+                        $this->data   = $jsonData['zp_data'];
                   }
                   else {
                         // normal PHP behaviour
                         // default PHP is $_POST is already set
                         // e.g. multipart/form-data, application/x-www-form-urlencoded
-                        var_dump('POST');
-                        var_dump($_POST);
-                        $this->data   = $_POST;
-                        //$this->Dump();
+                        $this->route  = $_POST['zp_route'];
+                        $this->action = $_POST['zp_action'];
+                        $this->value  = $_POST['zp_value'];
+                        unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
+                        unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
+                        unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
                   }
             }
             else {
-                  $this->error = 'ZP: Unknown method for routing.';
+                  $this->error = 'ZP: Unknown method for routing.'.$_SERVER['REQUEST_METHOD'];
             }
       }
 
@@ -131,14 +133,13 @@ class ZP_ApiRouter
                         // set route only from first occurence/position
                         // if (match) presume route else set default route to ./
                         if ($i == 0 && strpos($part, '=') === false && strpos($part, '?') === false) {
-                              $part = ltrim(rtrim($part, '/'), '/');
-                              $this->route = $part ."/";
+                              $this->route = ltrim(rtrim($part, '/'), '/') ."/";
                               unset($_GET[$part]);
                               unset($_REQUEST[$part]);
                         } else if ($i == 0 && !$this->route) $this->route = '/'; // set default to ./
 
                         // set action and value from first or second occurence/position
-                        if (($i >= 0 && $i <= 1) && (str_starts_with($part, '?/') || str_starts_with($part, '/'))) {
+                        if (($i >= 0 && $i <= 1) && (str_starts_with($part, '?/'))) {
                               // presume action
                               $action = explode('=', $part)[0];
                               $this->action = $action;

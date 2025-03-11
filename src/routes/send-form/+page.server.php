@@ -1,10 +1,11 @@
 <?php
 
       function load() {
-            global $jsonResponse;
+            global $jsonResponse, $zpAR;
             // do anything
             $jsonResponse->data = [
                   'zp_send'       => 'Hello from ZP_send-form_load',
+                  'zp_route'      => $zpAR
             ];
             $jsonResponse->ok = true;
       }
@@ -13,32 +14,37 @@
       function actions($action, $value) {
             global $jsonResponse, $zpAR;
             // do anything
-            $jsonResponse->data = [
-                  //'zpAR'     => $zpAR,
-                  'data'     => 'Hello from ZP_send-form_actions '.$action.' '.$value,
-            ];
 
             switch ($action) {
-                  case 'btnSend':
-                        $jsonResponse->data = [
-                              'data' => 'Hello from send-form/actions/'.$action.' '.$value,
-                              //'data2' => $_GET
-                        ];
+                  case 'send':
+                              $jsonResponse->data = [
+                                    'msg' => 'Hello from send-form/actions/'.$action.' '.$value,
+                                    'data' => $_GET,
+                              ];
+                              return true;
                         break;
             }
-            
-            $jsonResponse->ok = true;
       }
 
-      function action_btnSend2($value) {
+      function action_btnSend($value) {
             global $jsonResponse, $zpAR;
             // do anything
             $jsonResponse->data = [
-                  //'zpAR'     => $zpAR,
-                  'zp_action'     => 'Hello from send-form/action_btnSend #'.$value,
-                  //'data2' => $_GET
+                  'msg'     => 'Hello from send-form/action_btnSend #'.$value,
+                  'data' => $_GET
             ];
             $jsonResponse->ok = true;
+            return true;
+      }
+
+      function action_goGo($value) {
+            global $jsonResponse, $zpAR;
+            // do anything
+            return [
+                  'ok'   => true,
+                  'message' => 'Hello from send-form/action_goGo #'.$value,
+                  'data' => $zpAR->data,
+            ];
       }
 
 ?>

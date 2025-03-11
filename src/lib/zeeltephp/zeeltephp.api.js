@@ -34,9 +34,10 @@ export function zp_fetch_api(fetch, urlOrRouter, data = undefined, method = unde
     try {
 
         // urlOrRouter can be already ZP_ApiRouter else create the ZP_ApiRouter
-        const zpar = urlOrRouter instanceof ZP_ApiRouter ? urlOrRouter :
-                     new ZP_ApiRouter(urlOrRouter, data, method);
-        
+        const zpar = urlOrRouter instanceof ZP_ApiRouter ? urlOrRouter : 
+                        new ZP_ApiRouter(urlOrRouter, data, method);
+
+
         // lets fetch 
         //   create and return the Promise that 
         //      handles the fetch by using ZP_ApiRouter
@@ -53,13 +54,15 @@ export function zp_fetch_api(fetch, urlOrRouter, data = undefined, method = unde
             }
 
             // add custom headers to ZP_ApiRouter if not undefined
-            if (zpar.headers) 
-                zpar.headers = { ...zpar.headers, ...headers  }
+            //if (zpar.fetch_options.headers) 
+            //    zpar.fetch_options.headers = { ...zpar.fetch_options.headers, ...headers  }
 
             // debug
-            console.log(zpar.fetch_url, zpar.method, zpar.route, zpar.action, zpar.data);
+            zpar.dump();
 
-            fetch(zpar.fetch_url, zpar.fetchOptions)
+            //console.log(zpar.fetch_url, zpar.method, zpar.route, zpar.action, zpar.data);
+
+            fetch(zpar.fetch_url, {...zpar.fetch_options})
                 // send the fetch by ZP_ApiRouter
                 .then(response => response.json())
                 .then(data => resolve(data))
