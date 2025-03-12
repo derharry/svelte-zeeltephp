@@ -6,9 +6,10 @@
     import TableShowData from "$lib/TableShowData.svelte";
 
     let form = {
-        send    : false,
-        error   : "",
-        message : "",
+        jsonData : false,
+        formData : false,
+        error    : "",
+        message  : "",
     }
 
     let data = {
@@ -30,12 +31,12 @@
         try {
             //const ed = get_event_action_details(event);
             const zpar  = new ZP_ApiRouter(event, data)
-            zpar.dump();
+            //zpar.dump();
             promise_sendJson = zp_fetch_api(fetch, zpar, data)
                 .then((data1) => {
-                    if (data?.ok) form.ok = data.ok
-                    data = data1
-                    form = form;
+                    console.log(data1.data); 
+                    form.jsonData = data1.data
+                    form.message  = data1.message;
                 })
                 .catch((error) => console.error(error))
         }
@@ -65,9 +66,10 @@
             */
             promise_sendForm = zp_fetch_api(fetch, zpar, form)
                 .then((data1) => {
-                    if (data?.ok) form.ok = data.ok
-                    data = data1
-                    form = form;
+                    console.log(data1.data, data1.ok);
+                    form.send     = data1.ok
+                    form.formData = data1.data
+                    form.message  = data1.message;
                 })
                 .catch((error) => console.error(error))
             if (debug)  console.log('***********************')
@@ -97,7 +99,16 @@
             >Send (JSON)</button>
         </td>
         <td width="50%">
-            <pre>x</pre>
+            <p>JSON state: 
+                {#await promise_sendJson}
+                    sending...
+                {:then tdata} 
+                    init/data {tdata}
+                {:catch error} 
+                    Error: {error}
+                {/await}
+            </p>
+            <pre class="wrap">{JSON.stringify(form.jsonData)}</pre>
         </td>
     </tr>
 </TableShowData>
@@ -141,16 +152,12 @@
                 {#await promise_sendForm}
                     sending...
                 {:then tdata} 
-                    {#if form.send}
-                        send (finished)
-                    {:else}
-                        not send
-                    {/if}
+                    init/data {tdata}
                 {:catch error} 
                     Error: {error}
                 {/await}
             </p>
-            <pre class="wrap">{JSON.stringify(form)}</pre>
+            <pre class="wrap">{JSON.stringify(form.formData)}</pre>
         </td>
     </tr>
 </TableShowData>

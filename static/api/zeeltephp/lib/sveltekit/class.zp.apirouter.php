@@ -104,7 +104,7 @@ class ZP_ApiRouter
                         // parse json
                         //error_log('JSON');
                         $jsonData     = read_json_input();
-                        $this->data   = $jsonData;
+                        //$this->data   = $jsonData;
                         $this->route  = $jsonData['zp_route'];
                         $this->action = $jsonData['zp_action'];
                         $this->value  = $jsonData['zp_value'];

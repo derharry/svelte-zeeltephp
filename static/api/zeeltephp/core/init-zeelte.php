@@ -23,6 +23,8 @@
           global $zpAR;
           global $jsonResponse;
 
+          $jsonResponse = new JSONResponse();
+
           function zp_setDefaults() {
                global $jsonResponse;
 
@@ -51,35 +53,42 @@
           function zp_main_pageserverphp() {          
                global $zpAR;
 
-               // include +page.sever.php
-               include($zpAR->routeFile);
+               try {
+                    // include +page.sever.php
+                    include($zpAR->routeFile);
 
-               // response from load or actions
-               $action_response = false;
+                    // response from load or actions
+                    $action_response = false;
 
-               // if no action then just call load()
-               if (is_null($zpAR->action)) {
-                    if (function_exists('load'))
-                         $action_response = load();
-               } else {
-                    // support custom function action_ACTION($value)
-                    // instead of e.g. actions() switch ($action) case 'ACTION'
-                    $action_function_name = 'action_'.str_replace('?/', '', $zpAR->action);
                     
-                    // does custom function action_ACTION exist ? 
-                    // else load default actions($action, $value, $data)
-                    if (function_exists($action_function_name))
-                         $action_response = $action_function_name($zpAR->value);
-                    else
-                         if (function_exists('actions')) 
-                              $action_response = actions($zpAR->action, $zpAR->value); //, $zpAR->data);
+                    // if no action then just call load()
+                    if (is_null($zpAR->action)) {
+                         if (function_exists('load'))
+                              $action_response = load();
+                    } else {
+                         // support custom function action_ACTION($value)
+                         // instead of e.g. actions() switch ($action) case 'ACTION'
+                         $action_function_name = 'action_'.str_replace('?/', '', $zpAR->action);
+                         
+                         // does custom function action_ACTION exist ? 
+                         // else load default actions($action, $value, $data)
+                         if (function_exists($action_function_name))
+                              $action_response = $action_function_name($zpAR->value);
+                         else
+                              if (function_exists('actions')) 
+                                   $action_response = actions($zpAR->action, $zpAR->value); //, $zpAR->data);
 
-                    // leave a message or error
-                    if (!$action_response) 
-                         return [ 'error ' => "No ?/action or response" ];
+                         
+                         // leave a message or error
+                         if (!$action_response)     
+                              return [
+                                   'error' => 'No ?/action or response'
+                              ];
+                    }
+                    return $action_response;
+               } catch (Exception $exp) {
+
                }
-
-               return $action_response;
           }
           
      //#endregion
@@ -90,10 +99,10 @@
           global $jsonResponse, $env, $db, $zpAR;
           try {
 
+               
                //echo "<h1>init-zeelte.php</h1>";
                //echo "<p>". getcwd() . "</p>\n";
                zp_setDefaults();
-
 
                // read config .env_file
                $env = zp_read_env_file();
@@ -101,7 +110,6 @@
                
                // fetch action details : route, params, ...
                $zpAR = new ZP_ApiRouter();
-
                // include the +page.server.php
                if (!is_file($zpAR->routeFile)) {
                     throw Error('Does routeFile exist? '.$zpAR->routeFile);
@@ -127,6 +135,13 @@
                               $jsonResponse->$k = $v;
                          }
                     }
+               }
+              
+
+               if (is_null($jsonResponse->data)) {
+                    $jsonResponse->ok = true;
+                    $jsonResponse->data = 'hi';
+                    $jsonResponse->message = 'fallback data / response';
                }
           } 
           catch (Error $error) {

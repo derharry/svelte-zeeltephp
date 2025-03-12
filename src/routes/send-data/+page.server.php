@@ -1,6 +1,6 @@
 <?php
 
-/*
+
       function load() {
             global $jsonResponse, $zpAR;
             // do anything
@@ -16,10 +16,10 @@
             // do anything
 
             switch ($action) {
-                  case '?/send':
+                  case '?/yeah':
                               $jsonResponse->ok      = true;
                               $jsonResponse->message = 'Hello from actions send-form : '.$action.' '.$value;
-                              $jsonResponse->data    = $_GET;
+                              $jsonResponse->data    = $zpAR->data;
                               return true;
                         break;
                   case '?/sendform':
@@ -31,7 +31,7 @@
                         break;
                   default:
                               return [
-                                    'message' => 'Hello from actions/default send-form : '.$action,
+                                    'message' => 'Hello from actions send-form DEFAULT : '.$action,
                                     'data' => $zpAR.data,
                               ];
                         break;
@@ -42,7 +42,8 @@
             global $jsonResponse, $zpAR;
             // do anything
             $jsonResponse->data = [
-                  'msg'     => 'Hello from action_btnSend #'.$value,
+                  'ok'   => true,
+                  'message' => 'Hello from action_btnSend #'.$value,
                   'data' => $_GET
             ];
             $jsonResponse->ok = true;
@@ -58,5 +59,5 @@
                   'data' => $_POST,
             ];
       }
-*/
+
 ?>
