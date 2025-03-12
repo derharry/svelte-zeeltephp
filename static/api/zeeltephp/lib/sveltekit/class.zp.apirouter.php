@@ -85,26 +85,30 @@ class ZP_ApiRouter
             //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') 
             else if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
                   $this->method = 'POST';
-                  $contentType  = $_SERVER['CONTENT_TYPE'];
+                  //$contentType  = $_SERVER['CONTENT_TYPE'];
 
-                  if (str_contains($contentType, 'application/json')) {
-                        // parse json
-                        $jsonData     = read_json_input();
-                        $this->route  = $jsonData['zp_route'];
-                        $this->action = $jsonData['zp_action'];
-                        $this->value  = $jsonData['zp_value'];
-                        $this->data   = $jsonData['zp_data'];
-                  }
-                  else {
+                  if (isset($_POST['zp_route'])) { //|| str_contains($contentType, 'application/json') ) {
+                        //error_log('normal');
                         // normal PHP behaviour
                         // default PHP is $_POST is already set
                         // e.g. multipart/form-data, application/x-www-form-urlencoded
                         $this->route  = $_POST['zp_route'];
                         $this->action = $_POST['zp_action'];
                         $this->value  = $_POST['zp_value'];
+                        $this->data   = $_POST;
                         unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                         unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
                         unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
+                  }
+                  else {
+                        // parse json
+                        //error_log('JSON');
+                        $jsonData     = read_json_input();
+                        $this->data   = $jsonData;
+                        $this->route  = $jsonData['zp_route'];
+                        $this->action = $jsonData['zp_action'];
+                        $this->value  = $jsonData['zp_value'];
+                        $this->data   = $jsonData['zp_data'];
                   }
             }
             else {

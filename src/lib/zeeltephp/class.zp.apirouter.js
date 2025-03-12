@@ -1,10 +1,10 @@
 // class.zp.api.router.php
 import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
-import { dev } from "$app/environment";
+import { dev }  from "$app/environment";
 import { base } from "$app/paths";
 import { json } from "@sveltejs/kit";
 import { page } from '$app/state';
-import { get_event_action_details } from "./event.helper";
+import { get_event_action_details } from "./class.zp.eventdetails";
 
 
 export class ZP_ApiRouter 
@@ -26,8 +26,7 @@ export class ZP_ApiRouter
       fetch_url     = null
       fetch_options = null
       dataIsInstanceOfFormData = false
-
-
+      message = null
 
       /**
        * 
@@ -38,25 +37,35 @@ export class ZP_ApiRouter
       //constructor(routeUrl, data = undefined , method = undefined) {
       constructor(routeUrl = undefined, data = undefined, method = undefined) {
             try {
+                  // if instance of self - then just return self :-)
+                  if (routeUrl instanceof ZP_ApiRouter) return routeUrl;
                   this.environment = dev ? 'dev' : 'build'
                   this.set_routeURL(routeUrl);
                   this.set_data(data);
-                  this.set_best_method(data, method)
-                  this.prepare()
+                  this.set_best_method(data, method);
+                  this.prepare();
             } catch (error) {
+                  this.message = error;
                   console.error({ error })
             }
       }
 
       dump() { 
-            console.log(this);
-      }
+            console.log('---DUMP ZP_ApiRouter-----------------------------');
+            Object.entries(this).forEach(([variable, value]) => {
+                if (value !== undefined && value !== null) 
+                    console.log(variable, value);
+                
+            });
+            console.log('---END DUMP ZP_ApiRouter-----------------------------');
+        }
 
       /**
        * Set de default url - default should be URL or PAGE.URL, string if you want to override URL
-       * @param {*} url string | URL:+page.js/load | PAGE.URL:+page.svelte | SubmitEvent 
+       * @param {*} url stringURL | URL: +page.js/load({url}),*.svelte/page.url | SubmitEvent 
        */
       set_routeURL(routeUrl) {
+            let debug = false;
             try {
                   // set default current route by page.url.pathname
                   this.route = page.route.id +'/'; 
@@ -68,32 +77,38 @@ export class ZP_ApiRouter
                         // default nothing
                   }
                   else if (typeof routeUrl === 'string') {
-                        console.log('STRING', routeUrl)
+                        if (debug) console.log('STRING', routeUrl)
                         this.parse_url_string(routeUrl)
                   }
-                  else if (routeUrl?.pathname) {
+                  else if (routeUrl instanceof URL && routeUrl?.pathname) {
                         // parse :URL 
                         //this.zp_baseUrl= PUBLIC_ZEELTEPHP_BASE;
                         this.route = routeUrl.pathname.replace(base, '')
-                        console.log('PATHNAME', routeUrl)
+                        if (debug) console.log('PATHNAME', routeUrl)
                   }
-                  else if (routeUrl instanceof SubmitEvent) {
-                        console.log('SubmitEvent', routeUrl)
+                  else {
+
+                        // before writing 
+                        //    else if (routeUrl instanceof SubmitEvent || routeUrl instanceof PointerEvent || ... ) { .. }
+                        // lets do this else block a action details check 1 time 
                         const ed = get_event_action_details(routeUrl);
-                        this.action = ed.action;
-                        this.value  = ed.value;
-                        this.set_data(ed.formData);
-                  } else {
-                        console.log('WHAT', {routeUrl}, typeof routeUrl)
+                        if (ed) {
+                              this.action = ed.action;
+                              this.value  = ed.value;
+                              this.set_data(ed.formData);
+                        }
+                        else 
+                              if (debug) console.log('set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl);
                   }
             } catch (error) {
+                  this.message = error;
                   console.error({ error })
             }
       }
 
 
       parse_url_string(urlString) {
-            let debug = true;
+            let debug = false;
             try {
                   if (debug) console.log(' () ', urlString);
 
@@ -139,7 +154,8 @@ export class ZP_ApiRouter
                   if (params.length > 0) this.params = this.params.concat(params)
                   if (third.length  > 0) this.params = this.params.concat(third)
             } catch (error) {
-                console.error({ error });
+                  this.message = error;
+                  console.error({ error });
             }
       }
 
@@ -161,6 +177,7 @@ export class ZP_ApiRouter
                         this.method = 'POST'
                   }
             } catch (error) {
+                  this.message = error;
                   console.error({ error })
             }
       }
@@ -224,9 +241,12 @@ export class ZP_ApiRouter
 
 
                         default:
-                              this.method = 'unknown';
+                                    this.message = 'unknown method '+ this.method;
+                                    this.method  = 'unknown';
+                              break;
                   }
             } catch (error) {
+                  this.message = error;
                   console.error({ error })
             }
       }

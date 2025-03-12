@@ -6,37 +6,26 @@ import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 import { base } from "$app/paths";
 //import { page } from "$app/state";
 import { ZP_ApiRouter } from "./class.zp.apirouter";
-import { ZP_EventActionDetails } from "./event.helper";
-
-
-export function zp_getApiRoute(url) {
-    try {
-        
-    } catch (error) {
-        console.error({error});
-    }
-    finally {
-        return urlnew;
-    }
-}
+import { ZP_EventDetails } from "./class.zp.eventdetails";
 
 
 /**
  * 
  * @param {*} fetch 
- * @param { string | ZP_ApiRouter | ZP_EventActionDetails } urlOrRouter
+ * @param { string | ZP_ApiRouter | ZP_EventDetails } urlOrRouter
  * @param {*} data 
  * @param {*} method 
  * @param {*} headers 
  * @returns 
  */
-export function zp_fetch_api(fetch, urlOrRouter, data = undefined, method = undefined, headers = undefined) {
+export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method = undefined, headers = undefined) {
+    const debug = false;
     try {
 
-        // urlOrRouter can be already ZP_ApiRouter else create the ZP_ApiRouter
-        const zpar = urlOrRouter instanceof ZP_ApiRouter ? urlOrRouter : 
-                        new ZP_ApiRouter(urlOrRouter, data, method);
+        const zped = new ZP_EventDetails(urlOrRouterOrEvent);
+        const zpar = new ZP_ApiRouter(urlOrRouterOrEvent, data, method);
 
+        zpar.dump();
 
         // lets fetch 
         //   create and return the Promise that 
@@ -58,7 +47,7 @@ export function zp_fetch_api(fetch, urlOrRouter, data = undefined, method = unde
             //    zpar.fetch_options.headers = { ...zpar.fetch_options.headers, ...headers  }
 
             // debug
-            zpar.dump();
+            if (debug) zpar.dump();
 
             //console.log(zpar.fetch_url, zpar.method, zpar.route, zpar.action, zpar.data);
 
@@ -89,7 +78,7 @@ export function zp_fetch_api_action(fetch, url, action, data) {
 export function zp_fetch_api_event_action(fetch, url, event, data = undefined) {
     // idea, use function at handle_form like handle_form(e) => zp_fetch_api_event(fetch, url, e);
 
-    const zped = new ZP_EventActionDetails(event);
+    const zped = new ZP_EventDetails(event);
     const zpar = new ZP_ApiRouter(url, data)
     
 }
