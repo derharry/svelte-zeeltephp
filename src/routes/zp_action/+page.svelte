@@ -10,7 +10,10 @@
       let data   = undefined
 
       onMount(async () => {
-            data = await zp_fetch_api(fetch, page.url);
+            //data = await zp_fetch_api(fetch, page.url);
+            //console.log(page.url.search)
+
+
       })
 
 </script>

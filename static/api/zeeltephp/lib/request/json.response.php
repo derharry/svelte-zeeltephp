@@ -7,9 +7,9 @@
     class JSONResponse {
         public $ok       =  false;
         public $code     =  500;
-        public $message  =  '';
-        public $error    =  '';
-        public $data     =  null;
+        public $message  =  ""; //null;
+        public $error    =  ""; //null;
+        public $data     =  ""; //null;
 
         public function dump($debug = false) {
             $this->set_send_state();

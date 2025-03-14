@@ -4,7 +4,7 @@ import { dev }  from "$app/environment";
 import { base } from "$app/paths";
 import { json } from "@sveltejs/kit";
 import { page } from '$app/state';
-import { get_event_action_details } from "./class.zp.eventdetails";
+import { get_event_action_details, ZP_EventDetails } from "./class.zp.eventdetails";
 
 
 export class ZP_ApiRouter 
@@ -14,7 +14,7 @@ export class ZP_ApiRouter
       route     = null
       action    = null
       value     = null
-      params    = []
+      params    = null
       data      = null
 
       // Svelte CSR specific (-> PHP specific)
@@ -23,10 +23,11 @@ export class ZP_ApiRouter
       zp_baseUrl  = PUBLIC_ZEELTEPHP_BASE;
 
       // CSR specfic -> zp_fetch_api() 
-      fetch_url     = null
-      fetch_options = null
-      dataIsInstanceOfFormData = false
-      message = null
+      fetch_url      = null
+      fetch_query    = null
+      fetch_options  = null
+      dataIsFormData = false
+      message        = null
 
       /**
        * 
@@ -40,6 +41,7 @@ export class ZP_ApiRouter
                   // if instance of self - then just return self :-)
                   if (routeUrl instanceof ZP_ApiRouter) return routeUrl;
                   this.environment = dev ? 'dev' : 'build'
+                  this.set_currentRouting();
                   this.set_routeURL(routeUrl);
                   this.set_data(data);
                   this.set_best_method(data, method);
@@ -58,7 +60,23 @@ export class ZP_ApiRouter
                 
             });
             console.log('---END DUMP ZP_ApiRouter-----------------------------');
-        }
+      }
+
+      set_currentRouting() {
+            try {
+                  // set default current route by page.url.pathname
+                  this.route = page.route.id +'/';
+                  const ed = new ZP_EventDetails(page.url.searchParams);
+                  this.action = ed.action;
+                  this.value  = ed.value;
+                  this.params = ed.params;
+
+            } catch (error) {
+                  //this.message = error;
+                  console.log(error);
+            }
+      }
+
 
       /**
        * Set de default url - default should be URL or PAGE.URL, string if you want to override URL
@@ -67,24 +85,26 @@ export class ZP_ApiRouter
       set_routeURL(routeUrl) {
             let debug = false;
             try {
-                  // set default current route by page.url.pathname
-                  this.route = page.route.id +'/'; 
+                  if (!routeUrl) return;
+                  if (debug) console.log('set_routeURL()', routeUrl)
+
 
                   // custom url?route or zp-default-route from url
                   // structure http://url/api?route&?/action=1&x=x&y=y
                   // if starts with ?
-                  if (routeUrl == undefined) {
+                  //if (routeUrl == undefined) {
                         // default nothing
-                  }
-                  else if (typeof routeUrl === 'string') {
+                  //}
+                  //else 
+                  if (typeof routeUrl == 'string') {
                         if (debug) console.log('STRING', routeUrl)
                         this.parse_url_string(routeUrl)
                   }
                   else if (routeUrl instanceof URL && routeUrl?.pathname) {
                         // parse :URL 
                         //this.zp_baseUrl= PUBLIC_ZEELTEPHP_BASE;
-                        this.route = routeUrl.pathname.replace(base, '')
-                        if (debug) console.log('PATHNAME', routeUrl)
+                        if (debug) console.log('path.url.replace', routeUrl)
+                              this.route = routeUrl.pathname.replace(base, '')
                   }
                   else {
 
@@ -96,9 +116,11 @@ export class ZP_ApiRouter
                               this.action = ed.action;
                               this.value  = ed.value;
                               this.set_data(ed.formData);
+                              this.message = ed;
                         }
-                        else 
-                              if (debug) console.log('set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl);
+                        else {
+                              this.message = Array.join(' ', ['set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl]);
+                        }
                   }
             } catch (error) {
                   this.message = error;
@@ -108,7 +130,7 @@ export class ZP_ApiRouter
 
 
       parse_url_string(urlString) {
-            let debug = false;
+            let debug = true;
             try {
                   if (debug) console.log(' () ', urlString);
 
@@ -161,10 +183,9 @@ export class ZP_ApiRouter
 
 
       set_data(data) {
-            if (data) {
-                  this.data = data
-                  this.dataIsInstanceOfFormData = data instanceof FormData ? true : false;
-            }
+            if (!data) return;
+            this.data = data
+            this.dataIsFormData = data instanceof FormData ? true : false;
       }
 
 
@@ -173,7 +194,7 @@ export class ZP_ApiRouter
                   if (method != undefined)
                         // override method
                         this.method = method
-                  else if (this.action) {
+                  else if (this.action && this.data) {
                         this.method = 'POST'
                   }
             } catch (error) {
@@ -185,29 +206,40 @@ export class ZP_ApiRouter
 
       prepare(method) {
             try {
-                  this.set_best_method(method);
+                  //this.set_best_method(method);
                   switch (this.method) {
                         case 'GET': 
+                                    // we now only need to define the full page url...
                                     //this.fetch_url += this.action == null ? '' : '&?/'+ this.action + this.value == null ? '' : '=' + this.value;
                                     //this.fetch_url += this.params.length == 0 ? '' : '?'+ this.params.join('&')
                                     //this.fetch_url += this.data   == null ? '' : '?' + JSON.stringify(this.data);
-                                    const params = [];
-                                    // 1st is zp_route
-                                    params.push(this.route)
-                                    // 2nd is zp_action
-                                    if (this.action) {
-                                          this.action = '?/' + this.action.replace('?/', '')
-                                          params.push(this.action +(this.value ? '='+this.value : '') )
+
+                                    // first we need to create our URL-query-string interface ZPI_ApiRouter
+                                    const parts_ZPI_ApiRouter = [];
+                                    const parts_ZPI_push = (key, value = undefined) => {
+                                          //console.log('xxxxx'+key+'='+value);
+                                          if (key && typeof key == 'array') {
+                                                parts_ZPI_ApiRouter.concat(this.params)
+                                          }
+                                          if (key && typeof key == 'object') {
+                                                for (const [key_, value_] of Object.entries(key)) {
+                                                      parts_ZPI_ApiRouter.push(key_+'='+value_)
+                                                }
+                                          }
+                                          else if (key && typeof key == 'string') {
+                                                parts_ZPI_ApiRouter.push(key + (value ? '='+value : ''))
+                                          }
                                     }
-                                    // 3rd is any params or data
-                                    if (this.params && this.params?.length > 0)
-                                          params.push( this.params.join('&'))
-                                    if (this.data)
-                                          params.push( JSON.stringify(this.data) )
-                                    // set fetch_url 
-                                    this.fetch_url  = this.zp_baseUrl + '?' + params.join('&');
-                                    // no fetchOptions
-                                    this.fetch_options = {}
+
+                                    // 1st is zp_route
+                                    parts_ZPI_push(this.route)
+                                    // 2nd is zp_action
+                                    parts_ZPI_push(this.action, this.value)
+                                    parts_ZPI_push(this.params)
+                                    parts_ZPI_push(this.data)
+                                    this.fetch_url  = this.zp_baseUrl + '?' + parts_ZPI_ApiRouter.join('&');
+                                    // this.action = '?/' + this.action.replace('?/', '')
+                                    this.fetch_options = undefined
                               break;
                         case 'POST': 
                                     this.fetch_url     = this.zp_baseUrl;
@@ -217,7 +249,7 @@ export class ZP_ApiRouter
                                           body: null // data
                                     }
                                     // prepare data
-                                    if (this.dataIsInstanceOfFormData) {
+                                    if (this.dataIsFormData) {
                                           // add form content-type
                                           // don't set - it works out of the box :-O this.fetch_options.headers['Content-Type'] = 'multipart/form-data';
                                           this.fetch_options.body = new FormData();
@@ -229,6 +261,7 @@ export class ZP_ApiRouter
                                                 this.fetch_options.body.append(key, val)
                                           };
                                     } else {
+                                          // add fallback to all json content-type
                                           this.fetch_options.headers['Content-Type'] = 'application/json';
                                           this.fetch_options.body = JSON.stringify({
                                                 zp_route : this.route,

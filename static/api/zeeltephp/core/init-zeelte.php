@@ -51,7 +51,7 @@
           }
 
           function zp_main_pageserverphp() {          
-               global $zpAR;
+               global $jsonResponse, $zpAR;
 
                try {
                     // include +page.sever.php
@@ -87,7 +87,8 @@
                     }
                     return $action_response;
                } catch (Exception $exp) {
-
+                    error_log($exp);
+                    return false;
                }
           }
           
@@ -111,8 +112,9 @@
                // fetch action details : route, params, ...
                $zpAR = new ZP_ApiRouter();
                // include the +page.server.php
-               if (!is_file($zpAR->routeFile)) {
-                    throw Error('Does routeFile exist? '.$zpAR->routeFile);
+               if (!$zpAR->routeFileExist) {
+                    $jsonResponse->data = $zpAR;
+                    throw new Error('Does routeFile exist? '.$zpAR->routeFile);
                }
                else {
 
@@ -138,20 +140,20 @@
                }
               
 
-               if (is_null($jsonResponse->data)) {
-                    $jsonResponse->ok = true;
-                    $jsonResponse->data = 'hi';
+               if ($jsonResponse->data === null) {
                     $jsonResponse->message = 'fallback data / response';
                }
           } 
           catch (Error $error) {
-               $jsonResponse->error = $error;
+               $jsonResponse->error = $error->getMessage();
+               error_log($error);
           }
-          catch (Throable $throw) {
-               $jsonResponse->error = $throw;
+          catch (Throwable $throw) {
+               $jsonResponse->error = 'ZP_Throwable: '.$throw->getMessage();
+               error_log($throw);
           }
           catch (Exception $exp) {
-               $jsonResponse->error = $exp;
+               $jsonResponse->error = 'ZP_Exception: '.$exp->getMessage().' '.$error->getCode();
                error_log($exp);
           }
           finally {

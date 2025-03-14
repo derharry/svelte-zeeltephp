@@ -9,10 +9,15 @@ import { ZP_ApiRouter } from "./class.zp.apirouter";
 import { ZP_EventDetails } from "./class.zp.eventdetails";
 
 
+export function zp_get_eventDetails(event) {
+        return new ZP_EventDetails(event);
+}
+
+
 /**
  * 
- * @param {*} fetch 
- * @param { string | ZP_ApiRouter | ZP_EventDetails } urlOrRouter
+ * @param {*} fetch Svelte's fetch
+ * @param { ZP_ApiRouter ZP_EventDetails } urlOrRouter 
  * @param {*} data 
  * @param {*} method 
  * @param {*} headers 
@@ -53,7 +58,10 @@ export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method
             fetch(zpar.fetch_url, {...zpar.fetch_options})
                 // send the fetch by ZP_ApiRouter
                 .then(response => response.json())
-                .then(data => resolve(data))
+                .then(data => {
+                    //console.log('data zp_fetch_api()', data.data, data.error, data)
+                    resolve(data)
+                })
                 .catch(error => {
                     console.error('zp_fetch_api/promise', { error });
                     reject(new Error(error.message || 'Unknown error'));

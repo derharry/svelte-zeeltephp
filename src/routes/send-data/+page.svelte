@@ -54,16 +54,6 @@
             //console.log(zpar.fetch_options);
 
 
-            if (debug) console.log('***********************')
-            if (debug) console.log(zpar.fetch_url)
-            if (debug) console.log(zpar.fetch_options);
-            /*
-            const xxx = fetch(zpar.fetch_url, zpar.fetch_options)
-                .then(response => response.json())
-                .then((data) =>{ console.log('data1', data); })
-                .catch((error) => console.error(error))
-            console.log('***********************')
-            */
             promise_sendForm = zp_fetch_api(fetch, zpar, form)
                 .then((data1) => {
                     console.log(data1.data, data1.ok);

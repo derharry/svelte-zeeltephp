@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "vite dev --mode dev",
 		"build": "vite build --mode build && ./zeeltephp-post-build.sh build",
+		"build.zp": "vite build --mode build.zp && ./zeeltephp-post-build.sh build.zp",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''"
 	},

@@ -17,10 +17,16 @@
       <tbody>
             <slot>
                   {#each Object.entries(table_data) as [label, value]} 
+                        
                         <tr>
+                        {#if value instanceof Array || value instanceof Object }
+                              <td colspan="2"><svelte:self title={label} table_data={value} /></td>
+                        {:else}
                               <td width="1" class="nowrap">{label}</td>
                               <td>{value}</td>
+                        {/if}
                         </tr>
+
                   {/each}
             </slot>
       </tbody>

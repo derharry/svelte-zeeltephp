@@ -1,5 +1,6 @@
 //import { base } from "$app/paths";
 import { page } from '$app/state';
+import { ZP_ApiRouter } from './class.zp.apirouter';
 
 // function get_form_event_action_details(event) {
 export function get_event_action_details(event) {
@@ -29,24 +30,34 @@ export class ZP_EventDetails {
 
     constructor(event) {
         try {
-            // if instance of self - just return self
+            // exit if event is nullish
+            if (!event) {
+                this.message = event
+                return;
+            }
+            // just return self
             if (event instanceof ZP_EventDetails) return event;
-            // do defaults
-            this.event   = event
+
+            // main()
+            // set current routing
             this.route   = page.route.id +'/';  // window.location.pathname.replace(base, '') // todo: page.url.pathname or page.route.id to be preferred!
-            this.target  = event?.target || undefined
+            // process event.defaultParmas
+            // parse event
+            this.event   = event            
+            this.target  = event?.target || event
             this.parse_keyboard(event)
             this.parse_mouse(event)
-
-            // parse event
             if (event instanceof SubmitEvent) 
                 return this.fetch_SubmitEvent(event)
             else if (event instanceof PointerEvent) 
                 return this.fetch_PointerEvent(event)
-            
-            //else
-            this.message = 'Unknown event '+event
-
+            else if (event instanceof URLSearchParams)
+                return this.fetch_URLSearchParams(event)
+            else if (event instanceof ZP_ApiRouter)
+                    null //this.message = 'nothing todo :-) '
+            else
+                this.message = 'Unknown event '+event
+            //console.log(this.message, typeof event, {event})
         } catch (error) {
             this.message = error;
             console.error({ error })
@@ -71,6 +82,22 @@ export class ZP_EventDetails {
 
     fetch_PointerEvent(e) {
         this.parse_button(e.srcElement);
+    }
+
+    fetch_URLSearchParams(searchParams) {
+        if (searchParams.size > 0) {
+              this.params = [];
+              for (const [key, value] of searchParams) {
+                    if (key.startsWith('?/')) {
+                        this.action = key;
+                        this.value  = value;
+                    }
+                    else {
+                        this.params[key] = value;
+                    }
+                    
+              }
+        }
     }
 
     parse_keyboard(e) {

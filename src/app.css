@@ -5,6 +5,10 @@
       justify-content: center;
 }
 
+.top {
+      vertical-align: top;
+}
+
 .nowrap {
       white-space: nowrap;
 }
@@ -29,6 +33,11 @@
       padding: 0;
       margin: 0;
       height: 2em;
+}
+
+.td50 {
+      width: 50%;
+      max-width: 50%;
 }
 
 .routeBar {
