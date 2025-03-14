@@ -7,12 +7,12 @@
 
      //#region import
           # minimum-requirments instead boot.php
+          require_once('zeeltephp/core/class.zp.apirouter.php');
           require_once('zeeltephp/lib/cfg/cfg.env.php');
           require_once('zeeltephp/lib/io/io.dir.php');
           require_once('zeeltephp/lib/helper/load.php.files.php');
           require_once('zeeltephp/lib/request/json.response.php');
           require_once('zeeltephp/lib/request/headers.php');
-          require_once('zeeltephp/lib/sveltekit/class.zp.apirouter.php');
           require_once('zeeltephp/lib/db/db.wordpress.php');
      //#endregion
 

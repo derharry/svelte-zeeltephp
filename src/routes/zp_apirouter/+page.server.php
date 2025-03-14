@@ -9,19 +9,18 @@
             $jsonResponse->data = $zpAR;
 
       }
-
-/*
-
-      function load() {
-            global $jsonResponse;
-            $jsonResponse->data = $zpAR;
-            return false;
+      
+      function action_GoGo($value) {
+            global $jsonResponse, $zpAR;
+            $zpAR->data = "Hello from action_GoGo";
+            return [
+                  'ok' => true,
+                  'data' => $zpAR
+            ];
+            //$jsonResponse->ok   = true;
+            //$jsonResponse->data = $zpAR;
+            //return true;
       }
-            */
-      //$jsonResponse->ok = true;
-      //$jsonResponse->code = 69;
-      //$jsonResponse->data = $zpAR;
-      //$jsonResponse->message = 'Hello :-)';
-      //$jsonResponse->error   = 'None :-)';
+
 
 ?>

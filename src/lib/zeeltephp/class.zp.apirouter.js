@@ -104,7 +104,7 @@ export class ZP_ApiRouter
                         // parse :URL 
                         //this.zp_baseUrl= PUBLIC_ZEELTEPHP_BASE;
                         if (debug) console.log('path.url.replace', routeUrl)
-                              this.route = routeUrl.pathname.replace(base, '')
+                              this.route = routeUrl.pathname.replace(base, '')+'/';
                   }
                   else {
 

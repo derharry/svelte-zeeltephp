@@ -60,7 +60,7 @@ class ZP_ApiRouter
                         //error_log('route:'.$this->route);
 
                         $routeFile = $this->route .'+page.server.php';
-                        $routePath = $this->environment == 'dev' ? '../../src/routes/' : 'routes/';
+                        $routePath = $this->environment == 'dev' ? '../../src/routes' : 'routes';
                         $this->routeFile = $routePath.$routeFile;
                         $this->routeFileExist = is_file($this->routeFile);
                         if (!$this->routeFileExist) {
@@ -178,7 +178,7 @@ class ZP_ApiRouter
                         if ( $idx == 0 && str_starts_with('/', $param) && str_ends_with('/', $param) ) {
                               //route can only be on index 0 
                               //error_log$param);
-                              $this->route = ltrim(rtrim($param, '/'), '/') ."/";
+                              $this->route = "/".ltrim(rtrim($param, '/'), '/') ."/";
                               $unload = true;
                         }
                         else if ($i == 0 && !$param) 
