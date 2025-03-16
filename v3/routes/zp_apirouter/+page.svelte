@@ -3,7 +3,7 @@
       import { onMount } from "svelte";
       import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
       import { zp_fetch_api } from "$lib/zeeltephp/zeeltephp.api";
-      import TableShowData from "$lib/TableShowData.svelte";
+      import VarDump from "$lib/VarDump.svelte";
 
 
       let zpAR_Svelte = new ZP_ApiRouter();
@@ -19,8 +19,8 @@
 <table>
       <tbody>
             <tr>
-                  <td class="zp50 top"><TableShowData title="ZP_ApiRouter (Svelte)" table_data={zpAR_Svelte} /></td>
-                  <td class="zp50 top"><TableShowData title="ZP_ApiRouter (PHP)"    table_data={zpAR_zpPHP} /></td>
+                  <td class="zp50 top"><VarDump title="ZP_ApiRouter (Svelte)" table_data={zpAR_Svelte} /></td>
+                  <td class="zp50 top"><VarDump title="ZP_ApiRouter (PHP)"    table_data={zpAR_zpPHP} /></td>
             </tr>
       </tbody>
 </table>

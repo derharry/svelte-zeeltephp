@@ -3,7 +3,7 @@
     import { get_event_action_details } from "$lib/zeeltephp/class.zp.eventdetails"
     import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
     import { onMount } from "svelte";
-    import TableShowData from "$lib/TableShowData.svelte";
+    import VarDump from "$lib/VarDump.svelte";
 
     let form = {
         jsonData : false,
@@ -78,7 +78,7 @@
 
 
 
-<TableShowData title="Send JSON example">
+<VarDump title="Send JSON example">
     <tr>
         <td width="50%" class="center">
             <button
@@ -101,11 +101,11 @@
             <pre class="wrap">{JSON.stringify(form.jsonData)}</pre>
         </td>
     </tr>
-</TableShowData>
+</VarDump>
 
 
 
-<TableShowData title="Sendform example">
+<VarDump title="Sendform example">
     <tr>
         <td width="50%">
                 <form bind:this={xform} on:submit|preventDefault={handle_form_submit}>
@@ -150,7 +150,7 @@
             <pre class="wrap">{JSON.stringify(form.formData)}</pre>
         </td>
     </tr>
-</TableShowData>
+</VarDump>
 
 
 

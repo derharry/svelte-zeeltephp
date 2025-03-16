@@ -1,5 +1,5 @@
 <script>
-    import TableShowData from '$lib/TableShowData.svelte';
+    import VarDump from '$lib/VarDump.svelte';
 
       
       export let data;
@@ -15,7 +15,7 @@
 
 </script>
 
-<TableShowData title="PHP responses from routes" table_data={data_php_routes} />
+<VarDump title="PHP responses from routes" table_data={data_php_routes} />
 <!--
 <h2>Basic PHP response</h2>
 <ul>
