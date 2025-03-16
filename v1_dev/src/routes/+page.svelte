@@ -13,7 +13,6 @@
             '.env.PUBLIC_ZEELTEPHP_BASE': PUBLIC_ZEELTEPHP_BASE,
       }
       const data_php_response = {
-            '+page.js': data.res_load,
             '+page.server.php': data.res_php,
       }
 </script>

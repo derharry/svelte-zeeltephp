@@ -1,0 +1,96 @@
+
+
+.center {
+      text-align: center;
+      justify-content: center;
+}
+
+.top {
+      vertical-align: top;
+}
+
+.nowrap {
+      white-space: nowrap;
+}
+.wrap {
+      white-space: normal;
+}
+
+.pad {
+      padding-left: 1.5em !important;
+}
+
+.borderBox {
+      border: 1px blue solid !important;
+      overflow: hidden;
+      border-radius: 1em !important;
+      padding: 0 1em;
+}
+.tableCompact {
+      font-size: 1em;
+}
+
+.tableCompact THEAD TH, .tableTHEAD {
+      padding-left: 0;
+      font-style:   italic;
+      font-weight:  900;
+}
+.tableCompact TBODY {
+      font-size: 0.9em;
+}
+.tableCompact TBODY TD {
+      padding: 0;
+      margin:  0;
+      vertical-align: top;
+}
+.tableCompact TBODY TD:first-child {
+      text-wrap: no-wrap;
+      padding-right: 1em;
+}
+.tableCompact INPUT, 
+.tableCompact BUTTON {
+      padding: 0;
+      margin: 0;
+      height: 1em;
+      font-size: 1em;
+      height: 1.75em;
+}
+
+
+.td33 {
+      width: 33%;
+      max-width: 33%;
+}
+.td50 {
+      width: 50%;
+      max-width: 50%;
+}
+
+.zpFlexRow {
+      display: flex;
+      flex-direction: row;
+}
+
+.routeBar {
+      background-color: navy;
+      color: grey;
+      
+      padding: 0.25em 1em;
+      margin:  0;
+      margin-bottom:  1.25em;
+}
+
+h1 {
+      font-size: 1.25em;
+}
+
+
+.layoutApp_off {
+      max-width:850px; 
+      margin:auto;
+}
+
+BUTTON {
+      padding-left:  0.5em;
+      padding-right: 0.5em;
+}
