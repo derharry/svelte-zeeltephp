@@ -21,20 +21,6 @@ class ZP_ApiRouter
       public $routeFileExist = false;
       public $headers     = null;
       public $error       = null;
-      public $message     = null;
-
-      public function __get($varName) {
-            if (!array_key_exists($varName, $this)) {
-                  //this attribute is not defined!
-                  return;
-            }
-            else return $this->data[$varName];
-      }
-
-      //allow dynamic property creation -> for like adding $zpAR or $myVar to $jsonResponse in init-zeelte-main()
-      public function __set($varName, $value) {
-            $this->data[$varName] = $value;
-      }
 
       function Dump() {
             var_dump($this);

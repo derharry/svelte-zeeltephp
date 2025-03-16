@@ -50,7 +50,7 @@
                zp_load_php_files( './lib' );
           }
 
-          function zp_main_exec_pageserverphp() {          
+          function zp_main_pageserverphp() {          
                global $jsonResponse, $zpAR;
 
                try {
@@ -77,23 +77,15 @@
                          else
                               if (function_exists('actions')) 
                                    $action_response = actions($zpAR->action, $zpAR->value); //, $zpAR->data);
+
+                         
+                         // leave a message or error
+                         if (!$action_response)     
+                              return [
+                                   'error' => 'No ?/action or response'
+                              ];
                     }
-                    
-                    // parse the response
-                    // leave a message or error
-                    if ($action_response == false) {
-                         $msg = 'No response of load() or ?/actions';
-                         $zpAR->message = $msg;
-                         return [
-                              'message' => $msg
-                         ];
-                    } 
-                    if (isset($action['data'])) {
-                         return $action_response;
-                    }
-                    return [
-                         'data' => $action_response
-                    ];
+                    return $action_response;
                } catch (Exception $exp) {
                     error_log($exp);
                     return false;
@@ -135,9 +127,9 @@
                     // for future roadmap - support ..routes../
                     //  +hooks.php  +server.php  ...
                     
-                    // exec +page.server.php
+                    // lets to the actions :-) 
                     $response = false;
-                    $response = zp_main_exec_pageserverphp();
+                    $response = zp_main_pageserverphp();          
 
                     // if we have a response [] then parse response into $jsonResponse
                     if (is_array($response)) {
@@ -147,10 +139,9 @@
                     }
                }
               
-               $jsonResponse->debug = $zpAR;
 
-               if ($jsonResponse->data == null) {
-                    $jsonResponse->message = $zpAR->message;
+               if ($jsonResponse->data === null) {
+                    $jsonResponse->message = 'fallback data / response';
                }
           } 
           catch (Error $error) {

@@ -8,7 +8,6 @@
         public $ok       =  false;
         public $code     =  500;
         public $message  =  ""; //null;
-        public $debug    =  ""; //null;
         public $error    =  ""; //null;
         public $data     =  ""; //null;
 
