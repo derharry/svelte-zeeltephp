@@ -2,7 +2,6 @@
       
       import { dev  } from "$app/environment"
       import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
-      import VarDump from "$lib/VarDump.svelte";
 
       export let data;
       //$: console.log('home data', data);
