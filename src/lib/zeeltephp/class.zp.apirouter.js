@@ -42,7 +42,37 @@ export class ZP_ApiRouter
                   if (routeUrl instanceof ZP_ApiRouter) return routeUrl;
                   this.environment = dev ? 'dev' : 'build'
 
-                  this.set_currentRoutingBySveltePage();
+                  // fetch routing:
+                  this.parse_routingFromSveltePage();
+                  if (routeUrl instanceof URL && routeUrl?.pathname) {
+                        const ed = new ZP_EventDetails(routeUrl.params)
+                        this.route   = routeUrl.pathname+'/'
+                        this.action  = ed.action
+                        this.value   = ed.value
+                        this.message = 'route from URL'
+                  }
+                  else if (typeof routeUrl == 'string') {
+                        if (debug) console.log('STRING', routeUrl)
+                        this.parse_url_string(routeUrl)
+                  }
+                  else {
+
+                        // before writing 
+                        //    else if (routeUrl instanceof SubmitEvent || routeUrl instanceof PointerEvent || ... ) { .. }
+                        // lets do this else block a action details check 1 last time 
+                        const ed = new ZP_EventDetails(routeUrl);
+                        if (ed) {
+                              this.route  = ed.route+'/'
+                              this.action = ed.action;
+                              this.value  = ed.value;
+                              this.set_data(ed.formData);
+                              this.message = ed.message;
+                        }
+                        else {
+                              this.message = Array.join(' ', ['set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl]);
+                              if (debug) console.log('set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl);
+                        }
+                  }
                   this.prepare();
 
                   /*
@@ -69,17 +99,18 @@ export class ZP_ApiRouter
 
       // in Svelte we read Sveltes $app/page
       // in PHP we destruct this for ?/route/&?/action=value&query_params
-      set_currentRoutingBySveltePage() {
+      parse_routingFromSveltePage() {
             try {
                   // set default current route 
                   // use ZP_EventDetails to get the details :-)
+                  this.route  = page.url.pathname+'/';
                   const ed = new ZP_EventDetails(page.url.searchParams);
-                  this.route  = ed.route;
+                  //this.route  = ed.route;
                   this.action = ed.action;
                   this.value  = ed.value;
                   this.data   = ed.data;
                   this.fetch_query = page.url.search
-                  this.message = 'currentRoutingBySveltePage';
+                  this.message = 'currentRoutingBySveltePage + e:'+ ed.message;
                   //console.log(page.url);
                   //console.log('dataxxxx', this.data, JSON.stringify(this.data))
             } catch (error) {

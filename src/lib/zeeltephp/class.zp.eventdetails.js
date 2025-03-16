@@ -52,18 +52,19 @@ export class ZP_EventDetails {
                   this.target  = event?.target || undefined            
 
                   //# set current routing as minimum requirement
-                  this.route   = page.route.id +'/';  // todo: page.url.pathname or page.route.id to be preferred!
+                  this.route   = page?.url.pathname || page.route.id +'/';
+                  //page?.route.id+'/'; // todo: page.url.pathname or page.route.id to be preferred!
 
                   //# ready
                   this.message = 'init'
 
                   // parse event
                   if (event instanceof SubmitEvent) 
-                        this.parse_SubmitEvent(event)
+                        this.parse_SubmitEvent()
                   else if (event instanceof PointerEvent) 
-                        this.parse_PointerEvent(event)
+                        this.parse_PointerEvent()
                   else if (event instanceof URLSearchParams)
-                        return this.parse_URLSearchParams(event)
+                        return this.parse_URLSearchParams()
                   else if (event instanceof ZP_ApiRouter)
                         this.message = 'instance of ZP_ApiRouter. nothing to do.'
                   else
@@ -94,18 +95,21 @@ export class ZP_EventDetails {
             this.parse_button(e.submitter)
       }
 
-      parse_URLSearchParams(e) {
+      parse_URLSearchParams() {
             this.message = 'URLSearchParams'
+            const url  = this.event
+            this.route = url.pathname
+            //this.route   = e.target.pathname
             //this.search  = this.event.search
             if (this.event.size > 0) {
                   this.data = [];
                   for (const [key, value] of this.event) {
                         if (key.startsWith('?/')) {
-                        this.action = key;
-                        this.value  = value;
+                              this.action = key;
+                              this.value  = value;
                         }
                         else {
-                        this.data[key] = value;
+                              this.data[key] = value;
                         }
                   }
             }

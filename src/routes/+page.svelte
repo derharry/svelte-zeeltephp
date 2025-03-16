@@ -21,7 +21,7 @@
             '+page.js': data.res_load,
             '+page.server.php': data.res_php,
       }
-
+      
       function handle_click(e) {
             console.clear()
             zp_EventDetails = new ZP_EventDetails(e);
@@ -31,16 +31,7 @@
 
 
 <h1>Welkom to ZeeltePHP</h1>
-<button
-      on:click={handle_click}
-      name="testBtn"
-      value="42"
-      formaction="?/testBtn"
->
-      Click Event
-</button>
-<VarDump title="basic info" table_data={data_zp_basic}     />
-<VarDump title="data +page.js and PHP" table_data={data_php_response} />
-<VarDump title="ZP_EventDetails" vardump={zp_EventDetails} />
+
+<VarDump title="basic info" vardump={data_zp_basic}     />
+<VarDump title="data from +page.js and PHP" vardump={data_php_response} />
 <VarDump title="ZP_ApiRouter" vardump={zp_ApiRouter} />
-<VarDump />

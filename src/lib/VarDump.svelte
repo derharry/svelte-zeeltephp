@@ -13,7 +13,7 @@
 
       // set fixture when no title and no subtitle is set
       if (!title && !subtitle) {
-            console.log('-- set fixture')
+            //console.log('-- set fixture')
             title = '[VD]title-not-set- example_data';
             vardump = {
                   example1: 'foo',
