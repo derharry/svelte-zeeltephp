@@ -117,8 +117,8 @@ export class ZP_EventDetails {
 
       parse_PointerEvent(e) {
             this.message = 'PointerEvent'
-            this.button  = this.event.srcElement
-            this.parse_button(e.srcElement);
+            //this.button  = this.event.target
+            //this.parse_button(e.target);
       }
 
       
