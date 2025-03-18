@@ -3,7 +3,7 @@
       import VarDump from "$lib/VarDump.svelte";
       import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
       import { onMount } from "svelte";
-
+      
 
       let promise_load
       let data_load
@@ -22,7 +22,7 @@
             try {
                   data_load    = null
                   promise_load = zp_fetch_api(fetch, e)
-                        .then((data) => data_load = data)
+                        .then((data)   => data_load = data)
                         .catch((error) => data_load = error)
             } catch (error) {
                   data_load = error

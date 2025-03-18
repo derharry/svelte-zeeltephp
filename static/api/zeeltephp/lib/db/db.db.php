@@ -1,23 +1,84 @@
 <?php
 
-class ZeelteDB {
-      
-      public $dbconn = null;
+//require_once('zeeltephp/lib/db/db.sqlite3.php');
+require_once('zeeltephp/lib/db/db.wordpress.php');
+require_once('zeeltephp/lib/db/db.mysql2.php');
+//require_once('zeeltephp/lib/db/db.mariadb.php');
+
+class ZP_DB {
+
+      public $message  = null;
+      public $dbsrc    = null;
+      public $dbconn   = null;
+
+      public $dbtype   = null; // scheme
+      public $hostname = null;
+      public $port     = null;
+      public $username = null;
+      public $password = null;
+      public $database = null;
 
 
-      public function connect() {
-            $this->...
+      public function __get($property) {
+            if ($property === 'dbsrc') {
+                  return $this->dbsrc;
+            }
+            throw new \Exception("Undefined property: $property");
       }
-
-
-      public function query($sql) {
+      
+      function __construct($ZEELTEPHP_DATABASE_URL = null) {
+            if (is_null($ZEELTEPHP_DATABASE_URL)) return;
             try {
-                  //code...
+                  $this->parse_connectionUrl($ZEELTEPHP_DATABASE_URL);
+
+                  // initialize
+                  $className  = 'ZP_DB_'.$this->dbtype;     // Correct format: ZP_DB_mysql
+                  $classFile  = 'db.'.$this->dbtype.'.php'; // File path
+
+                  if (!class_exists($className)) {
+                        if (is_file($classFile)) {
+                              require_once $classFile;
+                        } else {
+                              $this->message = "Provider file '$classFile' not found.";
+                              return;
+                        }
+                  }
+                  
+                  if (class_exists($className)) {
+                        $this->dbsrc = new $className($ZEELTEPHP_DATABASE_URL);
+                  } else {
+                        $this->message = "Class $className not found.";
+                  }
+
             } catch (\Throwable $th) {
-                  //throw $th;
+                  zp_error_handler($th);
             }
       }
 
+      function parse_connectionUrl($databaseUrl) {
+            try {
+                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/
+                  //ZEELTEPHP_DATABASE_URL=provider://username:password@hostname/database
+                  $parts = parse_url($databaseUrl);
+                  $this->dbtype = isset($parts['scheme']) ? $parts['scheme'] : null;
+                  // by path
+                  $this->database = isset($parts['path']) ? $parts['path'] : null;
+                  // by credentials
+                  $this->username = isset($parts['user']) ? $parts['user'] : null;
+                  $this->password = isset($parts['pass']) ? $parts['pass'] : null;
+                  $this->hostname = isset($parts['host']) ? $parts['host'] : null;
+                  $this->database = isset($parts['path']) ? $parts['path'] : null;
+                  $this->port     = isset($parts['port']) ? $parts['port'] : null;
+
+                  if ($this->dbtype == 'wordpress') {
+                        //repair the string to datase (full path again because first .. is stripped)
+                        $this->database = $this->hostname.$this->database;
+                        $this->hostname = null;
+                  }
+            } catch (\Throwable $th) {
+                  zp_error_handler($th);
+            }
+      }
 
 }
 

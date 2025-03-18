@@ -2,7 +2,7 @@
 
       function load() {
             try {
-                  global $db, $zpAR;
+                  global $db, $zpAR, $env;
 
                   // do some db request
                   //$x = og_getCompanyListByParentSlug('advocaten');
@@ -10,7 +10,8 @@
                   return [
                         'success' => true,
                         'data'    => ['xxxx'],
-                        'message' => 'Hello from 03_db_wordpress/+page.server.php/load()'
+                        'message' => 'Hello from 03_db_wordpress/+page.server.php/load()',
+                        'ZEELTEPHP_DATABASE_URL' => $env['ZEELTEPHP_DATABASE_URL']
                   ];
             } catch (\Throwable $th) {
                   zp_error_handler($th);
@@ -29,9 +30,14 @@
                         case '?/testWPDB': 
                                     // this case won't  because action_testWPDB() is declared as function
                                     // rename that function to like action_testWPDB_off() then this case will work.
+
+                                    $sql = "SELECT * FROM wp_usermeta";
+                                    $res = $db->query($sql);
                                     return [
-                                          'ok'   => true,
-                                          'data' => select_from_db().' and '.$value
+                                          'list1' => $res,
+                                          'list2' => $res,
+                                          'zpar'  => $zpAR,
+                                          'zpDB'  => $db
                                     ];
                               break;
                         default:

@@ -14,7 +14,8 @@
           require_once('zeeltephp/lib/helper/load.php.files.php');
           require_once('zeeltephp/lib/request/json.response.php');
           require_once('zeeltephp/lib/request/headers.php');
-          require_once('zeeltephp/lib/db/db.wordpress.php');
+          require_once('zeeltephp/lib/db/db.db.php');
+          //require_once('zeeltephp/lib/db/db.wordpress.php');
      //#endregion
 
      //#region set defaults
@@ -154,8 +155,9 @@
                     // load lib files
                     zp_load_lib($zpAR->environment);
 
-                    // set default DB-Provider
-                    $db = new ZeeltePHP_DB_WordPress($env['ZEELTEPHP_DATABASE_URL']);
+                    // init ZP_DB - database provider
+                    $db = new ZP_DB($env['ZEELTEPHP_DATABASE_URL']);
+                    //$db = new ZeeltePHP_DB_WordPress($env['ZEELTEPHP_DATABASE_URL']);
 
                     // for future roadmap - support ..routes../
                     //  +hooks.php  +server.php  ...
