@@ -30,9 +30,9 @@
       }
 
       function var_dump() {
-            console.log('VD', {vardump})
+            console.log('VD', vardump)
       }
-      $: if (!title && !subtitle) var_dump(vardump)
+      $: if (title !== false) var_dump(vardump)
 
 
 </script>

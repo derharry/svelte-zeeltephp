@@ -115,10 +115,10 @@ export class ZP_EventDetails {
             }
       }
 
-      parse_PointerEvent(e) {
+      parse_PointerEvent() {
             this.message = 'PointerEvent'
-            //this.button  = this.event.target
-            //this.parse_button(e.target);
+            this.button  = this.event.target
+            this.parse_button();
       }
 
       
@@ -139,8 +139,8 @@ export class ZP_EventDetails {
 
       }
 
-      parse_button(button) {
-            this.button     = button
+      parse_button() {
+            let button      = this.button
             this.name       = button.name
             this.value      = button.value
             this.action     = button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined

@@ -62,10 +62,10 @@ export class ZP_ApiRouter
                         // lets do this else block a action details check 1 last time 
                         const ed = new ZP_EventDetails(routeUrl);
                         if (ed) {
-                              this.route  = ed.route+'/'
+                              //this.route  = ed.route;
                               this.action = ed.action;
                               this.value  = ed.value;
-                              this.set_data(ed.formData);
+                              //this.set_data(ed.formData);
                               this.message = ed.message;
                         }
                         else {

@@ -4,14 +4,12 @@
       function load() {
             global $jsonResponse;
             // do anything
-            $jsonResponse->ok = true;
-            $jsonResponse->data = [
+            return [
                   '+pageserver'  => 'Hello from /01_zp_php_routes/+page.server.php',
                   '+php_lib'     => lib_static(),
                   '+php_lib_sub' => lib_sub_static(),
                   '+php_zplib'   => lib_zplib()
             ];
-            return true;
       }
 
 

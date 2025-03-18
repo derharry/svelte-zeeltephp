@@ -2,8 +2,9 @@
 #
 # init-zeelte
 #    
+# return JSON
 #
-#
+
 
      //#region import
           # minimum-requirments instead boot.php
@@ -29,6 +30,7 @@
                global $jsonResponse;
 
                // set default JSON Response
+               //header('Content-Type: application/json');
                $jsonResponse = new JSONResponse();
 
                // set headers to allow from anywhere
@@ -41,6 +43,20 @@
 
      //#region methods
 
+          function zp_error_handler($error) {
+               $errorText = [];
+               $errorText[] = strstr($error->getFile(), "\src").':'; # strip all before \src (full-path) to get only the relative-path 
+               $errorText[] = $error->getLine();
+               $errorText[] = $error->getMessage();
+               //$errorText[] = $error->getCode(); // 0? 
+               //$errorText[] = 'at';
+               //$errorText[] = $error->getPrevious();      // empty - hoped for parent function name
+               //$errorText[] = $error->getTraceAsString(); // not interesting
+               $errorText[] = "\n";
+               $errorText   = implode(' ',$errorText);
+               error_log($errorText, 3, 'zeeltephp/log/error.log');
+          }
+
           function zp_load_lib($environment) {
                // if dev-env load all php files from /src/lib/zplib 
                //var_dump($environment);
@@ -50,44 +66,59 @@
                zp_load_php_files( './lib' );
           }
 
+          
+
           function zp_main_pageserverphp() {          
-               global $jsonResponse, $zpAR;
+               global $zpAR;
 
                try {
                     // include +page.sever.php
                     include($zpAR->routeFile);
 
                     // response from load or actions
-                    $action_response = false;
-
+                    // we use states :string for internal knowing what we are doing / where we are.
+                    $action_response = '__ZP-INIT__';
                     
+                    // if no zpAR->action defined -> its basic GET load()
                     // if no action then just call load()
                     if (is_null($zpAR->action)) {
-                         if (function_exists('load'))
+                         // no action 
+                         // now - when load() is defined in +page.server.php - execute it.
+                         if (function_exists('load')) {
+                              $action_response = '__ZP-LOAD__';   // at least set true because found
                               $action_response = load();
-                    } else {
+                         }
+                    }
+                    else if (!is_null($zpAR->action)) {
+                         $action_response = '__ZP-ACTIONS?__';   // at least set true because found
                          // support custom function action_ACTION($value)
                          // instead of e.g. actions() switch ($action) case 'ACTION'
                          $action_function_name = 'action_'.str_replace('?/', '', $zpAR->action);
                          
                          // does custom function action_ACTION exist ? 
                          // else load default actions($action, $value, $data)
-                         if (function_exists($action_function_name))
+                         if (function_exists($action_function_name)) {
+                              $action_response = '__ZP-ACTION_-'.$action_function_name.'__';
                               $action_response = $action_function_name($zpAR->value);
-                         else
-                              if (function_exists('actions')) 
-                                   $action_response = actions($zpAR->action, $zpAR->value); //, $zpAR->data);
-
-                         
-                         // leave a message or error
-                         if (!$action_response)     
-                              return [
-                                   'error' => 'No ?/action or response'
-                              ];
+                         }
+                         else if (function_exists('actions')) {
+                              $action_response = '__ZP-ACTIONS__';
+                              $action_response = actions($zpAR->action, $zpAR->value, $zpAR->data);
+                         }
+                    }
+                    
+                    //     return 'No response of load() or action(?/action) :'.$action_response;
+                    //}
+                    if (is_string($action_response) && str_starts_with($action_response, '__ZP')) {
+                         $msg = null;
+                         if      ($action_response == '__ZP-ACTIONS?__')               $msg = "no action(s) found for ".$zpAR->action; 
+                         else if (str_starts_with('__ZP-ACTION_-', $action_response))  $msg = "no response of ".$action_function_name;
+                         else if (str_starts_with('__ZP-ACTIONS_-', $action_response)) $msg = "no response of actions()";
+                         $action_response = $msg;
                     }
                     return $action_response;
                } catch (Exception $exp) {
-                    error_log($exp);
+                    zp_error_handler($exp);
                     return false;
                }
           }
@@ -105,6 +136,8 @@
                //echo "<p>". getcwd() . "</p>\n";
                zp_setDefaults();
 
+               
+
                // read config .env_file
                $env = zp_read_env_file();
                if (!$env) throw Error('could not find .env file');
@@ -114,7 +147,7 @@
                // include the +page.server.php
                if (!$zpAR->routeFileExist) {
                     $jsonResponse->data = $zpAR;
-                    throw new Error('Does routeFile exist? '.$zpAR->routeFile);
+                    throw new Error('No routeFile found, expected: '.$zpAR->routeFile);
                }
                else {
 
@@ -129,32 +162,39 @@
                     
                     // lets to the actions :-) 
                     $response = false;
-                    $response = zp_main_pageserverphp();          
+                    $response = zp_main_pageserverphp();
 
+                    // $response is the jsonResponse->data!
+                    $jsonResponse->data = $response;
+
+                    // turned off - 2025-03-18 let the $jsonResponse as ZP_JsonResponse() response for zp_fetch_api
                     // if we have a response [] then parse response into $jsonResponse
-                    if (is_array($response)) {
-                         foreach ($response as $k=>$v) {
-                              $jsonResponse->$k = $v;
-                         }
-                    }
+                    //if (is_array($response)) {
+                    //     foreach ($response as $k=>$v) {
+                    //          $jsonResponse->$k = $v;
+                    //     }
+                    //}
+
+                    // on ZeeltePHP side now everythin is ok
+                    $jsonResponse->ok = true;
                }
               
-
                if ($jsonResponse->data === null) {
-                    $jsonResponse->message = 'fallback data / response';
-               }
+                    // turned off - 2025-03-18 - maybe null is what we what to return ;-) debugging not needed
+                    //$jsonResponse->message = 'fallback data / response';
+               } 
           } 
           catch (Error $error) {
                $jsonResponse->error = $error->getMessage();
-               error_log($error);
+               zp_error_handler($error);
           }
           catch (Throwable $throw) {
                $jsonResponse->error = 'ZP_Throwable: '.$throw->getMessage();
-               error_log($throw);
+               zp_error_handler($throw);
           }
           catch (Exception $exp) {
                $jsonResponse->error = 'ZP_Exception: '.$exp->getMessage().' '.$error->getCode();
-               error_log($exp);
+               zp_error_handler($exp);
           }
           finally {
                $jsonResponse->send();
