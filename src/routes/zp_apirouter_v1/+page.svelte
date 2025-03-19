@@ -1,8 +1,9 @@
 <script>
 
       import { onMount } from "svelte";
+      //import { zp_fetch_api } from "$lib/zeeltephp/zeeltephp.api";
+      import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
       import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
-      import { zp_fetch_api } from "$lib/zeeltephp/zeeltephp.api";
       import VarDump from "$lib/VarDump.svelte";
 
 

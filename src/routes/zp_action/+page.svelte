@@ -1,7 +1,8 @@
 <script>
 
       import { onMount } from "svelte";
-      import { zp_fetch_api } from "$lib/zeeltephp/zeeltephp.api";
+      //import { zp_fetch_api } from "$lib/zeeltephp/zeeltephp.api";
+      import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
       import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
       import TableShowData from "$lib/TableShowData.svelte";
       import { page } from "$app/state";

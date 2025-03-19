@@ -57,6 +57,7 @@
       {/if}
 
       <tbody>
+      <slot>
       {#if dumpJson} 
             <tr>
                   <td>{JSON.stringify(vardump)}</td>
@@ -115,6 +116,8 @@
                   <td>{JSON.stringify(vardump)}</td>
             </tr>
       {/if}
+      </slot>
       </tbody>
+
 </table>
 </div>
