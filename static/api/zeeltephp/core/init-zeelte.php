@@ -131,12 +131,9 @@
           global $jsonResponse, $env, $db, $zpAR;
           try {
 
-               
                //echo "<h1>init-zeelte.php</h1>";
                //echo "<p>". getcwd() . "</p>\n";
                zp_setDefaults();
-
-               
 
                // read config .env_file
                $env = zp_read_env_file();

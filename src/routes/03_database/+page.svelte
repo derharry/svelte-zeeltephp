@@ -8,6 +8,7 @@
       let promise_load
       let data_load
 
+      let sqlStatement = "SELECT 'Hello World from default query'";
 
 
       onMount(() => {
@@ -32,13 +33,13 @@
 
 </script>
 
-<h1>DB Connections</h1>
+<h1>Database ConnectionURL</h1>
 
 <button
       on:click={handle_dbwp}
-      formaction="?/testWPDB"
-      name="hi"
-      value="69"
+      formaction="?/test_db_query"
+      name="sqlStatement"
+      value={sqlStatement}
 >
       {#await promise_load}
             requesting db..
@@ -48,5 +49,7 @@
             upsie WP-DB <br>{error.message} {error.error}
       {/await}
 </button>
+
+<textarea bind:value={sqlStatement}></textarea>
 
 <VarDump title="response" vardump={data_load}/>

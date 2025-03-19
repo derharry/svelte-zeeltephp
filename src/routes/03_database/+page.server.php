@@ -27,15 +27,14 @@
                   global $db, $zpAR;
 
                   switch ($action) {
-                        case '?/testWPDB': 
+                        case 'test_db_query': 
                                     // this case won't  because action_testWPDB() is declared as function
                                     // rename that function to like action_testWPDB_off() then this case will work.
 
-                                    $sql = "SELECT * FROM wp_usermeta";
+                                    $sql = $value;
                                     $res = $db->query($sql);
                                     return [
-                                          'list1' => $res,
-                                          'list2' => $res,
+                                          'data'  => $res,
                                           'zpar'  => $zpAR,
                                           'zpDB'  => $db
                                     ];

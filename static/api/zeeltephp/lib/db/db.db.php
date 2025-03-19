@@ -19,11 +19,17 @@ class ZP_DB {
       public $database = null;
 
 
-      public function __get($property) {
-            if ($property === 'dbsrc') {
-                  return $this->dbsrc;
+      // Add magic method to forward calls to dbsrc
+      public function __call($method, $args) {
+            try {
+                  if ($this->dbsrc && method_exists($this->dbsrc, $method)) {
+                        return $this->dbsrc->$method(...$args);
+                  }
+                  throw new \Exception("Method $method not found in DB adapter");
             }
-            throw new \Exception("Undefined property: $property");
+            catch (\Throwable $th) {
+                  zp_error_handler($th);
+            }
       }
       
       function __construct($ZEELTEPHP_DATABASE_URL = null) {
@@ -31,8 +37,9 @@ class ZP_DB {
             try {
                   $this->parse_connectionUrl($ZEELTEPHP_DATABASE_URL);
 
+
                   // initialize
-                  $className  = 'ZP_DB_'.$this->dbtype;     // Correct format: ZP_DB_mysql
+                  $className  = 'ZeeltePHP_DB_'.$this->dbtype;     // Correct format: ZP_DB_mysql // ZeeltePHP_DB_wordpress
                   $classFile  = 'db.'.$this->dbtype.'.php'; // File path
 
                   if (!class_exists($className)) {

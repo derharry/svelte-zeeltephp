@@ -32,7 +32,7 @@
                   default:
                               return [
                                     'message' => 'Hello from actions send-form DEFAULT : '.$action,
-                                    'data' => $zpAR.data,
+                                    'data' => $zpAR->data
                               ];
                         break;
             }
