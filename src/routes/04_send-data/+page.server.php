@@ -4,10 +4,9 @@
       function load() {
             global $jsonResponse, $zpAR;
             // do anything
-            $jsonResponse->data = [
+            return [
                   'load'       => 'Hello from load() send-form'
             ];
-            $jsonResponse->ok = true;
       }
 
 
