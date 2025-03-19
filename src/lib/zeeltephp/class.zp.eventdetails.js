@@ -24,6 +24,7 @@ export class ZP_EventDetails {
 
       // event src is Button
       button
+      srcElement
 
       // event src is HTMLForm
       form
@@ -49,7 +50,8 @@ export class ZP_EventDetails {
 
                   //# set defaults
                   this.event   = event  // set src
-                  this.target  = event?.target || undefined            
+                  this.target  = event?.target || undefined 
+                  this.srcElement = event.srcElement || undefined
 
                   //# set current routing as minimum requirement
                   this.route   = page?.url.pathname || page.route.id +'/';
@@ -57,10 +59,14 @@ export class ZP_EventDetails {
 
                   //# ready
                   this.message = 'init'
+                  this.parse_keyboard();
+                  this.parse_mouse();
 
                   // parse event
                   if (event instanceof SubmitEvent) 
                         this.parse_SubmitEvent()
+                  else if (event instanceof KeyboardEvent) 
+                        this.parse_KeyBoardEvent()
                   else if (event instanceof PointerEvent) 
                         this.parse_PointerEvent()
                   else if (event instanceof URLSearchParams)
@@ -70,13 +76,10 @@ export class ZP_EventDetails {
                   else
                         this.message = 'Unknown event '+event
                   //console.log(this.message)
-                  //this.parse_keyboard(event)
-                  //this.parse_mouse(event)
             } catch (error) {
                   this.message = error;
                   console.error({ error })
             }
-            return false
       }
 
       dump() {
@@ -115,6 +118,12 @@ export class ZP_EventDetails {
             }
       }
 
+      parse_KeyBoardEvent() {
+            const keyEvent = this.event;
+            this.keyId = keyEvent.keyCode;
+            //this.parse_keyboard()
+      }
+
       parse_PointerEvent() {
             this.message = 'PointerEvent'
             this.button  = this.event.target
@@ -122,9 +131,9 @@ export class ZP_EventDetails {
       }
 
       
-      parse_keyboard(e) {
-            this.keyId   = e?.keyId   || undefined
-            this.keyName = e?.keyName || undefined
+      parse_keyboard() {
+            this.keyId   = this.event?.keyId   || this.event?.submitter?.keyId || undefined
+            this.keyName = this.event?.keyName || this.event?.submitter?.keyId || undefined
       }
       parse_mouse(e) {
 
@@ -141,6 +150,7 @@ export class ZP_EventDetails {
 
       parse_button() {
             let button      = this.button
+            this.title      = button.title
             this.name       = button.name
             this.value      = button.value
             this.action     = button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined

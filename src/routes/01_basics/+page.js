@@ -5,12 +5,12 @@ import { zp_fetch_api } from '$lib/zeeltephp/zp.fetch.api.js';
 
 export async function load({ params, fetch, url }) {
       try {
-            let res_php = {
+            let res_php = { // fixture
                   res_pageserver : 'hi 1',
-                  res_phplib : 'hi 2',
-                  res_phplibsub : 'hi 3',
-                  res_phplibsub : 'hi 3',
-                  res_phpzplib: 'hi 4'
+                  res_phplib     : 'hi 2',
+                  res_phplibsub  : 'hi 3',
+                  res_phplibsub  : 'hi 3',
+                  res_phpzplib   : 'hi 4'
       
             }
             console.log('load test/+page.js', url)
@@ -18,7 +18,7 @@ export async function load({ params, fetch, url }) {
             console.log(res_php);
       
             return {
-                  '+page.js': 'Hello from /01_zp_phproutes/+page.js',
+                  '+page.js': 'Hello from /01_basics/+page.js',
                   ...res_php
             }
       } 

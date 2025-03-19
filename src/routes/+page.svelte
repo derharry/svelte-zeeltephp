@@ -11,8 +11,18 @@
       let zp_EventDetails = new ZP_EventDetails();
       let zp_ApiRouter    = new ZP_ApiRouter();
 
+
+      const descriptions  = {
+            'home'        : 'This page. Explanation of where to find what and some basic infos. ',
+            'ZP-Routes'   : 'Output of ',
+            'WPDB'        : 'Example for supported DB-Types.',
+            'Send-Data'   : 'Example data send via JSON and HTMLFormFormData.',
+            'ZP-DB'       : 'Example for supported DB-Types.',
+
+      }
+
       const data_zp_basic = {
-            'route is described above':   'in .routeBar (+layout.svelte)', 
+            'route is described above'  :   'in .routeBar (+layout.svelte)', 
             '.env.MODE':                  dev ? 'dev' : 'build',
             '.env.PUBLIC_ZEELTEPHP_BASE': PUBLIC_ZEELTEPHP_BASE,
       }
@@ -27,10 +37,14 @@
             zp_EventDetails = new ZP_EventDetails(e);
       }
 
+
+
+
 </script>
 
 
 <h1>Welkom to ZeeltePHP</h1>
+<VarDump title="Explanation" vardump={descriptions}     />
 
 <VarDump title="basic info" vardump={data_zp_basic}     />
 <VarDump title="data from +page.js and PHP" vardump={data_php_response} />

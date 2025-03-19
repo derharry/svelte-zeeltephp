@@ -1,8 +1,10 @@
-
-
 .center {
       text-align: center;
       justify-content: center;
+}
+.right {
+      text-align: right;
+      justify-content: right;
 }
 
 .top {
@@ -20,11 +22,14 @@
       padding-left: 1.5em !important;
 }
 
+.defaultPadding {
+      padding: 0em 1em !important;
+}
 .borderBox {
       border: 1px blue solid !important;
       overflow: hidden;
       border-radius: 1em !important;
-      padding: 0 1em;
+      padding: 0em 1em;
 }
 .tableCompact {
       font-size: 1em;
@@ -66,6 +71,7 @@
       max-width: 50%;
 }
 
+.flexRow,
 .zpFlexRow {
       display: flex;
       flex-direction: row;
@@ -78,6 +84,13 @@
       padding: 0.25em 1em;
       margin:  0;
       margin-bottom:  1.25em;
+}
+
+.positioningParent {
+      position: relative;
+}
+.positioningChild {
+      position: absolute;
 }
 
 h1 {

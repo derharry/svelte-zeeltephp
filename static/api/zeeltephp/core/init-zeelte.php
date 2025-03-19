@@ -94,22 +94,21 @@
                          $action_response = '__ZP-ACTIONS?__';   // at least set true because found
                          // support custom function action_ACTION($value)
                          // instead of e.g. actions() switch ($action) case 'ACTION'
-                         $action_function_name = 'action_'.str_replace('?/', '', $zpAR->action);
-                         
-                         // does custom function action_ACTION exist ? 
-                         // else load default actions($action, $value, $data)
+                         $action_name_stripped = str_replace('?/', '', $zpAR->action);
+                         $action_function_name = 'action_'.$action_name_stripped;
                          if (function_exists($action_function_name)) {
+                              // exec action_ACTION
                               $action_response = '__ZP-ACTION_-'.$action_function_name.'__';
                               $action_response = $action_function_name($zpAR->value);
                          }
                          else if (function_exists('actions')) {
+                              // exec actions($action, $value, $data)
                               $action_response = '__ZP-ACTIONS__';
-                              $action_response = actions($zpAR->action, $zpAR->value, $zpAR->data);
+                              $action_response = actions($action_name_stripped, $zpAR->value, $zpAR->data);
                          }
                     }
                     
-                    //     return 'No response of load() or action(?/action) :'.$action_response;
-                    //}
+                    //return 'No response of load() or action(?/action) :'.$action_response;
                     if (is_string($action_response) && str_starts_with($action_response, '__ZP')) {
                          $msg = null;
                          if      ($action_response == '__ZP-ACTIONS?__')               $msg = "no action(s) found for ".$zpAR->action; 

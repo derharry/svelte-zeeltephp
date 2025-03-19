@@ -13,20 +13,34 @@
 
       // set fixture when no title and no subtitle is set
       if (!title && !subtitle) {
-            //console.log('-- set fixture')
-            title = '[VD]title-not-set- example_data';
-            vardump = {
-                  example1: 'foo',
-                  example2: 69,
-                  data_object:   { id: 0, name: 'Jingle', 'lastname': 'Bells' },
-                  data_array:    [ { id: 1, name: 'Santa', lastname: 'Clause' } ],
-                  empty: undefined,
+            try {
+                  //console.log('-- set fixture')
+                  title = '[VD]title-not-set- example_data';
+                  vardump = {
+                        example1: 'foo',
+                        example2: 69,
+                        data_object:   { id: 0, name: 'Jingle', 'lastname': 'Bells' },
+                        data_array:    [ { id: 1, name: 'Santa', lastname: 'Clause' } ],
+                        empty: undefined,
+                  }
+            }
+            catch (error) {
+                  console.log(error);
             }
       }
 
       // add prefix to title when in debug mode
       function get_label(dbgLabl, realLabel) {
-            return debug ? `[${debugTitle}]${realLabel}` : realLabel;
+            try {
+                  return debug ? `[${debugTitle}]${realLabel}` : realLabel;
+            }
+            catch (error) {
+                  console.log(error);
+            }
+      }
+
+      function is_nullish(variable) {
+            return variable === null || variable === undefined ? true : false
       }
 
       function var_dump() {
@@ -46,11 +60,8 @@
             <thead>
                   <tr>
                         <th colspan="3">
-                              {title}
-                              <small>
-                                    :{typeof vardump}
-                              </small>
-
+                              {title} 
+                              <small> :{typeof vardump}</small>
                         </th>
                   </tr>
             </thead>
@@ -63,9 +74,8 @@
                   <td>{JSON.stringify(vardump)}</td>
             </tr>
       {:else if vardump && typeof vardump == 'object' || typeof vardump == 'array'}
-
             {#each Object.entries(vardump) as [label, value]}
-                  {#if (value != null && value != undefined) || dumpAll}
+                  {#if (!is_nullish(value) || dumpAll)}
                         <tr>
                         <!-- set label :type value  -->
                               <td width="1" class="nowrap">{get_label('', label)}</td>
@@ -76,12 +86,13 @@
                               </td>
                               <td class="pad">
                                     {#if !debug && (typeof value == 'object' || typeof value == 'array')}
-                                          
-                                          {#if Array.isArray(value)}
-                                                :array ({value.length})
-                                          {:else if typeof value == 'object'}
-                                                :object ({Object.entries(value).length})
-                                          {/if}       
+                                          {#if !is_nullish(value)}
+                                                {#if Array.isArray(value)}
+                                                      :array ({value.length})
+                                                {:else if typeof value == 'object'}
+                                                      :object ({Object.entries(value).length})
+                                                {/if}
+                                          {/if}
                                     {:else}
                                           {value}
                                     {/if}
