@@ -45,13 +45,14 @@ export class ZP_EventDetails {
       constructor(event) {
             try {
                   //# if instance of self - just return self
-                  if (!event) { this.message = 'no-event'; return; }  //  event is_nullish
+                  if (!event || event == null || event == undefined) { this.message = 'no-event'; return; }  //  event is_nullish
                   if (event instanceof ZP_EventDetails) return event;
+                  console.log('ZP_EventDetails()', event)
 
                   //# set defaults
                   this.event   = event  // set src
-                  this.target  = event?.target || undefined 
-                  this.srcElement = event.srcElement || undefined
+                  //this.target  = event?.target || undefined 
+                  //this.srcElement = event.srcElement || undefined
 
                   //# set current routing as minimum requirement
                   this.route   = page?.url.pathname || page.route.id +'/';
@@ -59,8 +60,8 @@ export class ZP_EventDetails {
 
                   //# ready
                   this.message = 'init'
-                  this.parse_keyboard();
-                  this.parse_mouse();
+                  //this.parse_keyboard();
+                  //this.parse_mouse();
 
                   // parse event
                   if (event instanceof SubmitEvent) 
@@ -91,11 +92,13 @@ export class ZP_EventDetails {
             console.log('---END DUMP ZP_EventDetails-----------------------------');
       }
 
-      parse_SubmitEvent(e) {
-            this.message = 'SubmitEvent'
+      parse_SubmitEvent() {
             // event is typeof HTMLElementForm | FormSubmit?
-            this.parse_form(e.target)
-            this.parse_button(e.submitter)
+            this.message = 'SubmitEvent'
+            this.parse_form(this.event.target)
+            this.data = new FormData(this.event.target)
+            this.dataIsFormData = true;
+            this.parse_button(this.event.submitter)
       }
 
       parse_URLSearchParams() {
@@ -126,8 +129,11 @@ export class ZP_EventDetails {
 
       parse_PointerEvent() {
             this.message = 'PointerEvent'
-            this.button  = this.event.target
-            this.parse_button();
+            console.log(' @@ target     ', typeof this.event.target)
+            console.log(' @@ src Element', typeof this.event.srcElement)
+            this.parse_form(this.event?.target);
+            this.parse_button(this.event?.srcElement);
+            this.form    = this.event
       }
 
       
@@ -141,21 +147,22 @@ export class ZP_EventDetails {
 
       parse_form(form) {
             this.form       = form
-            this.formAction = form.action
+            this.formAction = form?.formAction
             this.formData   = new FormData(form)
-            this.encoding   = form.encoding // 'application/x-www-form-urlencoded'
-            this.enctype    = form.enctype  //'application/x-www-form-urlencoded'
-
+            this.encoding   = form?.encoding || this.encoding // 'application/x-www-form-urlencoded'
+            this.enctype    = form?.enctype  || this.enctype  //'application/x-www-form-urlencoded'
+            //console.log('FORM', form)
       }
 
-      parse_button() {
-            let button      = this.button
-            this.title      = button.title
-            this.name       = button.name
-            this.value      = button.value
-            this.action     = button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined
+      parse_button(button) {
+            this.button = button
+            this.title      = button?.title
+            this.name       = button?.name
+            this.value      = button?.value
+            this.action     = button?.formAction && button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined
 
-            this.enctype    = button.enctype
-            this.encoding   = button.encoding
+            this.encoding   = button?.encoding || this.encoding
+            this.enctype    = button?.enctype  || this.enctype
+            //console.log('BUTTON', button)
       }
 }

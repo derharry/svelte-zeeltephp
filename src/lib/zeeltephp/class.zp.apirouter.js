@@ -45,6 +45,7 @@ export class ZP_ApiRouter
                   // fetch routing:
                   this.parse_routingFromSveltePage();
                   if (routeUrl instanceof URL && routeUrl?.pathname) {
+                        this.message = 'ZP_ApiRouter-routingFromSveltePage'
                         const ed = new ZP_EventDetails(routeUrl.params)
                         this.route   = routeUrl.pathname+'/'
                         this.action  = ed.action
@@ -52,21 +53,29 @@ export class ZP_ApiRouter
                         this.message = 'route from URL'
                   }
                   else if (typeof routeUrl == 'string') {
+                        this.message = 'ZP_ApiRouter-string'
                         if (debug) console.log('STRING', routeUrl)
                         this.parse_url_string(routeUrl)
                   }
                   else {
-
+                        this.message = 'ZP_ApiRouter-else'
+                        
+                        let ed;
+                        if (data instanceof ZP_EventDetails)
+                              ed = data;
+                        else
+                              ed = new ZP_EventDetails(routeUrl);
                         // before writing 
                         //    else if (routeUrl instanceof SubmitEvent || routeUrl instanceof PointerEvent || ... ) { .. }
                         // lets do this else block a action details check 1 last time 
-                        const ed = new ZP_EventDetails(routeUrl);
                         if (ed) {
                               //this.route  = ed.route;
                               this.action = ed.action;
                               this.value  = ed.value;
                               //this.set_data(ed.formData);
                               this.message = ed.message;
+                              this.data    = ed.data
+                              this.dataIsFormData = ed.dataIsFormData
                         }
                         else {
                               this.message = Array.join(' ', ['set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl]);
@@ -101,6 +110,7 @@ export class ZP_ApiRouter
       // in PHP we destruct this for ?/route/&?/action=value&query_params
       parse_routingFromSveltePage() {
             try {
+                  this.message = 'parse_routingFromSveltePage'
                   // set default current route 
                   // use ZP_EventDetails to get the details :-)
                   this.route  = page.url.pathname+'/';
@@ -315,7 +325,7 @@ export class ZP_ApiRouter
                                           body: null // data
                                     }
                                     // prepare data
-                                    if (this.dataIsFormData) {
+                                    if (this.dataIsFormData && this.data instanceof FormData) {
                                           // add form content-type
                                           // don't set - it works out of the box :-O this.fetch_options.headers['Content-Type'] = 'multipart/form-data';
                                           this.fetch_options.body = new FormData();
