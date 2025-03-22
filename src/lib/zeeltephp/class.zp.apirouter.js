@@ -59,7 +59,6 @@ export class ZP_ApiRouter
                   }
                   else {
                         this.message = 'ZP_ApiRouter-else'
-                        
                         let ed;
                         if (data instanceof ZP_EventDetails)
                               ed = data;
@@ -74,14 +73,14 @@ export class ZP_ApiRouter
                               this.value  = ed.value;
                               //this.set_data(ed.formData);
                               this.message = ed.message;
-                              this.data    = ed.data
-                              this.dataIsFormData = ed.dataIsFormData
+                              this.data    = ed.data;
                         }
                         else {
                               this.message = Array.join(' ', ['set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl]);
                               if (debug) console.log('set_routeURL is UNKNOWN', {routeUrl}, typeof routeUrl);
                         }
                   }
+                  this.set_best_method(data, method);
                   this.prepare();
 
                   /*
@@ -257,9 +256,10 @@ export class ZP_ApiRouter
       }
       
 
-      prepare(method) {
+      prepare() {
             try {
                   //this.set_best_method(method);
+                  //console.log('PREPARE', this.method)
                   switch (this.method) {
                         case 'GET': 
                                     // we now only need to define the full page url...
@@ -325,7 +325,7 @@ export class ZP_ApiRouter
                                           body: null // data
                                     }
                                     // prepare data
-                                    if (this.dataIsFormData && this.data instanceof FormData) {
+                                    if (this.data instanceof FormData) {
                                           // add form content-type
                                           // don't set - it works out of the box :-O this.fetch_options.headers['Content-Type'] = 'multipart/form-data';
                                           this.fetch_options.body = new FormData();
@@ -333,7 +333,9 @@ export class ZP_ApiRouter
                                           this.fetch_options.body.append('zp_action', this.action)
                                           this.fetch_options.body.append('zp_value', this.value)
                                           //this.fetch_options.body.append(this.data)
+                                          //console.log(' §%%%§ ', this.data.entries())
                                           for (let [key, val] of this.data.entries()) {
+                                                //console.log(' §§§§§ ', key, val)
                                                 this.fetch_options.body.append(key, val)
                                           };
                                     } else {

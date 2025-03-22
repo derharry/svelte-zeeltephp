@@ -20,10 +20,10 @@
                               return [
                                     'ok' => true,
                                     'message'  => 'Hello from actions send-form: '.$action.' '.$value,
-                                    'jsonData' => $_REQUEST,
                                     'debug' => [
                                           'zpAR' => $zpAR
                                     ],
+                                    'jsonData' => $_POST
                               ];
                         break;
                   default:

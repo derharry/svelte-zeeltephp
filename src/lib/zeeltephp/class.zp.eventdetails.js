@@ -28,7 +28,7 @@ export class ZP_EventDetails {
 
       // event src is HTMLForm
       form
-      dataIsFormData
+      dataIsFormData = () => data instanceof FormData
       encoding
       enctype
       
@@ -47,7 +47,7 @@ export class ZP_EventDetails {
                   //# if instance of self - just return self
                   if (!event || event == null || event == undefined) { this.message = 'no-event'; return; }  //  event is_nullish
                   if (event instanceof ZP_EventDetails) return event;
-                  console.log('ZP_EventDetails()', event)
+                  //console.log('ZP_EventDetails()', event)
 
                   //# set defaults
                   this.event   = event  // set src
@@ -83,21 +83,24 @@ export class ZP_EventDetails {
             }
       }
 
-      dump() {
-            console.log('---DUMP ZP_EventDetails-----------------------------');
+      dump(subdata = null, sub = false) {
+            if (!sub) console.log('---DUMP ZP_EventDetails-----------------------------');
             Object.entries(this).forEach(([variable, value]) => {
             if (value !== undefined && value !== null) 
-                  console.log(variable, value);
+                  // if (typeof value == 'object' && Object.entries(value).length > 0)
+                  //      this.dump(value, true)
+                  //else 
+                        console.log(variable, value);
             });
-            console.log('---END DUMP ZP_EventDetails-----------------------------');
+            if (!sub) console.log('---END DUMP ZP_EventDetails-----------------------------');
       }
 
       parse_SubmitEvent() {
             // event is typeof HTMLElementForm | FormSubmit?
             this.message = 'SubmitEvent'
             this.parse_form(this.event.target)
-            this.data = new FormData(this.event.target)
-            this.dataIsFormData = true;
+            // Display the key/value pairs
+            // for (var pair of this.data.entries()) { console.log(pair[0]+ ', ' + pair[1]); }
             this.parse_button(this.event.submitter)
       }
 
@@ -129,8 +132,8 @@ export class ZP_EventDetails {
 
       parse_PointerEvent() {
             this.message = 'PointerEvent'
-            console.log(' @@ target     ', typeof this.event.target)
-            console.log(' @@ src Element', typeof this.event.srcElement)
+            //console.log(' @@ target     ', typeof this.event.target)
+            //console.log(' @@ src Element', typeof this.event.srcElement)
             this.parse_form(this.event?.target);
             this.parse_button(this.event?.srcElement);
             this.form    = this.event
@@ -148,7 +151,7 @@ export class ZP_EventDetails {
       parse_form(form) {
             this.form       = form
             this.formAction = form?.formAction
-            this.formData   = new FormData(form)
+            this.data       = new FormData(form)
             this.encoding   = form?.encoding || this.encoding // 'application/x-www-form-urlencoded'
             this.enctype    = form?.enctype  || this.enctype  //'application/x-www-form-urlencoded'
             //console.log('FORM', form)
