@@ -26,7 +26,7 @@ export class ZP_ApiRouter
       fetch_url      = null // final url   to use at zp_fetch_api(fetch_url, fetchOptions)
       fetch_query    = null // final query that holds the part ?.. as query_string
       fetch_options  = null // final options to use at zp_fetch_api(fetch_url, fetchOptions)
-      fetch_enctype  = 'application/json; charset=utf-8;'
+      fetch_enctype  = 'application/json'
       dataIsFormData = false // flag for best method to just 'POST' and use default form-enctype else fallback to JSON-data
       message        = null // message for debugging
 
@@ -234,6 +234,7 @@ export class ZP_ApiRouter
 
       set_data(data) {
             if (!data) return;
+            this.message = "data is set"
             this.data = data
             this.dataIsFormData = data instanceof FormData ? true : false;
       }
@@ -241,12 +242,17 @@ export class ZP_ApiRouter
 
       set_best_method(data = undefined, method = undefined) {
             try {
-                  if (method != undefined)
-                        // override method
+                  let msgAdd = ''
+                  if (method != undefined) {
+                        // override method {
+                        msgAdd = 'override'
                         this.method = method
+                  }
                   else if (this.action && this.data) {
+                        msgAdd = 'auto'
                         this.method = 'POST'
                   }
+                  this.message = "set_best_method "+msgAdd+": "+this.method;
             } catch (error) {
                   this.message = error;
                   console.error({ error })
@@ -292,6 +298,7 @@ export class ZP_ApiRouter
                                     // this.action = '?/' + this.action.replace('?/', '')
                                     this.fetch_options = undefined
 
+                                    this.message = 'prepare: GET'
                                     /* from v2
                                     const params = [];
                                     // 1st is zp_route
@@ -338,17 +345,20 @@ export class ZP_ApiRouter
                                                 console.log(' §§§§§ ', key, val)
                                                 this.fetch_options.body.append(key, val)
                                           };
+                                          this.message = 'prepare: POST'
+
                                     } else {
                                           // add fallback to all json content-type
-                                          this.fetch_options.headers = {
-                                                'Content-Type': 'application/json;'
-                                          },
+                                          //this.fetch_options.headers = {
+                                          //      'Content-Type': 'application/json; charset=UTF-8'
+                                          //},
                                           this.fetch_options.body = JSON.stringify({
                                                 'zp_route' : this.route,
                                                 'zp_action': this.action,
                                                 'zp_value' : this.value,
                                                 'zp_data'  : this.data
                                           });
+                                          this.message = 'prepare: JSON'
                                     }
                               break;
 

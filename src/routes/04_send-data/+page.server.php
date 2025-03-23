@@ -8,29 +8,23 @@
             switch ($action) {
                   case 'sendJsonData':
                               return [
-                                    'ok'      => true,
-                                    'message' => 'Hello from actions send-form: '.$action.' '.$value,
-                                    'data'    => $zpAR->data,
-                                    'debug'   => [
-                                          'zpAR' => $zpAR
-                                    ],
+                                    'zpAR' => $zpAR,
+                                    'message' => 'Hello from actions/'.$action.':'.$value,
+                                    'data' => $_POST,
                               ];
                         break;
                   case 'sendFormData':
                               return [
-                                    'ok'      => true,
-                                    'message' => 'Hello from actions send-form: '.$action.' '.$value,
-                                    'data'    => $_POST,
-                                    'debug'   => [
-                                          'zpAR' => $zpAR
-                                    ],
+                                    'zpAR' => $zpAR,
+                                    'message' => 'Hello from actions/'.$action.':'.$value,
+                                    'data' => $_POST,
                               ];
                         break;
                   default:
                               return [
-                                    'ok' => true,
-                                    'message' => 'Hello from actions send-form DEFAULT : '.$action,
-                                    'data' => $zpAR->data
+                                    'zpAR' => $zpAR,
+                                    'message' => 'Hello from actions/DEFAULT/'.$action.':'.$value,
+                                    'data' => $_POST,
                               ];
                         break;
             }

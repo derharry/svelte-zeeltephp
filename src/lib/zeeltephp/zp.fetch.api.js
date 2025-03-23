@@ -27,6 +27,7 @@ export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method
     const debug = false;
     try {
         const zpar = new ZP_ApiRouter(urlOrRouterOrEvent, data, method);
+        //zpar.dump();
 
         // lets fetch 
         //   create and return the Promise that 

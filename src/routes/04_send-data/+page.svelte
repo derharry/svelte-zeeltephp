@@ -23,60 +23,113 @@
     submit_data.phone   = crypto.randomUUID()
 
     let xform;
+
+    let vardump_ApiRouterSvelte
+    let vardump_ApiRouterPHP
     let promise_sendJson;
     let promise_sendForm;
+
+    async function handle_json_submit_debug(event) {
+        try {
+            console.clear();
+            console.log('handle_json_submit()');
+
+            const zpar = new ZP_ApiRouter(event, submit_data);
+            //zpar.dump();
+            console.log(' ** ', zpar.fetch_url)
+            //console.log(' ** ', zpar.fetch_options)
+            vardump_ApiRouterSvelte = null
+            vardump_ApiRouterPHP = null
+
+            //promise_sendJson = zp_fetch_api()
+            
+            //OK :-)
+            /*
+
+            console.log(' body pre  ', zpar.fetch_options.body);
+            zpar.fetch_options.body = JSON.stringify({
+                zp_route: zpar.route,
+                zp_action: zpar.action,
+            })
+            */
+            console.log(' body post ', zpar.fetch_options.body);
+            vardump_ApiRouterSvelte = zpar;
+
+
+            //promise_sendJson = fetch(zpar.fetch_url, zpar.fetch_options)
+            //promise_sendJson = zp_fetch_api(fetch, zpar) 
+            promise_sendJson = zp_fetch_api(fetch, event, submit_data) 
+                .then(data => {
+                    console.log('DATA', data)
+                    vardump_ApiRouterPHP = data
+                })
+                .catch(error => {
+                    console.error(error)
+                    vardump_ApiRouterPHP = error
+                })
+                
+
+            /*
+            //const response = await fetch('http://localhost/sv-zeeltephp/static/api/', {
+            const response = await fetch(zpar.fetch_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ zp_route: zpar.route })
+            });
+            */
+        } catch (error) {
+            console.error(error);
+            vardump_ApiRouterPHP = error
+        }
+    }
 
     function handle_json_submit(event) {
         try {
             console.clear();
             console.log('handle_json_submit()');
-            debug_event(event);
-            promise_sendForm = zp_fetch_api(fetch, event, submit_data)
+            vardump_ApiRouterSvelte = null
+            vardump_ApiRouterPHP = null
+            vardump_ApiRouterSvelte = new ZP_ApiRouter(event, submit_data);
+
+            promise_sendJson = zp_fetch_api(fetch, event, submit_data)
                 .then(data => {
                     console.log(data)
-                    form.receivedData = data
+                    vardump_ApiRouterPHP = data
                 })
                 .catch(error => {
-                    console.log(error);
+                    vardump_ApiRouterPHP = error
+                    console.error(error);
                 })
-            
+            //promise_sendForm
         } catch (error) {
+            vardump_ApiRouterPHP = error
             console.error(error);
         }
+        form = form;
     }
 
     function handle_form_submit(event) {
         try {
             console.clear();
             console.log('handle_form_submit()');
-            debug_event(event);
+            vardump_ApiRouterSvelte = null
+            vardump_ApiRouterPHP = null
+            vardump_ApiRouterSvelte = new ZP_ApiRouter(event);
+
             promise_sendForm = zp_fetch_api(fetch, event)
                 .then(data => {
                     console.log(data)
-                    form.receivedData = data
+                    vardump_ApiRouterPHP = data
                 })
                 .catch(error => {
-                    console.log(error);
+                    vardump_ApiRouterPHP = error
+                    console.error(error);
                 })
-
+            //promise_sendForm
         } catch (error) {
-            console.error(error);
-        }
-        form = form;
-    }
-
-    function debug_event(event) {
-        try {
-            form.sendData = null
-            form.receivedData = null
-            //const ed = new ZP_EventDetails(event)
-            //ed.dump()
-            //form.sendData = ed
-
-            const za = new ZP_ApiRouter(event, submit_data)
-            //za.dump()            
-            form.sendData = za
-        } catch (error) {
+            vardump_ApiRouterPHP = error
             console.error(error);
         }
         form = form;
@@ -144,19 +197,19 @@
     <tbody>
         <tr>
             <td width="50%">
-                <VarDump title="ZP_ApiRouter (Svelte)" vardump={form.sendData} />
+                <VarDump title="ZP_ApiRouter (Svelte)" vardump={vardump_ApiRouterSvelte} />
             </td>
             <td width="50%">
-                <VarDump title="ZP_ApiRouter (PHP/data)" vardump={form.receivedData} />
+                <VarDump title="ZP_ApiRouter (PHP/data)" vardump={vardump_ApiRouterPHP} />
             </td>
         </tr>
         <!--
         <tr>
             <td>
-                <pre>{JSON.stringify(form, null, 2)}</pre>
+                <pre>{JSON.stringify(vardump_ApiRouterSvelte, null, 2)}</pre>
             </td>
             <td class="50%">
-                <pre>{JSON.stringify(submit_data, null, 3)}</pre>
+                <pre>{JSON.stringify(vardump_ApiRouterPHP, null, 3)}</pre>
             </td>
         </tr>
         -->

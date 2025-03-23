@@ -20,6 +20,8 @@
 
      //#region set defaults
 
+          $debug = true;
+          global $debug;
           global $db;
           global $env;
           global $zpAR;
@@ -47,6 +49,14 @@
           function zp_log($content) {
                error_log($content."\n", 3, 'zeeltephp/log/log.log');
           }
+
+          function zp_log_debug($content) {
+               global $debug;
+               if ($debug) 
+                    error_log($content."\n", 3, 'zeeltephp/log/debug.log');
+          }
+
+
           function zp_error_handler($error) {
                $errorText = [];
                $errorText[] = strstr($error->getFile(), "\src").':'; # strip all before \src (full-path) to get only the relative-path 
@@ -58,6 +68,7 @@
                //$errorText[] = $error->getTraceAsString(); // not interesting
                $errorText[] = "\n";
                $errorText   = implode(' ',$errorText);
+               zp_log_debug(' !! zp_error_handler() '.$errorText);
                error_log($errorText, 3, 'zeeltephp/log/error.log');
           }
 
@@ -74,10 +85,12 @@
 
           function zp_main_pageserverphp() {          
                global $zpAR;
-
                try {
-                    // include +page.sever.php
+                    zp_log_debug('zp_main_pageserverphp()');
+
+                    // include +page.server.php
                     include($zpAR->routeFile);
+                    zp_log_debug('  >> loaded +page.server.php');
 
                     // response from load or actions
                     // we use states :string for internal knowing what we are doing / where we are.
@@ -90,6 +103,7 @@
                          // now - when load() is defined in +page.server.php - execute it.
                          if (function_exists('load')) {
                               $action_response = '__ZP-LOAD__';   // at least set true because found
+                              zp_log_debug('  >> '.$action_response);
                               $action_response = load();
                          }
                     }
@@ -102,16 +116,19 @@
                          if (function_exists($action_function_name)) {
                               // exec action_ACTION
                               $action_response = '__ZP-ACTION_-'.$action_function_name.'__';
+                              zp_log_debug('  >> '.$action_response);
                               $action_response = $action_function_name($zpAR->value);
                          }
                          else if (function_exists('actions')) {
                               // exec actions($action, $value, $data)
                               $action_response = '__ZP-ACTIONS__';
+                              zp_log_debug('  >> '.$action_response);
                               $action_response = actions($action_name_stripped, $zpAR->value, $zpAR->data);
                          }
                     }
-                    
+
                     //return 'No response of load() or action(?/action) :'.$action_response;
+                    $msg = 'valid response from +page.server.php';
                     if (is_string($action_response) && str_starts_with($action_response, '__ZP')) {
                          $msg = null;
                          if      ($action_response == '__ZP-ACTIONS?__')               $msg = "no action(s) found for ".$zpAR->action; 
@@ -119,8 +136,11 @@
                          else if (str_starts_with('__ZP-ACTIONS_-', $action_response)) $msg = "no response of actions()";
                          $action_response = $msg;
                     }
+                    zp_log_debug('  << '.$msg);
+                    zp_log_debug('//zp_main_pageserverphp()');
                     return $action_response;
                } catch (Exception $exp) {
+                    zp_log_debug('//zp_main_pageserverphp() !! '.$exp);
                     zp_error_handler($exp);
                     return false;
                }
@@ -134,6 +154,7 @@
           global $jsonResponse, $env, $db, $zpAR;
           try {
 
+               zp_log_debug('main() ');
                //echo "<h1>init-zeelte.php</h1>";
                //echo "<p>". getcwd() . "</p>\n";
                zp_setDefaults();
@@ -184,16 +205,22 @@
                     // turned off - 2025-03-18 - maybe null is what we what to return ;-) debugging not needed
                     //$jsonResponse->message = 'fallback data / response';
                } 
+
+               zp_log_debug('//main() ');
+
           } 
           catch (Error $error) {
+               zp_log_debug('//main() ** ERROR ');
                $jsonResponse->error = $error->getMessage();
                zp_error_handler($error);
           }
           catch (Throwable $throw) {
+               zp_log_debug('//main() ** ERROR ');
                $jsonResponse->error = 'ZP_Throwable: '.$throw->getMessage();
                zp_error_handler($throw);
           }
           catch (Exception $exp) {
+               zp_log_debug('//main() ** ERROR ');
                $jsonResponse->error = 'ZP_Exception: '.$exp->getMessage().' '.$error->getCode();
                zp_error_handler($exp);
           }

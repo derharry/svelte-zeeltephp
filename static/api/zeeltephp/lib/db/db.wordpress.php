@@ -47,6 +47,7 @@ class ZeeltePHP_DB_wordpress {
                   if (is_null($this->dbconn) && !is_file($this->pathToWPload)) 
                         $this->message = "path to wp-load.php not found.";
                   else if (is_null($this->dbconn) && is_file($this->pathToWPload)) {
+                        $isConnected = true;
                         include_once($this->pathToWPload.'/wp-load.php');
                         $this->dbconn = $wpdb;
                         $this->wpdb   = $wpdb;
@@ -72,7 +73,7 @@ class ZeeltePHP_DB_wordpress {
                   $result = $this->wpdb->get_results( $sql, 'ARRAY_A' );
                   return $result;
             } catch (\Throwable $th) {
-                  var_dump($th);
+                  zp_error_handler($th);
             }
       }
 
