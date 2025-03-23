@@ -44,6 +44,9 @@
 
      //#region methods
 
+          function zp_log($content) {
+               error_log($content."\n", 3, 'zeeltephp/log/log.log');
+          }
           function zp_error_handler($error) {
                $errorText = [];
                $errorText[] = strstr($error->getFile(), "\src").':'; # strip all before \src (full-path) to get only the relative-path 

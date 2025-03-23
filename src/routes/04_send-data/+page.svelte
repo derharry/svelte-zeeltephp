@@ -10,10 +10,9 @@
     let form = {
         error    : "",
         message  : "", 
-        debug    : null,
         isSend   : false,
-        jsonData : false,
-        formData : false,
+        sendData : null,
+        receivedData : null,
     }
 
     let submit_data = {
@@ -31,6 +30,16 @@
         try {
             console.clear();
             console.log('handle_json_submit()');
+            debug_event(event);
+            promise_sendForm = zp_fetch_api(fetch, event, submit_data)
+                .then(data => {
+                    console.log(data)
+                    form.receivedData = data
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+            
         } catch (error) {
             console.error(error);
         }
@@ -40,24 +49,33 @@
         try {
             console.clear();
             console.log('handle_form_submit()');
-
-            //const ed = new ZP_EventDetails(event)
-            //ed.dump()
-            //form.debug = ed;
-
-            const za = new ZP_ApiRouter(event)
-            za.dump()
-            form.debug = za;
-
+            debug_event(event);
             promise_sendForm = zp_fetch_api(fetch, event)
                 .then(data => {
                     console.log(data)
-                    form.jsonData = data
+                    form.receivedData = data
                 })
                 .catch(error => {
                     console.log(error);
                 })
 
+        } catch (error) {
+            console.error(error);
+        }
+        form = form;
+    }
+
+    function debug_event(event) {
+        try {
+            form.sendData = null
+            form.receivedData = null
+            //const ed = new ZP_EventDetails(event)
+            //ed.dump()
+            //form.sendData = ed
+
+            const za = new ZP_ApiRouter(event, submit_data)
+            //za.dump()            
+            form.sendData = za
         } catch (error) {
             console.error(error);
         }
@@ -126,10 +144,10 @@
     <tbody>
         <tr>
             <td width="50%">
-                <VarDump title="form" vardump={form} />
+                <VarDump title="ZP_ApiRouter (Svelte)" vardump={form.sendData} />
             </td>
             <td width="50%">
-                <VarDump title="data" vardump={form.jsonData} />
+                <VarDump title="ZP_ApiRouter (PHP/data)" vardump={form.receivedData} />
             </td>
         </tr>
         <!--

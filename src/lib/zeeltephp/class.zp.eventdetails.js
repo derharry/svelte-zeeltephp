@@ -132,10 +132,11 @@ export class ZP_EventDetails {
 
       parse_PointerEvent() {
             this.message = 'PointerEvent'
+            console.log(' @@ event      ', this.event)
             //console.log(' @@ target     ', typeof this.event.target)
             //console.log(' @@ src Element', typeof this.event.srcElement)
-            this.parse_form(this.event?.target);
-            this.parse_button(this.event?.srcElement);
+            //this.parse_form(this.event?.target);
+            this.parse_button(this.event.srcElement);
             this.form    = this.event
       }
 
@@ -152,6 +153,7 @@ export class ZP_EventDetails {
             this.form       = form
             this.formAction = form?.formAction
             this.data       = new FormData(form)
+            this.dataIsFormData = true
             this.encoding   = form?.encoding || this.encoding // 'application/x-www-form-urlencoded'
             this.enctype    = form?.enctype  || this.enctype  //'application/x-www-form-urlencoded'
             //console.log('FORM', form)

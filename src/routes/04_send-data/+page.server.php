@@ -8,20 +8,20 @@
             switch ($action) {
                   case 'sendJsonData':
                               return [
-                                    'ok' => true,
-                                    'message'  => 'Hello from actions send-form: '.$action.' '.$value,
-                                    'debug' => [
+                                    'ok'      => true,
+                                    'message' => 'Hello from actions send-form: '.$action.' '.$value,
+                                    'data'    => $zpAR->data,
+                                    'debug'   => [
                                           'zpAR' => $zpAR
                                     ],
-                                    'jsonData' => $jsonResponse
                               ];
                         break;
                   case 'sendFormData':
                               return [
-                                    'ok' => true,
-                                    'message'  => 'Hello from actions send-form: '.$action.' '.$value,
-                                    'jsonData' => $_REQUEST,
-                                    'debug' => [
+                                    'ok'      => true,
+                                    'message' => 'Hello from actions send-form: '.$action.' '.$value,
+                                    'data'    => $_POST,
+                                    'debug'   => [
                                           'zpAR' => $zpAR
                                     ],
                               ];
