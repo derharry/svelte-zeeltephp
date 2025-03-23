@@ -31,4 +31,4 @@ bun.lock
 !.env.build
 !.env.dev
 error.log
-/log/*
+*.log
