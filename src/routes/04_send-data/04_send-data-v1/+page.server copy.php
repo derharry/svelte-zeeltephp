@@ -4,10 +4,9 @@
       function load() {
             global $jsonResponse, $zpAR;
             // do anything
-            $jsonResponse->data = [
+            return [
                   'load'       => 'Hello from load() send-form'
             ];
-            $jsonResponse->ok = true;
       }
 
 
@@ -32,7 +31,7 @@
                   default:
                               return [
                                     'message' => 'Hello from actions send-form DEFAULT : '.$action,
-                                    'data' => $zpAR.data,
+                                    'data' => $zpAR->data
                               ];
                         break;
             }

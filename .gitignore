@@ -30,3 +30,5 @@ bun.lock
 # Project
 !.env.build
 !.env.dev
+error.log
+*.log

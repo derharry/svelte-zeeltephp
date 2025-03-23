@@ -39,7 +39,7 @@ class ZP_ApiRouter
                   $this->parse_request();
             }
             catch (Exception $exp) {
-                error_log($exp);
+                  zp_error_handler($exp);
             }
       }
 
@@ -70,7 +70,7 @@ class ZP_ApiRouter
                   }
             }
             catch (Exception $exp) {
-                error_log($exp);
+                  zp_error_handler($exp);
             }
       }
 
@@ -82,8 +82,10 @@ class ZP_ApiRouter
        */
       function parse_method_zp_routing() {
             try {
+                  zp_log_debug('parse_method_zp_routing()');
                   // by method
                   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                        zp_log_debug('  >> GET');
                         // route, action, value, data is set by funtion
                         //error_log'PARSE GET');
                         //$this->parse_method_GET_url();
@@ -111,15 +113,13 @@ class ZP_ApiRouter
                         //$this->data = $_GET;
                   }
                   else if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-                        //error_log'PARSE POST');
+                        zp_log_debug('  >> Request_Method = POST || OPTIONS');
                         $this->method = 'POST';
                         //$contentType  = $_SERVER['CONTENT_TYPE'];
 
                         if (isset($_POST['zp_route'])) { //|| str_contains($contentType, 'application/json') ) {
-                              //error_log('normal');
-                              // normal PHP behaviour
-                              // default PHP is $_POST is already set
-                              // e.g. multipart/form-data, application/x-www-form-urlencoded
+                              zp_log_debug('  >> PHP reading $_POST');
+                              //$contentType = 'multipart/form-data, application/x-www-form-urlencoded';
                               $this->route  = $_POST['zp_route'];
                               $this->action = $_POST['zp_action'];
                               $this->value  = $_POST['zp_value'];
@@ -130,14 +130,14 @@ class ZP_ApiRouter
                         }
                         else {
                               // parse json
-                              //error_log('JSON');
-                              $jsonData     = read_json_input();
-                              //$this->data   = $jsonData;
-                              $this->route  = $jsonData['zp_route'];
-                              $this->action = $jsonData['zp_action'];
-                              $this->value  = $jsonData['zp_value'];
-                              $this->data   = $jsonData['zp_data'];
-                              // load data into $_REQUEST
+                              zp_log_debug('  >> PHP reading $_POST from JSON-input');
+                              $data = read_json_input(); 
+                              $this->route  = $_POST['zp_route'];
+                              $this->action = $_POST['zp_action'];
+                              $this->value  = $_POST['zp_value'];
+                              $this->data   = $data;
+                              $_POST = $_POST['zp_data'];
+                              $_REQUEST = $_POST;
                         }
                   }
                   //else if ($_SERVER['REQUEST_METHOD'] == 'PUT') {}
@@ -147,10 +147,12 @@ class ZP_ApiRouter
                   else {
                         $this->error = 'ZP: Unknown method for routing.'.$_SERVER['REQUEST_METHOD'];
                   }
+                  zp_log_debug('//parse_method_zp_routing()');
       
             }
             catch (Exception $exp) {
-                  error_log($exp);
+                  zp_log_debug('//parse_method_zp_routing() !!'.$exp->getMessage());
+                  zp_error_handler($exp);
             }
       }
       
@@ -243,7 +245,7 @@ class ZP_ApiRouter
                   */
             }
             catch (Exception $exp) {
-                  error_log($exp);
+                  zp_error_handler($exp);
             }
       }
 
@@ -253,7 +255,7 @@ class ZP_ApiRouter
                   
             }
             catch (Exception $exp) {
-                error_log($exp);
+                  zp_error_handler($exp);
             }
       }
 
