@@ -14,7 +14,7 @@ class ZeeltePHP_DB_wordpress {
 
       function __construct( $pathToWPload ) {
             $this->pathToWPload = str_replace('wordpress://', '', $pathToWPload);
-            $file = str_replace('/wp-load.php', '', $this->pathToWPload).'/wp-load.php';
+            $file = $this->pathToWPload;
             if (!is_file($this->pathToWPload)) {
                   $this->message = "path to wp-load.php not found.";
                   throw new \Exception($this->message); 
@@ -44,13 +44,15 @@ class ZeeltePHP_DB_wordpress {
 
       public function connect() {
             try {
+                  zp_log('DB_WPDB connect()');
                   if (is_null($this->dbconn) && !is_file($this->pathToWPload)) 
                         $this->message = "path to wp-load.php not found.";
                   else if (is_null($this->dbconn) && is_file($this->pathToWPload)) {
-                        $isConnected = true;
-                        include_once($this->pathToWPload.'/wp-load.php');
+                        //include_once(str_replace('/wp-load.php/', '', $this->pathToWPload).'/wp-load.php');
+                        include_once($this->pathToWPload);
                         $this->dbconn = $wpdb;
                         $this->wpdb   = $wpdb;
+                        $this->isConnected = true;
                         // connect is done by including the wp-load.php file
                   }
             }
@@ -67,9 +69,11 @@ class ZeeltePHP_DB_wordpress {
 
       public function query($sql) {
             try {
-                  if (!$this->isConnected) return;
+                  zp_log($sql);
                   $this->connect();
+                  if (!$this->isConnected) return;
                   if (!$this->wpdb) return;
+                  zp_log($sql);
                   $result = $this->wpdb->get_results( $sql, 'ARRAY_A' );
                   return $result;
             } catch (\Throwable $th) {

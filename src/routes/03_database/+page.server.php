@@ -30,7 +30,6 @@
                         case 'test_db_query': 
                                     $sql = $value;
                                     $res = $db->query($sql);
-                                    $res = 'hi'. $res;
                                     return [
                                           'data'  => $res,
                                           'zpar'  => $zpAR,
