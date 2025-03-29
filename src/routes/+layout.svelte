@@ -31,7 +31,7 @@
       <div class="routeBar">
             <!--{base}{page.route.id}{page.url.search}
             <br>-->
-            {base}{page.url.pathname}{page.url.search}
+            {page.url.pathname}{page.url.search}
       </div>
 
       <slot />
