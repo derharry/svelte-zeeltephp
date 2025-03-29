@@ -28,7 +28,7 @@ export class ZP_EventDetails {
 
       // event src is HTMLForm
       form
-      dataIsFormData = () => data instanceof FormData
+      dataIsFormData = null
       encoding
       enctype
       
@@ -45,7 +45,7 @@ export class ZP_EventDetails {
       constructor(event) {
             try {
                   //# if instance of self - just return self
-                  if (!event || event == null || event == undefined) { this.message = 'no-event'; return; }  //  event is_nullish
+                  if (!event || event == null || event == undefined) { return false; }  //  event is_nullish
                   if (event instanceof ZP_EventDetails) return event;
                   //console.log('ZP_EventDetails()', event)
 
@@ -72,13 +72,15 @@ export class ZP_EventDetails {
                         this.parse_PointerEvent()
                   else if (event instanceof URLSearchParams)
                         return this.parse_URLSearchParams()
+                  else if (event instanceof URL)
+                        return this.parse_URL()
                   else if (event instanceof ZP_ApiRouter)
                         this.message = 'instance of ZP_ApiRouter. nothing to do.'
                   else
-                        this.message = 'Unknown event '+event
+                        this.message = 'Unknown event '+event +' '+typeof event
                   //console.log(this.message)
             } catch (error) {
-                  this.message = error;
+                  this.message = error.message;
                   console.error({ error })
             }
       }
@@ -104,25 +106,34 @@ export class ZP_EventDetails {
             this.parse_button(this.event.submitter)
       }
 
+      parse_URL() {
+            this.parse_URLSearchParams();
+            //const url  = this.event
+            //this.route = url?.pathname
+            //this.parse_URLSearchParams(url.searchParams)
+            this.message = 'parse_URL'
+      }
+
       parse_URLSearchParams() {
-            this.message = 'URLSearchParams'
-            const url  = this.event
-            this.route = url.pathname
+            const url  = this.event            
+            this.route = url.pathname //.replace(/\/$/, '')+'/' // remove trailing slash
             //this.route   = e.target.pathname
             //this.search  = this.event.search
-            if (this.event.size > 0) {
-                  this.data = [];
-                  for (const [key, value] of this.event) {
+            const params = url.searchParams
+            if (params && params.size > 0) {
+                  //parse for ?/action, the rest is data
+                  for (const [key, value] of params) {
                         if (key.startsWith('?/')) {
-                              this.action = key;
-                              this.value  = value;
-                        }
-                        else {
-                              this.data[key] = value;
-                        }
-                  }
+                        this.action = key;
+                        this.value  = value;
+                        params.delete(key); // remove from params
+                        break;
+                  }}
+                  this.data = Object.fromEntries(params)
             }
+            this.message = 'URLSearchParams'
       }
+
 
       parse_KeyBoardEvent() {
             const keyEvent = this.event;
@@ -132,7 +143,7 @@ export class ZP_EventDetails {
 
       parse_PointerEvent() {
             this.message = 'PointerEvent'
-            console.log(' @@ event      ', this.event)
+            //console.log(' @@ event      ', this.event)
             //console.log(' @@ target     ', typeof this.event.target)
             //console.log(' @@ src Element', typeof this.event.srcElement)
             //this.parse_form(this.event?.target);

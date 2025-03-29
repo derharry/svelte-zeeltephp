@@ -1,11 +1,11 @@
 
 import { zp_fetch_api } from '$lib/zeeltephp/zp.fetch.api.js';
+import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
+import { page } from '$app/state';
 
-export async function load({ fetch, url }) {
+export async function load({ params, fetch, url }) {
       try {
 
-            //console.log('load +page.js')
-            //console.log('load +page.js', {url}, {fetch})
             const res_php_home = await zp_fetch_api(fetch, url);
             //console.log(' @@ ', res_php_home)
 

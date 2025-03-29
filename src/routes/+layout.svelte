@@ -17,6 +17,7 @@
                   <li><a href="{base}/02_apirouter">ApiRouter</a></li>
                   <li><a href="{base}/03_database">Database</a></li>
                   <li><a href="{base}/04_send-data">Send-Data</a></li>
+                  <li><a href="{base}/05_GET">GET</a></li>
                   <!--
                   <li><a href="{base}/01_zp_phproutes">ZP_Routes</a></li>
                   <li><a href="{base}/02_db_wordpress">ZP_DB</a></li>

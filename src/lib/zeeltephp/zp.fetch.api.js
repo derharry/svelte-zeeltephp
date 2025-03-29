@@ -24,10 +24,10 @@ export function zp_get_eventDetails(event) {
  * @returns 
  */
 export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method = undefined, headers = undefined) {
-    const debug = false;
+    const debug = true;
     try {
         const zpar = new ZP_ApiRouter(urlOrRouterOrEvent, data, method);
-        //zpar.dump();
+        if (debug) zpar.dump();
 
         // lets fetch 
         //   create and return the Promise that 
@@ -50,19 +50,23 @@ export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method
 
             // debug
             if (debug) zpar.dump();
-            //console.log(zpar.fetch_url, zpar.method, zpar.route, zpar.action, zpar.data);
+            if (debug) console.log(zpar.fetch_url, zpar.method, zpar.route, zpar.action, zpar.data);
 
             let fullResponse = null
     
-            fetch(zpar.fetch_url, {...zpar.fetch_options})
+            fetch(zpar.fetch_url, zpar.fetch_options)
                 // send the fetch by ZP_ApiRouter
                 .then(response => response.json())
                 .then(data => {
-                    //console.log('data zp_fetch_api()', data.data, data.error, data)
+                    console.log('data zp_fetch_api()', data.data, data.error, data)
                     //data is the ZeeltePHP/jsonResponse()
-                    //data.data is the response of any +s.php
+                    //data.data is the response of any +page.server.php
                     fullResponse = data;
-                    resolve(data.data || '') // if data.data == null -> set '' as empty fallback
+                    if (data?.data) {
+                        resolve(data.data || '') // if data.data == null -> set '' as empty fallback
+                    }
+                    else
+                        resolve(data);
                 })
                 .catch(error => {
                     console.error('zp_fetch_api/promise', { error });

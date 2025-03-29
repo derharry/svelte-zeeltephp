@@ -17,7 +17,7 @@
             'ZP-Routes'   : 'Output of ',
             'WPDB'        : 'Example for supported DB-Types.',
             'Send-Data'   : 'Example data send via JSON and HTMLFormFormData.',
-            'ZP-DB'       : 'Example for supported DB-Types.',
+            'ZP-DB'       : 'Example for supported DB-Types.'
 
       }
 
@@ -45,7 +45,6 @@
 
 <h1>Welkom to ZeeltePHP</h1>
 <VarDump title="Explanation" vardump={descriptions}     />
-
 <VarDump title="basic info" vardump={data_zp_basic}     />
-<VarDump title="data from +page.js and PHP" vardump={data_php_response} />
-<VarDump title="ZP_ApiRouter" vardump={zp_ApiRouter} />
+<VarDump title="data from +page.js and PHP" vardump={data_php_response} dumpAll={true} />
+<VarDump title="ZP_ApiRouter (Svelte)" vardump={zp_ApiRouter} />

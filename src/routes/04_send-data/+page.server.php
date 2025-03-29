@@ -1,5 +1,14 @@
 <?php
 
+      function load() {
+            global $zpAR;
+            return [
+                  'zpAR' => $zpAR,
+                  'message' => 'Hello from load()',
+                  'data' => $_POST,
+            ];
+      }
+
 
       function actions($action, $value) {
             global $jsonResponse, $zpAR;
@@ -20,14 +29,12 @@
                                     'data' => $_POST,
                               ];
                         break;
-                  default:
-                              return [
-                                    'zpAR' => $zpAR,
-                                    'message' => 'Hello from actions/DEFAULT/'.$action.':'.$value,
-                                    'data' => $_POST,
-                              ];
-                        break;
-            }
+            }  
+            return [
+                  'zpAR' => $zpAR,
+                  'message' => 'Hello from actions/DEFAULT/'.$action.':'.$value,
+                  'data' => $_POST,
+            ];
       }
 
 

@@ -61,7 +61,7 @@
             try {
                   console.clear();
                   //vardump = new ZP_EventDetails(e);
-                  vardump = {
+                  /*vardump = {
                         id: 0,
                         name: "harry",
                         options: {
@@ -79,7 +79,9 @@
                               { id: 1, title: "yyy", message: "Cat", data: [] },
                         ],
                   };
-                  console.log("handle_urlRouteString()", e);
+                  */
+
+                  //zpAR_zpPHP = await zp_fetch_api(fetch, )
                   //vardump = e;
             } catch (error) {
                   console.log(error);

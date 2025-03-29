@@ -22,6 +22,7 @@
 
       function handle_click_invalidateAll() {
             invalidateAll();
+            _vardump     = null;
             _varDumpTitle = '+page.js/load'
             _vardump = data;
       }
@@ -29,6 +30,7 @@
       function handle_click_ZP_EventDetails(e) {
             try {
                   _varDumpTitle = 'ZP_EventDetails'
+                  _vardump     = null;
                   _vardump = new ZP_EventDetails(e);
             } catch (error) {
                   _vardump = error;
@@ -37,7 +39,9 @@
 
       function handle_click_ZP_ApiRouter(e) {
             try {
+                  console.clear();
                   _varDumpTitle = 'ZP_ApiRouter (Svelte)'
+                  _vardump     = null;
                   _vardump = new ZP_ApiRouter(e);
             } catch (error) {
                   _vardump = error;
@@ -46,8 +50,10 @@
 
       function handle_click_ZP_ApiRouter_PHP(e) {
             try {
+                  console.clear();
                   _varDumpTitle = 'ZP_ApiRouter (PHP)'
-                  promise_load = zp_fetch_api(fetch, e)
+                  _vardump     = null;
+                  const promise_load = zp_fetch_api(fetch, e)
                         .then((data) => _vardump = data)
                         .catch((error) => _vardump = error)
             } 

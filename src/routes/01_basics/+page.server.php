@@ -1,5 +1,6 @@
 <?php
 
+
       // rename to load when response via $jsonResponse
       function load() {
             global $jsonResponse;
@@ -19,7 +20,7 @@
 
                   switch ($action) {
 
-                        case '?/getZpApiRouterPHP': 
+                        case 'getZpApiRouterPHP': 
                                           return $zpAR;  
                                     break;
 

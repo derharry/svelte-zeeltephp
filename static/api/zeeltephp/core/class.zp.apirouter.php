@@ -11,7 +11,7 @@ class ZP_ApiRouter
       public $route ;
       public $action;
       public $value ;
-      public $params;
+    //public $params; depricated we load get into $data
       public $data  ;
 
       // PHP SSR specific
@@ -21,6 +21,7 @@ class ZP_ApiRouter
       public $routeFileExist = false;
       public $headers     = null;
       public $error       = null;
+      public $message     = null;
 
       function Dump() {
             var_dump($this);
@@ -34,9 +35,12 @@ class ZP_ApiRouter
        */
       function __construct() {
             try {
+                  $this->message = 'ZP_ApiRouter()';
+                  zp_log_debug('ZP_ApiRouter()');
                   $this->parse_method_zp_routing();
                   $this->set_environment();
                   $this->parse_request();
+                  zp_log_debug('//ZP_ApiRouter()');
             }
             catch (Exception $exp) {
                   zp_error_handler($exp);
@@ -45,8 +49,10 @@ class ZP_ApiRouter
 
       function set_environment() {
             try {
+                  zp_log_debug('set_environment()');
                   // load the .env file -> zp_read_env_file
                   if (!$this->environment) {
+                        //$this->message = 'set_environment()';
                         //error_log'set_environment()/env');
                         $env = zp_read_env_file();
                         // by $env->build_dir we know 
@@ -56,6 +62,7 @@ class ZP_ApiRouter
                         $this->environment = isset($env['BUILD_DIR']) ? 'dev' : 'build';
                   }
                   if ($this->route) {
+                        //$this->message = 'set_environment()/route';
                         //error_log('set_environment()/route');
                         //error_log('route:'.$this->route);
 
@@ -68,6 +75,7 @@ class ZP_ApiRouter
                               //$this->routeFile = null; // set default value back
                         }
                   }
+                  zp_log_debug('//set_environment()');
             }
             catch (Exception $exp) {
                   zp_error_handler($exp);
@@ -82,37 +90,45 @@ class ZP_ApiRouter
        */
       function parse_method_zp_routing() {
             try {
-                  zp_log_debug('parse_method_zp_routing()');
+                  $this->message = 'parse_method_zp_routing()';
                   // by method
                   if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-                        zp_log_debug('  >> GET');
+                        zp_log_debug('  >> Request_Method = GET');
+                        $this->message = 'parse_method_zp_routing(GET)';
                         // route, action, value, data is set by funtion
                         //error_log'PARSE GET');
                         //$this->parse_method_GET_url();
                         $idx = -1;
                         foreach ($_GET as $key => $value) {
                               $idx++;
-                              //error_log('key:'.$key);
+                              if ($key == null) continue;
+                              zp_log_debug('   > parse:'.$key);
                               if ( $idx == 0 && str_starts_with($key, '/') && str_ends_with($key, '/') ) {
                                     //route can only be on index 0 
-                                    //error_log('route:'.$key);
+                                    zp_log_debug('   route:'.$key);
                                     $this->route = $key;
-                                    unset($_GET[$key], $_REQUEST[$key]);
+                                    //unset($_GET[$key], $_REQUEST[$key]);
                               }
                               else if ( ($idx == 0 || $idx == 1) && str_starts_with($key,'?/') ) {
                                     //action can be on index 0 or 1
+                                    //$this->message = 'action:'.$key;
+                                    zp_log_debug('   action:'.$key);
                                     $this->action = $key;
                                     $this->value  = $value;
-                                    unset($_GET[$key], $_REQUEST[$key]);
+                                    //unset($_GET[$key], $_REQUEST[$key]);
                               }
                               else {
-                                    if (!is_array($this->params)) $this->params = [];
-                                    $this->params[$key] = $value;
+                                    //$this->message = 'param:'.$key;
+                                    zp_log_debug('   param:'.$key);
+                                    if (!is_array($this->data)) $this->data = [];
+                                    $this->data[$key] = $value;
+                                    //$this->params[][$key] = $value;
                               }
                         }
                         //$this->data = $_GET;
                   }
                   else if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+                        $this->message = 'parse_method_zp_routing(POST || OPTIONS)';
                         zp_log_debug('  >> Request_Method = POST || OPTIONS');
                         $this->method = 'POST';
                         //$contentType  = $_SERVER['CONTENT_TYPE'];
@@ -120,24 +136,32 @@ class ZP_ApiRouter
                         if (isset($_POST['zp_route'])) { //|| str_contains($contentType, 'application/json') ) {
                               zp_log_debug('  >> PHP reading $_POST');
                               //$contentType = 'multipart/form-data, application/x-www-form-urlencoded';
-                              $this->route  = $_POST['zp_route'];
-                              $this->action = $_POST['zp_action'];
-                              $this->value  = $_POST['zp_value'];
-                              $this->data   = $_POST;
+                              if (isset($_POST['zp_route']))  $this->route  = $_POST['zp_route'];
+                              if (isset($_POST['zp_action'])) $this->action = $_POST['zp_action'];
+                              if (isset($_POST['zp_value']))  $this->value  = $_POST['zp_value'];
                               unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                               unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
                               unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
+                              $this->data   = $_POST;
+
                         }
                         else {
                               // parse json
+                               $this->message = 'parse_method_zp_routing(POST JSON)';
                               zp_log_debug('  >> PHP reading $_POST from JSON-input');
                               $data = read_json_input(); 
-                              $this->route  = $_POST['zp_route'];
-                              $this->action = $_POST['zp_action'];
-                              $this->value  = $_POST['zp_value'];
-                              $this->data   = $data;
-                              $_POST = $_POST['zp_data'];
-                              $_REQUEST = $_POST;
+                              if (!$data) {
+                                    $this->error = 'ZP: could not read JSON input.';
+                                    return;
+                              } else {
+                                    if (isset($_POST['zp_route']))  $this->route  = $data['zp_route'];
+                                    if (isset($_POST['zp_action'])) $this->action = $data['zp_action'];
+                                    if (isset($_POST['zp_value']))  $this->value  = $data['zp_value'];
+                                    unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
+                                    unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
+                                    unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
+                                    $this->data   = $_POST;
+                              }
                         }
                   }
                   //else if ($_SERVER['REQUEST_METHOD'] == 'PUT') {}
@@ -148,10 +172,9 @@ class ZP_ApiRouter
                         $this->error = 'ZP: Unknown method for routing.'.$_SERVER['REQUEST_METHOD'];
                   }
                   zp_log_debug('//parse_method_zp_routing()');
-      
             }
             catch (Exception $exp) {
-                  zp_log_debug('//parse_method_zp_routing() !!'.$exp->getMessage());
+                  zp_log_debug('//parse_method_zp_routing() !!');
                   zp_error_handler($exp);
             }
       }

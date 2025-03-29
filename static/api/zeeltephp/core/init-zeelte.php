@@ -11,6 +11,7 @@
           require_once('zeeltephp/core/class.zp.apirouter.php');
           require_once('zeeltephp/lib/cfg/cfg.env.php');
           require_once('zeeltephp/lib/io/io.dir.php');
+          require_once('zeeltephp/lib/helper/zp.log.error.handler.php');
           require_once('zeeltephp/lib/helper/load.php.files.php');
           require_once('zeeltephp/lib/request/json.response.php');
           require_once('zeeltephp/lib/request/headers.php');
@@ -46,31 +47,7 @@
 
      //#region methods
 
-          function zp_log($content) {
-               error_log($content."\n", 3, 'zeeltephp/log/log.log');
-          }
 
-          function zp_log_debug($content) {
-               global $debug;
-               if ($debug) 
-                    error_log($content."\n", 3, 'zeeltephp/log/debug.log');
-          }
-
-
-          function zp_error_handler($error) {
-               $errorText = [];
-               $errorText[] = strstr($error->getFile(), "\src").':'; # strip all before \src (full-path) to get only the relative-path 
-               $errorText[] = $error->getLine();
-               $errorText[] = $error->getMessage();
-               //$errorText[] = $error->getCode(); // 0? 
-               //$errorText[] = 'at';
-               //$errorText[] = $error->getPrevious();      // empty - hoped for parent function name
-               //$errorText[] = $error->getTraceAsString(); // not interesting
-               $errorText[] = "\n";
-               $errorText   = implode(' ',$errorText);
-               zp_log_debug(' !! zp_error_handler() '.$errorText);
-               error_log($errorText, 3, 'zeeltephp/log/error.log');
-          }
 
           function zp_load_lib($environment) {
                // if dev-env load all php files from /src/lib/zplib 
@@ -134,15 +111,18 @@
                          if      ($action_response == '__ZP-ACTIONS?__')               $msg = "no action(s) found for ".$zpAR->action; 
                          else if (str_starts_with('__ZP-ACTION_-', $action_response))  $msg = "no response of ".$action_function_name;
                          else if (str_starts_with('__ZP-ACTIONS_-', $action_response)) $msg = "no response of actions()";
+                         else if ($action_response == '__ZP-LOAD__')                 $msg = "no response of load()";
+                         else if ($action_response == '__ZP-INIT__')                 $msg = "no load() or actions() found.";
+                         else $msg = $action_response;
                          $action_response = $msg;
                     }
                     zp_log_debug('  << '.$msg);
                     zp_log_debug('//zp_main_pageserverphp()');
                     return $action_response;
                } catch (Exception $exp) {
-                    zp_log_debug('//zp_main_pageserverphp() !! '.$exp);
+                    zp_log_debug('//zp_main_pageserverphp() !! '.$exp->getMessage());
                     zp_error_handler($exp);
-                    return false;
+                    return $exp->getMessage();
                }
           }
           
