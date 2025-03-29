@@ -30,7 +30,8 @@ echo "             $BUILD_DIR"
 
 # copy PUBLIC_ and 
 echo "  ✔ Copying environment variables to $BUILD/api/zeeltephp/.env"
-grep "^PUBLIC_" $env_file > $BUILD_DIR/api/zeeltephp/.env 
+grep "^BASE=" "$env_file" | sed 's/^BASE=/PUBLIC_BASE=/' > "$BUILD_DIR/api/zeeltephp/.env"
+grep "^PUBLIC_" $env_file >> $BUILD_DIR/api/zeeltephp/.env 
 grep "^ZEELTEPHP_" $env_file >> $BUILD_DIR/api/zeeltephp/.env 
 
 

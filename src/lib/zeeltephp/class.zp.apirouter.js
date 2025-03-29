@@ -79,6 +79,9 @@ export class ZP_ApiRouter
                         // 
                         // nothing to do routeUrl :-) 
                   }
+                  this.route = this.route.replace(/^\//, '', this.route)
+                  this.route = this.route.replace(/\/$/, '', this.route)
+                  this.route = '/'+this.route+'/';
 
                   //this.message = 'ZP_ApiRouter-defaults'
                   // but before set further defaults check if param/data is ZP_EventDetails

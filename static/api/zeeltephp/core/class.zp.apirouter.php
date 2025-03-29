@@ -19,6 +19,8 @@ class ZP_ApiRouter
       public $method      = 'GET';
       public $routeFile   = '/';
       public $routeFileExist = false;
+      public $routeBase   = '/';
+      public $routeBaseApi= '/';
       public $headers     = null;
       public $error       = null;
       public $message     = null;
@@ -60,14 +62,19 @@ class ZP_ApiRouter
                         //     build mode (not exported into ./zeeltephp/.env)
                         //     - instead of build = file_exist("/zeeltephp/.env") 
                         $this->environment = isset($env['BUILD_DIR']) ? 'dev' : 'build';
+                        $this->routeBase   = isset($env['PUBLIC_BASE']) ? $env['PUBLIC_BASE'] : '/';
+                        $this->routeBaseApi= isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
                   }
                   if ($this->route) {
                         //$this->message = 'set_environment()/route';
                         //error_log('set_environment()/route');
                         //error_log('route:'.$this->route);
+                        $this->route = str_replace($this->routeBase, '', $this->route);
+                        //$this->route = ltrim($this->route, '/', rtrim($this->route, '/'));
+                        //$this->route = '/'.$this->route.'/';
 
-                        $routeFile = $this->route .'+page.server.php';
-                        $routePath = $this->environment == 'dev' ? '../../src/routes' : 'routes';
+                        $routeFile = $this->route .'/+page.server.php';
+                        $routePath = $this->environment == 'dev' ? '../../src/routes/' : './routes/';
                         $this->routeFile = $routePath.$routeFile;
                         $this->routeFileExist = is_file($this->routeFile);
                         if (!$this->routeFileExist) {
