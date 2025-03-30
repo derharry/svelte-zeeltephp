@@ -21,7 +21,7 @@
 
      //#region set defaults
 
-          $debug = true;
+          $debug = false;
           global $debug;
           global $db;
           global $env;

@@ -24,7 +24,7 @@ export function zp_get_eventDetails(event) {
  * @returns 
  */
 export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method = undefined, headers = undefined) {
-    const debug = true;
+    const debug = false;
     try {
         const zpar = new ZP_ApiRouter(urlOrRouterOrEvent, data, method);
         if (debug) zpar.dump();
