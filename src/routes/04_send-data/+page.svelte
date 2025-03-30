@@ -1,5 +1,5 @@
 <script>
-    import VarDump from "$lib/VarDump.svelte";
+    import VarDump from "$lib/zeeltephp/VarDump.svelte";
 
     // debug imports
     import { ZP_EventDetails } from "$lib/zeeltephp/class.zp.eventdetails";

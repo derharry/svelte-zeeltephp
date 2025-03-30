@@ -1,6 +1,6 @@
 <script>
       import { page } from "$app/state";
-      import VarDump from "$lib/VarDump.svelte";
+      import VarDump from "$lib/zeeltephp/VarDump.svelte";
       import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
       import { onMount } from "svelte";
       

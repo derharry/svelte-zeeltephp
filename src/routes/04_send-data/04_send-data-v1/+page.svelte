@@ -2,7 +2,7 @@
     import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
     import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
 
-    import VarDump from "$lib/VarDump.svelte";
+    import VarDump from "$lib/zeeltephp/VarDump.svelte";
     import { ZP_EventDetails } from "$lib/zeeltephp/class.zp.eventdetails";
     import { fromStore } from "svelte/store";
 

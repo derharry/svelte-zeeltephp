@@ -1,5 +1,5 @@
 <script>
-      import VarDump from "$lib/VarDump.svelte";
+      import VarDump from "$lib/zeeltephp/VarDump.svelte";
       export let data;
 
       //destruct data from +page.js

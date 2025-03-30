@@ -5,7 +5,7 @@
     import { get_event_action_details } from "$lib/zeeltephp/class.zp.eventdetails"
     import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
     import { onMount } from "svelte";
-    import TableShowData from "$lib/VarDump.svelte";
+    import TableShowData from "$lib/zeeltephp/VarDump.svelte";
 
     let form = {
         jsonData : false,

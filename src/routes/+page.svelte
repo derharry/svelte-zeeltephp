@@ -4,7 +4,7 @@
       import { dev  } from "$app/environment"
       import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter.js";
       import { ZP_EventDetails } from "$lib/zeeltephp/class.zp.eventdetails.js";
-      import VarDump from "$lib/VarDump.svelte";
+      import VarDump from "$lib/zeeltephp/VarDump.svelte";
       
       export let data;
 

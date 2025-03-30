@@ -3,7 +3,7 @@
     import { page } from '$app/state';
 
 
-      import VarDump from '$lib/VarDump.svelte';
+      import VarDump from '$lib/zeeltephp/VarDump.svelte';
       import { ZP_ApiRouter } from '$lib/zeeltephp/class.zp.apirouter';
       import { ZP_EventDetails } from '$lib/zeeltephp/class.zp.eventdetails';
       import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
