@@ -149,8 +149,11 @@ class ZP_ApiRouter
                               unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                               unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
                               unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
-                              $this->data   = $_POST;
-
+                              if (isset($_POST['zp_data'])) {
+                                    $this->data = $_POST['zp_data'];
+                                    $_POST      = $_POST['zp_data'];
+                                    $_REQUEST   = $_POST;
+                              } 
                         }
                         else {
                               // parse json
@@ -166,8 +169,12 @@ class ZP_ApiRouter
                                     if (isset($_POST['zp_value']))  $this->value  = $data['zp_value'];
                                     unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                                     unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
-                                    unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
-                                    $this->data   = $_POST;
+                                    unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);            
+                                    if (isset($_POST['zp_data'])) {
+                                          $this->data = $_POST['zp_data'];
+                                          $_POST      = $_POST['zp_data'];
+                                          $_REQUEST   = $_POST;
+                                    }  
                               }
                         }
                   }

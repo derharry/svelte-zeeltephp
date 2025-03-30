@@ -1,4 +1,7 @@
 <?php
+/**
+ * db.db.php
+ */
 
 //require_once('zeeltephp/lib/db/db.sqlite3.php');
 require_once('zeeltephp/lib/db/db.wordpress.php');
@@ -19,18 +22,43 @@ class ZP_DB {
       public $database = null;
 
 
+      // Handle property access
+      public function __get($name) {
+            return $this->dbsrc->$name;
+            /*
+            try {
+                  if ($this->dbsrc && property_exists($this->dbsrc, $name)) {
+                        return $this->dbsrc->$name;
+                  }
+                  elseif ($this->dbsrc && isset($this->dbsrc->$name)) {
+                        return $this->dbsrc->$name;
+                  }
+                  throw new \Exception("ZPDB: Property $name not found in DB adapter");
+            } catch (\Throwable $th) {
+                  zp_error_handler($th);
+            }
+            if ($this->dbsrc && property_exists($this->dbsrc, $name)) {
+                  return $this->dbsrc->$name;
+            }*/
+      }
+
       // Add magic method to forward calls to dbsrc
       public function __call($method, $args) {
+            return $this->dbsrc->$method(...$args);
+            /*
             try {
                   if ($this->dbsrc && method_exists($this->dbsrc, $method)) {
                         return $this->dbsrc->$method(...$args);
                   }
-                  throw new \Exception("Method $method not found in DB adapter");
+                  elseif ($this->dbsrc && isset($this->dbsrc->$method)) {
+                        return $this->dbsrc->$method;
+                  }
+                  throw new \Exception("ZPDB: Method $method not found in DB adapter");
             }
             catch (\Throwable $th) {
                   zp_error_handler($th);
-            }
-      }
+            }*/
+      }      
       
       function __construct($ZEELTEPHP_DATABASE_URL = null) {
             if (is_null($ZEELTEPHP_DATABASE_URL)) return;
