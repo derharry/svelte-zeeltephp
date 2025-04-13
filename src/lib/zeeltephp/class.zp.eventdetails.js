@@ -76,6 +76,11 @@ export class ZP_EventDetails {
                         return this.parse_URL()
                   else if (event instanceof ZP_ApiRouter)
                         this.message = 'instance of ZP_ApiRouter. nothing to do.'
+                  else if (event?.detail) {
+                        this.action = event.detail.formaction;
+                        this.name   = event.detail.name;
+                        this.value  = event.detail.value;
+                  }
                   else
                         this.message = 'Unknown event '+event +' '+typeof event
                   //console.log(this.message)

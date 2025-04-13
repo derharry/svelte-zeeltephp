@@ -7,8 +7,6 @@
 #
 
 ## path to includes
-
-
 include('zeeltephp/core/init-zeelte.php');
 
 

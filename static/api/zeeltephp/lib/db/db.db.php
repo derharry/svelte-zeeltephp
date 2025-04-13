@@ -80,7 +80,16 @@ class ZP_DB {
                   }
                   
                   if (class_exists($className)) {
-                        $this->dbsrc = new $className($ZEELTEPHP_DATABASE_URL);
+                        if ($this->username != null) {
+                              $this->dbsrc = new $className(
+                                    $this->hostname, 
+                                    $this->username, 
+                                    $this->password, 
+                                    $this->database);
+                        }
+                        else {
+                              $this->dbsrc = new $className($ZEELTEPHP_DATABASE_URL);
+                        }
                   } else {
                         $this->message = "Class $className not found.";
                   }
@@ -92,7 +101,7 @@ class ZP_DB {
 
       function parse_connectionUrl($databaseUrl) {
             try {
-                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/
+                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/wp.load.php/
                   //ZEELTEPHP_DATABASE_URL=provider://username:password@hostname/database
                   $parts = parse_url($databaseUrl);
                   $this->dbtype = isset($parts['scheme']) ? $parts['scheme'] : null;
@@ -106,10 +115,30 @@ class ZP_DB {
                   $this->port     = isset($parts['port']) ? $parts['port'] : null;
 
                   if ($this->dbtype == 'wordpress') {
+                        $parts = explode('@', $this->database);
+                        $this->database = array_pop($parts);
+                        $parts = array_unshift($this->hostname);
+                        $this->hostname = 'xx';//implode('/', $parts);
+                        //$this->database = array_pop($parts);
+
+                        //$this->hostname .= implode('/', $parts);
                         //repair the string to datase (full path again because first .. is stripped)
-                        $this->database = $this->hostname.$this->database;
-                        $this->hostname = null;
+                        // split / -> last part is database when not wp-load.php
+
+                        //$parts    = explode(':', $databaseUrl);
+                        //$database = array_pop($parts);
+                        //if ($database != 'wp-load.php') {
+                              //$this->hostname = implode('/', $parts);
+                              //$this->database = $database;
+                        //}
+                        //else {
+                              //$this->hostname = $databaseUrl;
+                        //}
+
+                        //$this->database = $this->hostname.$this->database;
+                        //$this->hostname = null;
                   }
+                  $this->database = str_replace('/', '', $this->database);
             } catch (\Throwable $th) {
                   zp_error_handler($th);
             }

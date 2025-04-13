@@ -4,7 +4,6 @@
 import { browser } from "$app/environment";
 import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 import { base } from "$app/paths";
-//import { page } from "$app/state";
 import { ZP_ApiRouter } from "./class.zp.apirouter";
 import { ZP_EventDetails } from "./class.zp.eventdetails";
 

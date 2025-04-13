@@ -89,6 +89,11 @@ class ZeeltePHP_DB_wordpress {
                   $this->wpdb->close();
       }
 
+      public function last_error() {
+          if ($this->connect())
+              return $this->wpdb->last_error;
+      }
+
 
       public function query($sql) {
             try {
