@@ -10,7 +10,7 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "bunx svelte-kit sync && bunx svelte-package && bun run copyApi && bunx publint",
 		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
-		"postinstall": "build"
+		"postinstall": "bun run build"
 	},
 	"files": [
 		"dist",
