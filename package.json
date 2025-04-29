@@ -8,7 +8,7 @@
 		"build": "vite build --mode build && npm run prepack",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"prepack": "svelte-kit sync && svelte-package && bun run copyApi && publint",
+		"prepack": "bunx svelte-kit sync && bunx svelte-package && bun run copyApi && bunx publint",
 		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
 	},
 	"files": [
