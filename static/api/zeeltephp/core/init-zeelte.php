@@ -41,14 +41,27 @@ register_shutdown_function(function() {
                  'message' => $error['message'],
                  'file' => $error['file'],
                  'line' => $error['line']
-             ]
+             ],
+             'cwd' => getcwd()
          ]);
      }
 });
 
-
-
 //main()
+$path_ZP_LIB = './lib';
+$path_ZP_ROUTES = './routes';
+if (!is_dir('./routes')) {
+     $path_ZP_LIB = getcwd().'/../../src/lib/zplib';
+     $path_ZP_ROUTES = getcwd().'/../../src/routes';
+}
+if (!is_dir('./zeeltephp')) {
+     chdir('../../node_modules/zeeltephp/dist/api/');
+     //chdir(getcwd());
+     //echo getcwd();
+}
+define('PATH_ZPLIB', $path_ZP_LIB);
+define('PATH_ZPROUTES', $path_ZP_ROUTES);
+
 require_once('zeeltephp/core/class.zp.apirouter.php');
 require_once('zeeltephp/lib/cfg/cfg.env.php');
 require_once('zeeltephp/lib/io/io.dir.php');
@@ -154,12 +167,23 @@ function zp_read_SvelteKitRoutes() {
  * read ./lib/*
  */
 function zp_load_lib($environment) {
+     global $path_ZP_LIB;
      // if dev-env load all php files from /src/lib/zplib 
+     zp_load_php_files(PATH_ZPLIB);
+     /*
      //var_dump($environment);
-     if ($environment == 'dev' && is_dir('../../src/lib/zplib/'))
+     if (is_dir('./lib')) {
+          echo 'ewflkwöflkweölfwekföl';
+          zp_load_php_files('./lib');
+     } else {
+          //echo '3242423432423';
           zp_load_php_files( '../../src/lib/zplib/' );
+     }
+     //if ($environment == 'dev' && is_dir('../../src/lib/zplib/'))
+     //     zp_load_php_files( '../../src/lib/zplib/' );
      // load default /api/lib
-     zp_load_php_files( './lib' );
+     //zp_load_php_files( './lib' );
+     */
 }
 
 

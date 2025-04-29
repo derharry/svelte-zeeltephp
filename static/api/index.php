@@ -6,7 +6,7 @@
 #     api can be any naming
 #
 
-## path to includes
+## path to include
 include('zeeltephp/core/init-zeelte.php');
 
 

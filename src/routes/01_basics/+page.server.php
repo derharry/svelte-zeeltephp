@@ -8,8 +8,7 @@
             return [
                   '+page.server.php'  => 'Hello from /01_basics/+page.server.php',
                   'api/lib'     => lib_static(),
-                  'api/lib/sub' => lib_sub_static(),
-                  '$lib/zpi'    => lib_zplib_example()
+                  'api/lib/sub' => lib_sub_static()
             ];
       }
 

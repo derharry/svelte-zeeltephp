@@ -21,6 +21,7 @@ class ZP_ApiRouter
       public $routeFileExist = false;
       public $routeBase   = '/';
       public $routeBaseApi= '/';
+      public $routePath   = 'x';
       public $headers     = null;
       public $error       = null;
       public $message     = null;
@@ -61,16 +62,20 @@ class ZP_ApiRouter
                         //     dev (defined in .env.dev) 
                         //     build mode (not exported into ./zeeltephp/.env)
                         //     - instead of build = file_exist("/zeeltephp/.env") 
+                        $routePath = PATH_ZPROUTES;
+                        $this->routePath = $routePath;
                         $this->environment = isset($env['BUILD_DIR']) ? 'dev' : 'build';
                         $this->routeBase   = isset($env['PUBLIC_BASE']) ? $env['PUBLIC_BASE'] : '/';
                         $this->routeBaseApi= isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
                   }
                   if ($this->route) {
                         //$this->message = 'set_environment()/route';
-                        $routePath = $this->environment == 'dev' ? '../../src/routes/' : './routes/';
+                        //$this->environment == 'dev' ? '../../src/routes/' : './routes/';
                         //echo $this->routeBase."\n";
                         //echo $this->route."\n";
-                        //$this->route = str_replace($this->routeBase, '', $this->route); // whatever? - removes the / in case
+                        //echo getcwd();
+                        $routePath = $this->routePath;
+                        $this->route = str_replace($this->routeBase, '', $this->route); // whatever? - removes the / in case
                         //echo $this->route."\n";
                         $pageServerPHP = $routePath .$this->route .'/+page.server.php';
                         if (!is_file($pageServerPHP)) {
