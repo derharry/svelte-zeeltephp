@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "bunx svelte-kit sync && bunx svelte-package && bun run copyApi && bunx publint",
-		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
+		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
+		"postinstall": "build"
 	},
 	"files": [
 		"dist",
