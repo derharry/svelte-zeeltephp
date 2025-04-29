@@ -3,7 +3,6 @@
 	"version": "0.0.9",
 	"description": "tbd",
 	"license": "MIT",
-	"author": "Harry <derharry@me.com> (http://zeepress.at/derharry/)",
 	"scripts": {
 		"dev": "vite dev --mode dev",
 		"build": "vite build --mode build && npm run prepack",
