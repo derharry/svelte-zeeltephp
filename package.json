@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev --mode dev",
-		"build": "vite build --mode build && npm run prepack",
+		"build": "vite build && npm run prepack",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "bunx svelte-kit sync && bunx svelte-package && bun run copyApi && bunx publint",
