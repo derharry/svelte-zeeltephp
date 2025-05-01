@@ -46,20 +46,13 @@ export function zeeltephp_loadEnv(mode) {
       }
     }
     //set API required paths
-    process.env.ZP_PATH_API    = './static/api/';
+    //set consumer by default
+    process.env.ZP_PATH_API = './node_modules/dist/api/';
     process.env.ZP_PATH_ZPLIP  = './src/lib/zplib/';
     process.env.ZP_PATH_ROUTES = './src/routes/';
     if (process.env.npm_package_name == 'zeeltephp') {
       // paths for self mode
-      if (mode == 'dev') {
-      } else {
-      }
-    } else {
-      // paths for consumer mode
-      if (mode == 'dev') {
-        //process.env.ZP_PATH_API = '/node_modules/dist/api/';
-      } else {
-      }
+      process.env.ZP_PATH_API    = './static/api/';
     }
   } catch (error) {
     console.error(' EEE ', error);
