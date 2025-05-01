@@ -2,7 +2,7 @@
 	"name": "zeeltephp",
 	"version": "0.0.9.2",
 	"description": "tbd",
-	"license": "MIT",	
+	"license": "MIT",
 	"trustedDependencies": ["zeeltephp"],
 	"scripts": {
 		"dev": "vite dev --mode dev",
@@ -10,9 +10,9 @@
 		"preview": "vite preview",
 		"prepare": "npm run svelte-kit sync || echo ''",
 		"prepack": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
-  		"cleanup": "npx del-cli ./dist/zplib",
+		"cleanup": "npx del-cli ./dist/zplib",
 		"postinstall": "npm run prepack",
-		"zp-dist-copy-api":  "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
+		"zp-dist-copy-api": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
 	},
 	"files": [
 		"dist",
@@ -31,17 +31,18 @@
 			"svelte": "./dist/index.js"
 		},
 		"./vite-plugin": {
-		  "types": "./dist/vite-plugin/zeeltephp-vite-plugin.d.ts",
-		  "import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
+			"types": "./dist/vite-plugin/zeeltephp-vite-plugin.d.ts",
+			"import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
 		}
 	},
-		"exclude": ["src/lib/zplib"],
+	"exclude": ["src/lib/zplib"],
 	"peerDependencies": {
 		"svelte": "^5.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/package": "^2.0.0",
-		"cpx": "^1.5.0"
+		"cpx": "^1.5.0",
+		"publint": "^0.3.12"
 	},
 	"devDependencies": {
 		"@picocss/pico": "^2.1.1",
