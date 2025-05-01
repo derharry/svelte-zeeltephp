@@ -11,8 +11,10 @@
 		"prepare": "npm run svelte-kit sync || echo ''",
 		"prepack": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
 		"cleanup": "npx del-cli ./dist/zplib",
-		"postinstall": "npm run prepack",
-		"zp-dist-copy-api": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
+		"postinstall": "npm run prepack && npm run zp-ensure-layout",
+		"zp-dist-copy-api": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
+		"zp-postinstall-copy-layout": "cpx 'src/routes/' 'dist/api' --includeEmptyDirs",
+		"zp-ensure-layout": "node -e \"require('fs').copyFileSync('./templates/+layout.js', './src/routes/+layout.js', fs.constants.COPYFILE_EXCL)\" || echo 'Layout exists'"
 	},
 	"files": [
 		"dist",
