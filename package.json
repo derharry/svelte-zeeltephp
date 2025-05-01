@@ -8,14 +8,11 @@
 		"dev": "vite dev --mode dev",
 		"build": "vite build --mode build",
 		"preview": "vite preview",
-		"prepare": " npm run svelte-kit sync || echo ''",
-		"prepack": " npm run svelte-kit sync && npm run  svelte-package && npm run cleanup && npm run copyApi && publint",
-		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
+		"prepare": "npm run svelte-kit sync || echo ''",
+		"prepack": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
   		"cleanup": "npx del-cli ./dist/zplib",
 		"postinstall": "npm run prepack",
-		"zp-dist-copy-api":  "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
-		"zp-build-copy-api": "cpx 'static/api/**/*.php' 'dist/api' --include-empty-dirs"
-
+		"zp-dist-copy-api":  "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
 	},
 	"files": [
 		"dist",
@@ -43,16 +40,16 @@
 		"svelte": "^5.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.16.0",
-		"@sveltejs/package": "^2.0.0"
+		"@sveltejs/package": "^2.0.0",
+		"cpx": "^1.5.0"
 	},
 	"devDependencies": {
 		"@picocss/pico": "^2.1.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
-		"cpx": "^1.5.0",
-		"publint": "^0.3.2",
 		"svelte": "^5.0.0",
 		"typescript": "^5.3.2",
-		"vite": "^6.2.6"
+		"vite": "^6.2.6",
+		"zeeltephp": "github:derharry/svelte-zeeltephp#vrc1"
 	},
 	"keywords": [
 		"svelte"
