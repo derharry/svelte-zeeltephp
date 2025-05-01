@@ -7,7 +7,7 @@
 #
 
 ## path to include
-include('../../node_modules/zeeltephp/dist/api/index.php');
+include('../../node_modules/zeeltephp/dist/index.php');
 
 
 ?>
