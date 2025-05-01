@@ -1,5 +1,4 @@
 src/
 static/
 tests/
-*.env.*
 *.config.js
