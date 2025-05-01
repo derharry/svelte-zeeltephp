@@ -5,22 +5,21 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev --mode dev",
-		"build": "vite build && npm run prepack",
+		"build": "vite build --mode build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"prepack": "bunx svelte-kit sync && bunx svelte-package && bun run copyApi && bunx publint",
+		"prepack": "svelte-kit sync && svelte-package && npm run cleanup && npm run copyApi && publint",
 		"copyApi": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
-		"postinstall": "bun run build"
+  		"cleanup": "npx del-cli ./dist/zplib",
+		"postinstall": "npm run prepack",
+		"zp-dist-copy-api":  "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs",
+		"zp-build-copy-api": "cpx 'static/api/**/*.php' 'dist/api' --include-empty-dirs"
+
 	},
 	"files": [
 		"dist",
 		"!dist/**/*.test.*",
-		"!dist/**/*.spec.*",
-		"dist/vite-plugin/zeeltephp-vite-plugin.js",
-		"dist/vite-plugin",
-		"dist/api",
-		"dist/zeeltephp",
-		"!dist/zplib"
+		"!dist/**/*.spec.*"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -38,6 +37,7 @@
 		  "import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
 		}
 	},
+		"exclude": ["src/lib/zplib"],
 	"peerDependencies": {
 		"svelte": "^5.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",

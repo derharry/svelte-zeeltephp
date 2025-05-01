@@ -77,7 +77,7 @@ class ZP_ApiRouter
                         $routePath = $this->routePath;
                         $this->route = str_replace($this->routeBase, '', $this->route); // whatever? - removes the / in case
                         //echo $this->route."\n";
-                        $pageServerPHP = $routePath .$this->route .'/+page.server.php';
+                        $pageServerPHP = $routePath . '/'.$this->route .'/+page.server.php';
                         if (!is_file($pageServerPHP)) {
                               // check for collection dirs (.*) 
                               // this method allows only 1-level collection

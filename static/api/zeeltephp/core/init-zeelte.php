@@ -48,11 +48,11 @@ register_shutdown_function(function() {
 });
 
 //main()
-$path_ZP_LIB = './lib';
-$path_ZP_ROUTES = './routes';
+$path_ZP_LIB = './lib/';
+$path_ZP_ROUTES = './routes/';
 if (!is_dir('./routes')) {
-     $path_ZP_LIB = getcwd().'/../../src/lib/zplib';
-     $path_ZP_ROUTES = getcwd().'/../../src/routes';
+     $path_ZP_LIB = getcwd().'/../../src/lib/zplib/';
+     $path_ZP_ROUTES = getcwd().'/../../src/routes/';
 }
 if (!is_dir('./zeeltephp')) {
      chdir('../../node_modules/zeeltephp/dist/api/');
@@ -75,6 +75,8 @@ global $debug;
 global $db;
 global $env;
 global $zpAR;
+
+
 
 try {
      // read config .env_file
@@ -147,7 +149,6 @@ try {
 finally {
     ob_end_flush();
 }
-
 
 
 /**
