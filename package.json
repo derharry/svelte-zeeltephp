@@ -9,10 +9,12 @@
 		"build": "vite build --mode build",
 		"preview": "vite preview",
 		"prepare": "npm run svelte-kit sync || echo ''",
-		"prepack": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
-		"cleanup": "npx del-cli ./dist/zplib",
-		"postinstall": "npm run prepack",
-		"zp-dist-copy-api": "cpx 'static/api/**/*.{php,.htaccess}' 'dist/api' --includeEmptyDirs"
+		"prepack.org": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
+		"prepack": "npm run dist-create",
+		"dist-create": "npm run svelte-kit sync && npm run svelte-package && npm run dist-copy-api && npm run dist-cleanup",
+		"dist-cleanup": "npx del-cli ./dist/zplib && publint",
+		"dist-copy-api": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api ",
+		"postinstall2": "npm run prepack"
 	},
 	"files": [
 		"dist",
@@ -39,17 +41,16 @@
 	"peerDependencies": {
 		"svelte": "^5.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",
-		"@sveltejs/kit": "^2.16.0",
-		"@sveltejs/package": "^2.0.0",
-		"cpx": "^1.5.0",
-		"publint": "^0.3.12"
+		"@sveltejs/kit": "^2.20.7"
 	},
 	"devDependencies": {
 		"@picocss/pico": "^2.1.1",
-		"@sveltejs/vite-plugin-svelte": "^5.0.0",
-		"svelte": "^5.0.0",
-		"typescript": "^5.3.2",
-		"vite": "^6.2.6"
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@sveltejs/package": "^2.3.11",
+		"svelte": "^5.28.2",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.4",
+		"publint": "^0.3.12"
 	},
 	"keywords": [
 		"svelte"
