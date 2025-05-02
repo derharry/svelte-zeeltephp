@@ -57,7 +57,7 @@ export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method
                 // send the fetch by ZP_ApiRouter
                 .then(response => response.json())
                 .then(data => {
-                    console.log('data zp_fetch_api()', data.data, data.error, data)
+                    if (debug) console.log('data zp_fetch_api()', data.data, data.error, data)
                     //data is the ZeeltePHP/jsonResponse()
                     //data.data is the response of any +page.server.php
                     fullResponse = data;

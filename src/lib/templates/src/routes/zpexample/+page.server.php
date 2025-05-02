@@ -4,7 +4,7 @@
       function load() {
             return [
                   'message' => 'Hello from /+page.server.php LOAD()',
-                  '$_GET'   => libHi()
+                  '$_GET'   => lip_example()
             ];
       }
 

@@ -1,34 +1,41 @@
-# Svelte-ZeeltePHP (v1.0 rc)
-Svelte + PHP 
-<br>PHP Backend for SvelteKit
+# ZeeltePHP (v1.0.0 rc)
+A library-plugin for SvelteKit adapter-static projects and PHP backend by using /src/routes/+page.server.php. 
+<br>Svelte + PHP
+<br>Svelte - frontend
+<br>PHP - backend (imitating SvelteKit)
 
 
-## Install 
-6 steps to do
+## Instalation
+5 steps to do
 
-1) add zeeltephp to trustedDependencies in your package.json so it may exec postinstallion<br>
-`"trustedDependencies": ["zeeltephp"],`
+1) add zeeltephp to trustedDependencies in your package.json so it may exec postinstallion
+<br>`"trustedDependencies": ["zeeltephp"],`
 
-2) add zeeltephp to your package via<br>
-`bun add github:derharry/svelte-zeeltephp`<br>
-postinstall will create required paths and files if not exists.<br>
+2) add zeeltephp to your package via
+<br>`bun add github:derharry/svelte-zeeltephp`
+<br>postinstall will create if-not-exist required paths and files.
 ```
-./src/lib/zplib           host your php-lib php files here  (mkdir only)
-./src/routes/+layout.js   required by svelte:adapter-static (copyfile +layout.js)
-./static/api/index.php    required by ZeeltePHP (mkdir and copyfile static.api.index.php)
+./src/lib/zplib           host your shared php files here   
+./src/routes/+layout.js   required by adapter-static (copyfile +layout.js)
+./static/api/index.php    required by ZeeltePHP (copyfile static.api.index.php)
 ```
 
-3) configure `vite.config.js` to load zeeltephp(mode)<br>
-add zeeltephp(mode) to `vite.config.js`<br>
-see `dist/templates/example.svelte.config.js `for details
+3) configure `vite.config.js` to load zeeltephp(mode)
+<br>add `zeeltephp(mode)` to `vite.config.js`
+<br>see `dist/templates/example.svelte.config.js ` as example
 
-4) configure `svelte.config.js` to load --mode .env.FILE <br>
-configure your dist/templates/example.vite.config.js
+4) configure `svelte.config.js` to load --mode .env.FILE variables
+<br>configure your dist/templates/example.svelte.config.js
+
+5) all should work now 
+
 
 5) change `package.json/scripts` to run via --mode .env file (.env.dev or .env.build)
+<br>* optional!   (from v1.0 zeeltephp_loadEnv() loads default VARS)
+<br>* this step 
 ```
-  "dev": "vite dev --mode dev",         //optional, from v1.0 zeeltephp_loadEnv() 
-  "build": "vite build --mode build", 
+  "dev": "vite dev --mode dev",         
+  "build": "vite build --mode build",  
   "build.xyz": "vite build --mode build.xyz",
 ```
 

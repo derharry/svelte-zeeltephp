@@ -3,7 +3,9 @@
 	"version": "0.1.0.15",
 	"description": "tbd",
 	"license": "MIT",
-	"trustedDependencies": ["zeeltephp"],
+	"trustedDependencies": [
+		"zeeltephp"
+	],
 	"scripts": {
 		"dev": "vite dev --mode dev",
 		"build": "vite build --mode build",
@@ -40,7 +42,12 @@
 			"import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
 		}
 	},
-	"exclude": ["src/lib/zplib"],
+	"compilerOptions": {
+		"exclude": [
+			"src/lib/zplib",
+			"src/lib/templates"
+		]
+	},
 	"peerDependencies": {
 		"svelte": "^5.0.0",
 		"@sveltejs/adapter-static": "^3.0.8",

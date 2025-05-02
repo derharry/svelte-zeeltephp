@@ -8,5 +8,6 @@
     })
 </script>
 
-<h1>Welcome to SvelteKit</h1>
+<h1>Welcome to ZeeltePHP-SvelteKit</h1>
+<p>Visit <a href="https://github.com/derharry/svelte-zeeltephp">https://github.com/derharry/svelte-zeeltephp</a> to read the documentation</p>
 <p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
