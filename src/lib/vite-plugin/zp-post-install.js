@@ -7,6 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 async function createStaticApiFolder() {
   const folderPath = `${__dirname}/static/api`
+  console.log('Creating static/api directory' , folderPath)
   
   try {
     await mkdir(folderPath, { recursive: true })
