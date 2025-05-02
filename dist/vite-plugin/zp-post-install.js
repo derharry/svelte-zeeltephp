@@ -12,23 +12,25 @@ async function zeeltephp_postinstall() {
   try {
     console.log('🚀 ZeeltePHP - post-install ');
 
-    // only run when in consumer ./_node_modules/  !lib-project-itself
-    if (dirname(_consumerRoot) == 'svelte-zeeltephp' || !_consumerRoot.includes('node_modules')) {
-      throw new Error('ZeeltePHP - post-install is only for consumer projects!')
-    }
-
     const moduleBase   = join(_consumerRoot, 'dist');
     const consumerBase = join(_consumerRoot, '..', '..');
     const apiBase  = join(moduleBase, 'api')      // goto ./dist/templates/
     const tmplBase = join(moduleBase, 'templates')// goto ./dist/templates/
     const destBase = consumerBase     // goto project-root 
+    let isFirstInstallTime = false;
 
     console.log('  -  moduleBase    ', moduleBase);
+    console.log('  -  _consumerRoot ', _consumerRoot);
     console.log('  -  consumerBase  ', consumerBase);
     console.log('  -  apiBase       ', apiBase);
     console.log('  -  tmplBase      ', tmplBase);
     console.log('  -  destBase      ', destBase);
     //console.log('  -  __dirname ', __dirname);
+
+    // only run when in consumer ./_node_modules/  !lib-project-itself
+    if (dirname(_consumerRoot) == 'svelte-zeeltephp' || !_consumerRoot.includes('node_modules')) {
+      throw new Error('ZeeltePHP - post-install is only for consumer projects!')
+    }
 
     // 1. Copy ./src/routes/+layout.js file 
     const layoutSource = join(tmplBase, 'src', 'routes', '+layout.js');
@@ -44,6 +46,7 @@ async function zeeltephp_postinstall() {
     if (!fs.existsSync(apiDestPath)) {
       console.log('  create /static/api/index.php');
       cp(apiSourcePath, apiDestPath, { recursive: true });
+      isFirstInstallTime = true;
     }
     
     // 3. Create /src/lib/zplib/
@@ -63,6 +66,17 @@ async function zeeltephp_postinstall() {
     if (!fs.existsSync(apiLogPathM)) {
       console.log('  create @zeeltephp/api/zeeltephp/log');
       await mkdir(apiLogPathM, { recursive: true })
+    }
+
+    if (isFirstInstallTime) {
+      // install the zpdemo too
+      console.log('  copy /src/routes/zpdemo');
+      const demoSourcePath    = join(tmplBase, 'src', 'routes', 'zpdemo');
+      const demoDestPath      = join(destBase, 'src', 'routes', 'zpdemo');
+      const demoSourcePathApi = join(tmplBase, 'src', 'lib', 'zplib', 'inc.zp-example.php');
+      const demoDestPathApi   = join(destBase, 'src', 'lib', 'zplib', 'inc.zp-example.php');
+      cp(demoSourcePath, demoDestPath, { recursive: true });
+      cp(demoSourcePathApi, demoDestPathApi, { recursive: true });
     }
   } catch (err) {
 
