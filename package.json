@@ -15,7 +15,7 @@
 		"dist-cleanup": "npx del-cli ./dist/zplib && publint",
 		"dist-copy-api": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api ",
 		"postinstall": "npm run dist-only",
-		"dist-only": "npx del-cli * !dist .* ",
+		"dist-only": "npx del-cli ** !dist",
 		"dist-bkp": " *.md *.config.js .svelte-kit .evn*"
 	},
 	"files": [
