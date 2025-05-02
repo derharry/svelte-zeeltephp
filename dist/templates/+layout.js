@@ -1,4 +1,4 @@
-//src/routes/+layout.js -->
+//src/routes/+layout.js
 export const ssr = false;
 export const csr = true;
 export const prerender = true;
