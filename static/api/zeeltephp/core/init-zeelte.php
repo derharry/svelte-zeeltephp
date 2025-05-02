@@ -48,21 +48,19 @@ register_shutdown_function(function() {
 });
 
 //main()
-$path_ZP_LIB = './lib/';
-$path_ZP_ROUTES = './routes/';
-if (!is_dir('./routes')) {
+//autoload settings
+$path_ZP_LIB    = './zeeltephp/zplib/';
+$path_ZP_ROUTES = './zeeltephp/zproutes/';
+if (!is_file('./zeeltephp/.env')) {
+     if (is_dir('../../node_modules/zeeltephp/dist/api/'))
+          chdir('../../node_modules/zeeltephp/dist/api/');
      $path_ZP_LIB = getcwd().'/../../src/lib/zplib/';
      $path_ZP_ROUTES = getcwd().'/../../src/routes/';
-}
-if (!is_dir('./zeeltephp')) {
-     chdir('../../node_modules/zeeltephp/dist/api/');
-     //chdir(getcwd());
-     //echo getcwd();
 }
 define('PATH_ZPLIB', $path_ZP_LIB);
 define('PATH_ZPROUTES', $path_ZP_ROUTES);
 
-require_once('zeeltephp/core/class.zp.apirouter.php');
+require_once('zeeltephp/lib/sveltekit/class.zp.apirouter.php');
 require_once('zeeltephp/lib/cfg/cfg.env.php');
 require_once('zeeltephp/lib/io/io.dir.php');
 require_once('zeeltephp/lib/helper/zp.log.error.handler.php');

@@ -14,8 +14,8 @@ export async function zeeltephp_postbuild() {
     // PHP file operations
     const operations = [
       { src: process.env.ZP_PATH_API, dest: path.join(process.env.BUILD_DIR, 'api') },
-      { src: process.env.ZP_PATH_ZPLIP, dest: path.join(process.env.BUILD_DIR, 'api/lib') },
-      { src: process.env.ZP_PATH_ROUTES, dest: path.join(process.env.BUILD_DIR, 'api/routes') },
+      { src: process.env.ZP_PATH_ZPLIP, dest: path.join(process.env.BUILD_DIR, 'api/zeeltephp/zplib') },
+      { src: process.env.ZP_PATH_ROUTES, dest: path.join(process.env.BUILD_DIR, 'api/zeeltephp/zproutes') },
     ];
     operations.forEach(({ src, dest }) => {
       console.log(`   📁 Copying ${src} ${dest}`);
