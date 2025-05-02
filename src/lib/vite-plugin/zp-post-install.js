@@ -1,20 +1,55 @@
 // create-static-api.js
-import { mkdir } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { mkdir, copyFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import fs from 'node:fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-async function createStaticApiFolder() {
-  const folderPath = `${__dirname}/static/api`
-  console.log('Creating static/api directory' , folderPath)
-  
+
+async function zeeltephp_postinstall() {
   try {
-    await mkdir(folderPath, { recursive: true })
-    console.log('Created static/api directory')
+    console.log(' 🚀 ZeeltePHP - post-install ');
+
+    // Path Resolution Fixes
+    const tmplBase = join(__dirname, '../templates/')// goto ./dist/templates/
+    const destBase = join(__dirname, '../../../../') // goto project-root 
+    //console.log('   tmplPath ', tmplBase);
+    //console.log('   destPath ', destBase);
+
+    // 1. Copy static/api/index.php
+    const phpSource = join(tmplBase, 'static.api.index.php') 
+    const phpDest = join(destBase, 'static/api/index.php')
+    console.log('   copying static/api/index.php')
+    console.log('   from:', phpSource)
+    console.log('   to:', phpDest)
+    if (!fs.existsSync(phpDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - install /static/api/index.php');
+      await mkdir(dirname(phpDest), { recursive: true })
+      await copyFile(phpSource, phpDest)
+    }
+    // create /src/lib/zplib/
+    const zplibDest = join(destBase, 'src/lib/zplib');
+    if (!fs.existsSync(zplibDest)) {
+      await mkdir(dirname(zplibDest), { recursive: true })
+    }
+
+
+    // 2. Copy /src/routes/+layout.js file 
+    const layoutSource = join(tmplBase, '+layout.js')
+    const layoutDest = join(destBase, 'src/routes/+layout.js')
+    if (!fs.existsSync(layoutDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - install /src/routes/+layout.js');
+      await copyFile(layoutSource, layoutDest)
+    }
   } catch (err) {
-    if (err.code !== 'EEXIST') throw err
+
+    console.error('❌ Post-install error:')
+    console.error('- Code:', err.code)
+    console.error('- Path:', err.path || 'N/A')
+    console.error('- Message:', err.message)
+    process.exit(1)
+
   }
 }
-
-createStaticApiFolder()
+zeeltephp_postinstall();
