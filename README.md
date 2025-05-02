@@ -4,22 +4,33 @@ Svelte + PHP <br>
 PHP Backend for SvelteKit
 
 ## Install 
-`bun add github:derharry/svelte-zeeltephp`
+5 steps to do
 
-postinstall will create files if not exists - otherwhise copy them from dist/templates/ manually:
+1) add zeeltephp to trustedDependencies in your package.json
+`"trustedDependencies": ["zeeltephp"],`
+
+2) add zeeltephp to your package
+`bun add github:derharry/svelte-zeeltephp`
+the postinstall will create the files if not exists.
+Otherwhise copy them manually from dist/templates/ manually:
+```
 ./src/lib/zplib         - for your lib php files (folder-only)
 ./src/routes/+layout.js - to run and build your application for adapter-static (file +layout.js)
 ./static/api/index.php  - to run your +page.server.php files (file static.api.index.php)
+```
 
-### .env.dev|build  - required for proper bun run dev and build
-create the .env files and adjust package.json/scripts/ dev|build with --mode dev|build
-and create the .env files based on config of zeelte --mode .env config (README.env.md)
-
-### svelte.config.js
+3) config `vite.config.js` to load zeeltephp(mode)
+add zeeltephp(mode) to vite.config.js
 see dist/templates/example.svelte.config.js
 
-### vite.config.js
-see dist/templates/example.vite.config.js
+4) config `svelte.config.js` to load .env VARS
+config your dist/templates/example.vite.config.js
+
+5) change package.json/scripts to run via --mode .env file (.env.dev or .env.build)
+```
+  "dev": "vite dev --mode dev",
+  "build": "vite build --mode build", 
+```
 
 ## Stack usage
 * SvelteKit 
@@ -27,8 +38,7 @@ see dist/templates/example.vite.config.js
 * + PHP 
 * or XAMPP (like ApacheFriends)
 
-
-## have the PHP logic like /src/routes/*/+page.server.php
+## +page.server.php logic - like /src/routes/**/+page.server.php
 ```PHP
 <?php
 
@@ -43,21 +53,22 @@ see dist/templates/example.vite.config.js
       }git
 
 
-      function actions() {
-		// tbd
+      function actions($action, $value) {
+		switch ($action) {
+                  case 'FOO':
+                              // do any..
+                        break;
+            }
 	}
 
-?>
-```
-or 
-```PHP
-<?php
+      // OR
 
-	// do any PHP
+      function action_FOO($value) {
+            // do any.. (this method is priorized over actions()!)
+      }
 
 ?>
 ```
-or both.
 
 ## how to use
 1. see example logic above and place +page.server.php in any /src/routes/*
@@ -74,18 +85,7 @@ WSL-Ubuntu + BUN
 any-project can be any sub-folder to the SvelteKit-project. 
 The builds run completly on any httpd/root or /any-folder 
 
-## Install (from rc1 - this steps are now done via postinstall)
-1. copy /static/api to you project
-2. copy /static/api/zeeltephp/core/project_root-zeeltephp-post-build.sh to /project-root/zeeltephp-post-build.sh
-3. follow steps of README.env.md
-	set the variables of BUILD_DIR, BASE, PUBLIC_ZEELTEPHP_BASE, ZEELTEPHP_DATABASE_URL
-4. modify package.json/scripts/`vite dev|build` or manually `bun run dev|build --mode dev|build && ./zeeltephp-post-build.sh build`
-	"dev": "vite dev --mode dev",
-	"build": "vite build --mode build && ./zeeltephp-post-build.sh build",
-5. ..tbd
-
-
-#### example load in /src/routes/*/+page.js
+## example load in /src/routes/*/+page.js
 ```JS
 import { fetch_api } from "$lib/zeeltephp.api";
 
@@ -94,8 +94,8 @@ export async function load( { fetch, url } ) {
 }
 ```
 
-#### example /src/routes/*/+page.server.php
-> see example at intro
+## example /src/routes/*/+page.server.php
+> see example above
 
 
 ## Description
@@ -109,7 +109,6 @@ export async function load( { fetch, url } ) {
 > Acts as API between Svelte-project and PHP.
 > Use it in +page.js|ts or *.svelte.
 	
-
 /src/lib/zplib/
 > Place any custom library-PHP files here.
 > All PHP files will be autoload.
@@ -120,7 +119,7 @@ export async function load( { fetch, url } ) {
 
 /static/api/ 
 > This is the PHP (aka ZeeltePHP) folder which acts as server-side SvelteKit for backend.
-> BUILD: this folder is copied to /BUILD/api/
+> BUILD: this folder is copied to /BUILD/api/ and replaced by /dist/api
 
 /static/api/index.php
 > default php start file of httpd-server
@@ -128,25 +127,20 @@ export async function load( { fetch, url } ) {
 
 
 ### .env variables
-BUILD_DIR
-> path for build-output
-BASE
-> path where build will running. 
-PUBLIC_ZEELTEPHP_BASE
-> http://localhost/<path-to-project> or /path-to-build-on-httpd-server
-ZEELTEPHP_DATABASE_URL
+BUILD_DIR=path for build-output
+BASE=path where build will running. 
+PUBLIC_ZEELTEPHP_BASE=dev:http://localhost/<path-to-project> public:/path-to-build-on-httpd-server
+ZEELTEPHP_DATABASE_URL=mysql2://username:password@database
+ZEELTEPHP_DATABASE_URL=wordpress://path/to/wp-load.php
+
 > ZeeltePHP supported DB-providers like Wordpress, MySQL, ...
 
-
-### fetch_api( fetch , url )
+### zp_fetch_api( fetch , url )
 ###   at +page/load ({ fetch, url })
 > tbd
 
-
 ### What happens in the background
 > tbd
-
-
 
 ## Roadmap ideas 
 * support for +hooks.php, +server.php, ... including route-placements
