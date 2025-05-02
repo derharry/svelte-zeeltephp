@@ -2,34 +2,42 @@
 import { mkdir, copyFile, cp } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { zeeltephp_loadEnv } from './zp-loadEnv.js'
 import fs from 'node:fs'
 
 //const __dirname = dirname(fileURLToPath(import.meta.url)) // in link mode this is sym-link
-
-const _consumerRoot = process.cwd(); // Always the consumer's root
+//const _consumerRoot = process.cwd(); // Always the consumer's root
 
 async function zeeltephp_postinstall() {
   try {
+    const debug = true;
     console.log('🚀 ZeeltePHP - post-install ');
+    //zeeltephp_loadEnv();
 
-    const moduleBase   = join(_consumerRoot, 'dist');
-    const consumerBase = join(_consumerRoot, '..', '..');
-    const apiBase  = join(moduleBase, 'api')      // goto ./dist/templates/
-    const tmplBase = join(moduleBase, 'templates')// goto ./dist/templates/
-    const destBase = consumerBase     // goto project-root 
+    const packageRoot = process.cwd(); // path to @zeeltephp
+    const isConsumer  = packageRoot.includes('node_modules'); // current exec is from @zeeltephp
+    if (!isConsumer)
+      throw new Error('post-install is only for consumer projects! ;-) ')
+
+    //const packageName  = process.env.npm_package_name;
+    const moduleBase = join(packageRoot, 'dist');
+    const apiBase    = join(moduleBase, 'api')
+    const tmplBase   = join(moduleBase, 'templates')
+
+    const consumerRoot = join(packageRoot, '..', '..');
+    const destBase     = consumerRoot
     let isFirstInstallTime = false;
 
-    console.log('  -  moduleBase    ', moduleBase);
-    console.log('  -  _consumerRoot ', _consumerRoot);
-    console.log('  -  consumerBase  ', consumerBase);
-    console.log('  -  apiBase       ', apiBase);
-    console.log('  -  tmplBase      ', tmplBase);
-    console.log('  -  destBase      ', destBase);
-    //console.log('  -  __dirname ', __dirname);
-
-    // only run when in consumer ./_node_modules/  !lib-project-itself
-    if (dirname(_consumerRoot) == 'svelte-zeeltephp' || !_consumerRoot.includes('node_modules')) {
-      throw new Error('ZeeltePHP - post-install is only for consumer projects!')
+    if (debug) {
+      console.log('  -  packageRoot    ', packageRoot);
+      //console.log('  -  packageName    ', packageName);
+      console.log('     moduleBase     ', moduleBase);
+      console.log('     apiBase        ', apiBase);
+      console.log('     tmplBase       ', tmplBase);
+      console.log('  -  consumerRoot   ', consumerRoot);
+      console.log('     isConsumer     ', isConsumer);
+      console.log('     destBase       ', destBase);
+      //console.log('  -  Config      ', process.env);
     }
 
     // 1. Copy ./src/routes/+layout.js file 
@@ -48,7 +56,7 @@ async function zeeltephp_postinstall() {
       cp(apiSourcePath, apiDestPath, { recursive: true });
       isFirstInstallTime = true;
     }
-    
+
     // 3. Create /src/lib/zplib/
     const zplibDest = join(destBase, 'src', 'lib', 'zplib');
     if (!fs.existsSync(zplibDest)) {
@@ -63,6 +71,7 @@ async function zeeltephp_postinstall() {
       console.log('  create /static/api/zeeltephp/log');
       await mkdir(apiLogPathC, { recursive: true })
     }
+
     if (!fs.existsSync(apiLogPathM)) {
       console.log('  create @zeeltephp/api/zeeltephp/log');
       await mkdir(apiLogPathM, { recursive: true })
@@ -73,19 +82,17 @@ async function zeeltephp_postinstall() {
       console.log('  copy /src/routes/zpdemo');
       const demoSourcePath    = join(tmplBase, 'src', 'routes', 'zpdemo');
       const demoDestPath      = join(destBase, 'src', 'routes', 'zpdemo');
-      const demoSourcePathApi = join(tmplBase, 'src', 'lib', 'zplib', 'inc.zp-example.php');
-      const demoDestPathApi   = join(destBase, 'src', 'lib', 'zplib', 'inc.zp-example.php');
+      const demoSourcePathApi = join(tmplBase, 'src', 'lib', 'zplib', 'inc.zpdemo.php');
+      const demoDestPathApi   = join(destBase, 'src', 'lib', 'zplib', 'inc.zpdemo.php');
       cp(demoSourcePath, demoDestPath, { recursive: true });
       cp(demoSourcePathApi, demoDestPathApi, { recursive: true });
     }
   } catch (err) {
-
     console.error('❌ Post-install error:')
-    console.error('- Code:', err.code)
-    console.error('- Path:', err.path || 'N/A')
     console.error('- Message:', err.message)
+    console.error('- Code:', err.code || 'N/A')
+    console.error('- Path:', err.path || 'N/A')
     process.exit(1)
-
   }
 }
 zeeltephp_postinstall();
