@@ -15,7 +15,10 @@
 		"prepack": "npm run zp-dist-Create && npm run zp-dist-CopyApi && npm run zp-dist-Cleanup && publint",
 		"zp-dist-Create": "npm run svelte-kit sync && npm run svelte-package",
 		"zp-dist-Cleanup": "npx del-cli ./dist/zplib",
-		"zp-dist-CopyApi": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api" 
+		"zp-dist-CopyApi": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api",
+		"zp-setup": "npx cpy-cli ./dist/templates/src/ ./",
+		"zp-demo": "npx cpy-cli ./dist/templates/src/routes/zpexample ./src/routes/zpexample",
+		"postinstall": "bun run dist/vite-plugin/zp-post-install.js"
 	},
 	"files": [
 		"dist",
@@ -41,7 +44,9 @@
 		"./vite-plugin": {
 			"types": "./dist/vite-plugin/zeeltephp-vite-plugin.d.ts",
 			"import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
-		}
+		},
+  		"./api*": "./dist/api/*",
+  		"./templates/*": "./dist/templates/*"
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0",
