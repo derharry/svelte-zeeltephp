@@ -14,15 +14,17 @@ export function zeeltephp_loadEnv(mode) {
 
     // internal...
     // set internal vars for plugin
-    process.env.ZP_CP = process.env.npm_package_name == 'zeeltephp' ? 'zp' : 'cp' // self or consumer?
-    process.env.ZP_MODE = mode; // --mode .env
+    process.env.ZP_CP   = process.env.npm_package_name == 'zeeltephp' ? 'zp' : 'cp' // self or consumer?
+    process.env.ZP_MODE = mode == 'dev' || mode == 'development'; // --mode .env
 
-    console.log('🚀 ZeeltePHP - environment')
-    //console.log('    :', process.env.ZP_CP, process.env.npm_package_name, `--mode env.${mode}`);
-
-    const ZP_MODE = process.env.ZP_MODE;
+    const ZP_MODE     = process.env.ZP_MODE;
     const DIR_BUILD   = process.env.BUILD_DIR || 'build-env';
     const DIR_PROJECT = path.basename(process.cwd());
+
+
+    console.log(`🚀 ZeeltePHP - environment .env.${mode} dev:${ZP_MODE}`)
+    //console.log('    :', process.env.ZP_CP, process.env.npm_package_name, `--mode env.${mode}`);
+    //console.log('    :', process.env.ZP_MODE);
 
     // var, dev, build
     const ENV_MINIMUM_VARS = [
@@ -38,7 +40,7 @@ export function zeeltephp_loadEnv(mode) {
       let value = process.env[envvar];
       if (value == undefined) {
         //console.log(' - ', envvar, 'd:', dev, 'b:', build);
-        process.env[envvar] = ZP_MODE == 'dev' ? dev : build;
+        process.env[envvar] = ZP_MODE ? dev : build;
         value = process.env[envvar];
         console.log('  !', envvar, value);
       } else {
