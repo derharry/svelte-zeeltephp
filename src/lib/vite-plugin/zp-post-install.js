@@ -9,39 +9,37 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 async function zeeltephp_postinstall() {
   try {
-    console.log(' 🚀 ZeeltePHP - post-install ');
-
+    //console.log(' 🚀 ZeeltePHP - post-install ');
     // Path Resolution Fixes
     const tmplBase = join(__dirname, '../templates/')// goto ./dist/templates/
     const destBase = join(__dirname, '../../../../') // goto project-root 
     //console.log('   tmplPath ', tmplBase);
     //console.log('   destPath ', destBase);
 
-    // 1. Copy static/api/index.php
-    const phpSource = join(tmplBase, 'static.api.index.php') 
-    const phpDest = join(destBase, 'static/api/index.php')
-    console.log('   copying static/api/index.php')
-    console.log('   from:', phpSource)
-    console.log('   to:', phpDest)
-    if (!fs.existsSync(phpDest)) {
-      console.log(' 🚀 ZeeltePHP - post-install - install /static/api/index.php');
-      await mkdir(dirname(phpDest), { recursive: true })
-      await copyFile(phpSource, phpDest)
-    }
-    // create /src/lib/zplib/
-    const zplibDest = join(destBase, 'src/lib/zplib');
-    if (!fs.existsSync(zplibDest)) {
-      await mkdir(dirname(zplibDest), { recursive: true })
-    }
-
-
-    // 2. Copy /src/routes/+layout.js file 
+    // 1. Copy /src/routes/+layout.js file 
     const layoutSource = join(tmplBase, '+layout.js')
     const layoutDest = join(destBase, 'src/routes/+layout.js')
     if (!fs.existsSync(layoutDest)) {
-      console.log(' 🚀 ZeeltePHP - post-install - install /src/routes/+layout.js');
+      console.log(' 🚀 ZeeltePHP - post-install - create /src/routes/+layout.js');
       await copyFile(layoutSource, layoutDest)
     }
+
+    // 2. Copy static/api/index.php
+    const phpSource = join(tmplBase, 'static.api.index.php') 
+    const phpDest = join(destBase, 'static/api/index.php')
+    if (!fs.existsSync(phpDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - create /static/api/index.php');
+      await mkdir(dirname(phpDest), { recursive: true })
+      await copyFile(phpSource, phpDest)
+    }
+    
+    // 3. Create /src/lib/zplib/
+    const zplibDest = join(destBase, 'src/lib/zplib');
+    if (!fs.existsSync(zplibDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - create /lib/zplib', zplibDest);
+      await mkdir(zplibDest, { recursive: true })
+    }
+
   } catch (err) {
 
     console.error('❌ Post-install error:')
