@@ -1,4 +1,5 @@
 //zp-build-main.js
+import { mkdir, copyFile } from 'node:fs/promises'
 import fs from 'fs';
 import path from 'path';
 
@@ -16,7 +17,7 @@ export async function zeeltephp_postbuild() {
     // PHP file operations
     const operations = [
       { src: process.env.ZP_PATH_API,    dest: BUILD_DIR +'/api' },
-      { src: process.env.ZP_PATH_ZPLIP,  dest: BUILD_DIR +'/api/zeeltephp/zplib' },
+      { src: process.env.ZP_PATH_ZPLIB,  dest: BUILD_DIR +'/api/zeeltephp/zplib' },
       { src: process.env.ZP_PATH_ROUTES, dest: BUILD_DIR +'/api/zeeltephp/zproutes' },
     ];
     operations.forEach(({ src, dest }) => {
@@ -32,7 +33,7 @@ export async function zeeltephp_postbuild() {
     });
 
     // Generate PHP .env
-    const envFile = process.env.BUILD_DIR+'/api/zeeltephp/.env';
+    const envFile = BUILD_DIR+'/api/zeeltephp/.env';
     const envVars = Object.entries(process.env)
       .filter(([key]) => key.startsWith('BASE') ||
         key.startsWith('PUBLIC_') ||
@@ -47,7 +48,7 @@ export async function zeeltephp_postbuild() {
     
     // 4. if not exist create /node_modules/zeeltephp/dist/api/log
     if (!fs.existsSync(BUILD_DIR +'/api/zeeltephp/log')) 
-      await mkdir(BUILD_DIR +'/api/zeeltephp/log', { recursive: true })
+      await mkdir(BUILD_DIR +'/api/zeeltephp/log')
 
     console.log('✅ ZeeltePHP build completed');
   } catch (error) {

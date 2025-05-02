@@ -50,7 +50,7 @@ export function zeeltephp_loadEnv(mode) {
     //set API required paths
     //set consumer by default
     process.env.ZP_PATH_API = './node_modules/zeeltephp/dist/api/';
-    process.env.ZP_PATH_ZPLIP  = './src/lib/zplib/';
+    process.env.ZP_PATH_ZPLIB  = './src/lib/zplib/';
     process.env.ZP_PATH_ROUTES = './src/routes/';
     if (process.env.npm_package_name == 'zeeltephp') {
       // paths for self mode
