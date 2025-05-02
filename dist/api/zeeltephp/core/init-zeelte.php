@@ -81,7 +81,12 @@ global $zpAR;
 try {
      // read config .env_file
      $env = zp_read_env_file();
-     if (!$env) throw Error('could not find .env file');
+     if (!$env) {
+          $env = [];
+          // load defaults
+         $env['ZEELTEPHP_DATABASE_URL'] = 'mysql2://root@localhost/test';
+          //throw Error('could not find .env file');
+     }
      
      // load the ApiRouter to get the rest :-)
      $zpAR = new ZP_ApiRouter();

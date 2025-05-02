@@ -11,7 +11,7 @@
           # load the .env file or return false
           if (file_exists($cfgFile))
                return parse_ini_file($cfgFile);
-          return $cfg;
+          return false;
      }
 
 ?>

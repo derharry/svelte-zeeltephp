@@ -1,6 +1,6 @@
 {
 	"name": "zeeltephp",
-	"version": "0.1.0.5",
+	"version": "0.1.0.11",
 	"description": "tbd",
 	"license": "MIT",
 	"trustedDependencies": ["zeeltephp"],
