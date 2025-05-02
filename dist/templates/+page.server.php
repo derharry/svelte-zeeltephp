@@ -1,5 +1,4 @@
 <?php
-# example /src/routes/+page.server.php
 
       function load() {
             global $zpAR;
