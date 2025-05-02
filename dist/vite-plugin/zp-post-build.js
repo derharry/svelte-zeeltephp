@@ -1,72 +1,49 @@
-//zp-build-main.js
-import fs from 'fs';
-import path from 'path';
+// create-static-api.js
+import { mkdir, copyFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import fs from 'node:fs'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 
-export async function zeeltephp_postbuild() {
+async function zeeltephp_postinstall() {
   try {
-    console.log('🚀 ZeeltePHP - postbuild (closeBundle)');
+    console.log(' 🚀 ZeeltePHP - post-install ');
 
-    // Create base directories
-    //await ensureDir(`${DIR_API}`);
-    //await ensureDir(`${DIR_ROUTES}`);
+    // Path Resolution Fixes
+    const tmplBase = join(__dirname, '../templates/')// goto ./dist/templates/
+    const destBase = join(__dirname, '../../../../') // goto project-root 
+    //console.log('   tmplPath ', tmplBase);
+    //console.log('   destPath ', destBase);
 
-    // PHP file operations
-    const operations = [
-      { src: process.env.ZP_PATH_API, dest: path.join(process.env.BUILD_DIR, 'api') },
-      { src: process.env.ZP_PATH_ZPLIP, dest: path.join(process.env.BUILD_DIR, 'api/lib') },
-      { src: process.env.ZP_PATH_ROUTES, dest: path.join(process.env.BUILD_DIR, 'api/routes') },
-    ];
-    operations.forEach(({ src, dest }) => {
-      console.log(`   📁 Copying ${src} ${dest}`);
-      if (!fs.existsSync(src)) {
-        console.warn(`   ⚠️  Source missing: ${src}`);
-        return;
-      }
-      if (!fs.existsSync(dest))
-        fs.mkdirSync(dest, { recursive: true });
-      copyRecursiveSync(src, dest, (file) => file.endsWith('.php'));
-      console.log(`   ✅ Copied: ${src} → ${dest}`);
-    });
+    // 1. Copy static/api/index.php
+    const phpSource = join(tmplBase, 'static.api.index.php') 
+    const phpDest = join(destBase, 'static/api/index.php')
+    console.log('   copying static/api/index.php')
+    console.log('   from:', phpSource)
+    console.log('   to:', phpDest)
+    if (!fs.existsSync(phpDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - install /static/api/index.php');
+      await mkdir(dirname(phpDest), { recursive: true })
+      await copyFile(phpSource, phpDest)
+    }
 
-    // Generate PHP .env
-    const envFile = process.env.BUILD_DIR+'/api/zeeltephp/.env';
-    const envVars = Object.entries(process.env)
-      .filter(([key]) => key.startsWith('BASE') ||
-        key.startsWith('PUBLIC_') ||
-        key.startsWith('ZEELTEPHP_'))
-      .map(([key, value]) =>
-        key === 'BASE' ? `PUBLIC_BASE=${value}` : `${key}=${value}`
-      )
-      .join('\n');
-    fs.writeFileSync(envFile, envVars);
-    console.log(`   ✅ Generated: ${envFile}`);
+    // 2. Copy /src/routes/+layout.js file 
+    const layoutSource = join(tmplBase, '+layout.js')
+    const layoutDest = join(destBase, 'src/routes/+layout.js')
+    if (!fs.existsSync(layoutDest)) {
+      console.log(' 🚀 ZeeltePHP - post-install - install /src/routes/+layout.js');
+      await copyFile(layoutSource, layoutDest)
+    }
+  } catch (err) {
 
-    console.log('✅ ZeeltePHP build completed');
-  } catch (error) {
-    console.error('❌ ZeeltePHP build failed:', error.message);
-    process.exit(1);
+    console.error('❌ Post-install error:')
+    console.error('- Code:', err.code)
+    console.error('- Path:', err.path || 'N/A')
+    console.error('- Message:', err.message)
+    process.exit(1)
+
   }
 }
-
-
-function copyRecursiveSync(src, dest, filter = () => true) {
-  const stats = fs.statSync(src);
-
-  if (stats.isDirectory()) {
-    // 🚨 Force create directory (even if exists)
-    if (!fs.existsSync(dest))
-      fs.mkdirSync(dest, { recursive: true });
-
-    fs.readdirSync(src).forEach(child => {
-      copyRecursiveSync(
-        path.join(src, child),
-        path.join(dest, child),
-        filter
-      );
-    });
-  } else if (filter(src)) {
-    // 🚨 Force overwrite files
-    fs.copyFileSync(src, dest, fs.constants.COPYFILE_FICLONE);
-  }
-}
+zeeltephp_postinstall();
