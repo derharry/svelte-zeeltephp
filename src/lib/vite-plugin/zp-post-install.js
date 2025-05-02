@@ -40,6 +40,12 @@ async function zeeltephp_postinstall() {
       await mkdir(zplibDest, { recursive: true })
     }
 
+    // 4. if not exist create /node_modules/zeeltephp/dist/api/log
+    if (!fs.existsSync('../api/log')) 
+      await mkdir('../api/log', { recursive: true })
+
+
+
   } catch (err) {
 
     console.error('❌ Post-install error:')
