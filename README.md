@@ -160,7 +160,7 @@ ZEELTEPHP_DATABASE_URL=wordpress://path/to/wp-load.php
 > tbd
 
 ## Roadmap ideas 
-* support for +hooks.php, +server.php, ... including route-placements
+* support for +hooks.php, +server.php, ... 
 * SvelteKit Actions deep dive
 * (done 25-04-01) Support for DB-MySQL
 * (done 25-04-15) added post-build for builds
@@ -168,4 +168,6 @@ ZEELTEPHP_DATABASE_URL=wordpress://path/to/wp-load.php
 * (done 25-05-01) Run as Vite/Svelte Plugin for development, static at /BUILD
 * (done 25-05-01) Postinstall to create +layout.js, /static/api/index.php
 * (done 25-05-01) Autoload and print .env variables
+* (done 25-05-02) Install with demo/example 
+* (done 25-05-02) Zero config install except trustedInstaller, vite.config.js and svelte.config.js.
 * Add installation via tgz or Github-Releases or NPM-package
