@@ -52,10 +52,11 @@ register_shutdown_function(function() {
 $path_ZP_LIB    = './zeeltephp/zplib/';
 $path_ZP_ROUTES = './zeeltephp/zproutes/';
 if (!is_file('./zeeltephp/.env')) {
+     // presume dev mode when no .env file is found
      if (is_dir('../../node_modules/zeeltephp/dist/api/'))
           chdir('../../node_modules/zeeltephp/dist/api/');
-     $path_ZP_LIB = getcwd().'/../../src/lib/zplib/';
-     $path_ZP_ROUTES = getcwd().'/../../src/routes/';
+     $path_ZP_LIB = getcwd().'/../../../../src/lib/zplib/';
+     $path_ZP_ROUTES = getcwd().'/../../../../src/routes/';
 }
 define('PATH_ZPLIB', $path_ZP_LIB);
 define('PATH_ZPROUTES', $path_ZP_ROUTES);

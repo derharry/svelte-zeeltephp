@@ -17,7 +17,7 @@ async function zeeltephp_postinstall() {
     //console.log('   destPath ', destBase);
 
     // 1. Copy /src/routes/+layout.js file 
-    const layoutSource = join(tmplBase, '+layout.js')
+    const layoutSource = join(tmplBase, 'routes/+layout.js')
     const layoutDest = join(destBase, 'src/routes/+layout.js')
     if (!fs.existsSync(layoutDest)) {
       console.log(' 🚀 ZeeltePHP - post-install - create /src/routes/+layout.js');
