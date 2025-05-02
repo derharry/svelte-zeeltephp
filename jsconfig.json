@@ -8,5 +8,11 @@
 		"sourceMap": true,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext"
-	}
+	},
+	"exclude": [
+	  "src/lib/templates/**",
+	  "src/lib/zeeltephp/**",
+	  "src/lib/zplib/**",
+	  "node_modules/**"
+	]
 }

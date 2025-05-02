@@ -16,6 +16,7 @@ const config = {
 			base: process.env.BASE
 		}
 	},
-	trailingSlash: 'always'
+	trailingSlash: 'always',
+	// package: {} - config.package is no longer supported. See https://github.com/sveltejs/kit/discussions/8825 for more information.
 };
 export default config;

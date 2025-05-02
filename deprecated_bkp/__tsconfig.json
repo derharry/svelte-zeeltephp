@@ -1,0 +1,14 @@
+{
+    "extends": "./.svelte-kit/tsconfig.json",
+    "compilerOptions": {
+    },
+    "include": [
+      "src/lib/vite-plugin/**/*" , // Explicitly include for type generation
+      "src/lib/zeeltephp/**/*"  // Explicitly include for type generation
+    ],
+    "exclude": [
+      "src/lib/zplib/**/*",
+      "node_modules/**/*"
+    ]
+  }
+  

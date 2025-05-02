@@ -1,6 +1,6 @@
 {
 	"name": "zeeltephp",
-	"version": "0.1.0.17",
+	"version": "0.1.0.16",
 	"description": "Svelte-frontend, PHP-backend",
 	"license": "MIT",
 	"trustedDependencies": [
@@ -11,21 +11,21 @@
 		"build": "vite build --mode build",
 		"preview": "vite preview",
 		"prepare": "npm run svelte-kit sync || echo ''",
-		"prepack.org": "npm run svelte-kit sync && npm run svelte-package && publint",
-		"prepack": "npm run zp-dist-Create && npm run zp-dist-CopyApi && npm run zp-dist-Cleanup && publint",
-		"zp-dist-Create": "npm run svelte-kit sync && npm run svelte-package",
-		"zp-dist-Cleanup": "npx del-cli ./dist/zplib",
-		"zp-dist-CopyApi": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api" 
+		"prepack.org": "npm run svelte-kit sync && npm run svelte-package && npm run cleanup && npm run zp-dist-copy-api && publint",
+		"prepack": "npm run zp-create-dist",
+		"zp-create-dist": "npm run svelte-kit sync && npm run svelte-package",
+		"dist-create": "npm run svelte-kit sync && npm run svelte-package && npm run dist-copy-api && npm run dist-cleanup",
+		"dist-cleanup": "npx del-cli ./dist/zplib && publint",
+		"dist-copy-api": "npx cpy-cli 'static/api/**/*.{php,.htaccess}' dist/api ",
+		"postinstall": "bun run dist/vite-plugin/zp-post-install.js",
+		"postinstall_": "npm run dist-only && bun run dist/vite-plugin/zp-post-install.js",
+		"dist-only": "npx del-cli * !dist !package.json",
+		"dist-bkp": " *.md *.config.js .svelte-kit .evn*"
 	},
 	"files": [
 		"dist",
 		"!dist/**/*.test.*",
-		"!dist/**/*.spec.*",
-		"!dist/zplib"
-	],
-	"exclude": [
-		"src/lib/zplib/**/*",
-		"src/lib/templates/**/*"
+		"!dist/**/*.spec.*"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -34,7 +34,7 @@
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"exports": {
-		".": {
+		"./zeeltephp": {
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
@@ -42,6 +42,16 @@
 			"types": "./dist/vite-plugin/zeeltephp-vite-plugin.d.ts",
 			"import": "./dist/vite-plugin/zeeltephp-vite-plugin.js"
 		}
+	},
+	"exclude": [
+		"src/lib/zplib/**/*",
+		"src/lib/templates/**/*"
+	],
+	"compilerOptions": {
+		"exclude": [
+			"src/lib/zplib/**/*",
+			"src/lib/templates/**/*"
+		]
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0",
