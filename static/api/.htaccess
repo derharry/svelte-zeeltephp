@@ -1,0 +1,5 @@
+# tbd
+# secure access to api folder 
+# only allow path/api/?xxx, 
+# but block all path/api/*
+# Enable rewrite engine

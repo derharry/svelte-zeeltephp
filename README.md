@@ -1,42 +1,56 @@
-# Svelte-ZeeltePHP
-# RC v0.1.0.12
-Svelte + PHP <br>
-PHP Backend for SvelteKit
+# Svelte-ZeeltePHP (v1.0 rc)
+Svelte + PHP 
+<br>PHP Backend for SvelteKit
+
 
 ## Install 
-5 steps to do
+6 steps to do
 
-1) add zeeltephp to trustedDependencies in your package.json
+1) add zeeltephp to trustedDependencies in your package.json so it may exec postinstallion<br>
 `"trustedDependencies": ["zeeltephp"],`
 
-2) add zeeltephp to your package
-`bun add github:derharry/svelte-zeeltephp`
-the postinstall will create the files if not exists.
-Otherwhise copy them manually from dist/templates/ manually:
+2) add zeeltephp to your package via<br>
+`bun add github:derharry/svelte-zeeltephp`<br>
+postinstall will create required paths and files if not exists.<br>
 ```
-./src/lib/zplib         - for your lib php files (folder-only)
-./src/routes/+layout.js - to run and build your application for adapter-static (file +layout.js)
-./static/api/index.php  - to run your +page.server.php files (file static.api.index.php)
+./src/lib/zplib           host your php-lib php files here  (mkdir only)
+./src/routes/+layout.js   required by svelte:adapter-static (copyfile +layout.js)
+./static/api/index.php    required by ZeeltePHP (mkdir and copyfile static.api.index.php)
 ```
 
-3) config `vite.config.js` to load zeeltephp(mode)
-add zeeltephp(mode) to vite.config.js
-see dist/templates/example.svelte.config.js
+3) configure `vite.config.js` to load zeeltephp(mode)<br>
+add zeeltephp(mode) to `vite.config.js`<br>
+see `dist/templates/example.svelte.config.js `for details
 
-4) config `svelte.config.js` to load .env VARS
-config your dist/templates/example.vite.config.js
+4) configure `svelte.config.js` to load --mode .env.FILE <br>
+configure your dist/templates/example.vite.config.js
 
-5) change package.json/scripts to run via --mode .env file (.env.dev or .env.build)
+5) change `package.json/scripts` to run via --mode .env file (.env.dev or .env.build)
 ```
-  "dev": "vite dev --mode dev",
+  "dev": "vite dev --mode dev",         //optional, from v1.0 zeeltephp_loadEnv() 
   "build": "vite build --mode build", 
+  "build.xyz": "vite build --mode build.xyz",
 ```
 
-## Stack usage
-* SvelteKit 
-* HTTPD on http://localhost 
-* + PHP 
-* or XAMPP (like ApacheFriends)
+6) create the .env files
+* .env.dev         optional, zeeltephp_loadEnv() will be used 
+* .env.build       required for local build-output and testing
+* .env.build.xyz   required for hosting build-output and run 
+BUILD_DIR=path for build-output
+BASE=path where build will running. 
+PUBLIC_ZEELTEPHP_BASE=dev:http://localhost/<path-to-project> public:/path-to-build-on-httpd-server
+ZEELTEPHP_DATABASE_URL
+
+## Stack usage (and developed on)
+* HTTPD on http://localhost/<your-sveltekit-project>
+*    DOCUMENT ROOT = /path/to/htdocs/<your-sveltekit-project>
+* SvelteKit project
+*    adapter-static
+* Windows (only) + HTTPD (XAMPP from ApacheFriends) and bun run ANY
+* Windows + WSL - where Windows-XAMPP and WSL bun run ANY
+* HINT: 
+*     your-project could can be placed and to be run in any depth of /htdocs/** 
+*     
 
 ## +page.server.php logic - like /src/routes/**/+page.server.php
 ```PHP
@@ -54,6 +68,7 @@ config your dist/templates/example.vite.config.js
 
 
       function actions($action, $value) {
+            global $jsonResponse, $action, $server, $db, $env;
 		switch ($action) {
                   case 'FOO':
                               // do any..
@@ -64,6 +79,7 @@ config your dist/templates/example.vite.config.js
       // OR
 
       function action_FOO($value) {
+            global $jsonResponse, $action, $server, $db, $env;
             // do any.. (this method is priorized over actions()!)
       }
 
@@ -72,18 +88,12 @@ config your dist/templates/example.vite.config.js
 
 ## how to use
 1. see example logic above and place +page.server.php in any /src/routes/*
-2. call fetch_api() from +page.js or *.svelte 
+2. call zp_fetch_api() from +page.js or *.svelte 
 3. use the response 
 	* any like
 	* {#await promise} .. {:then data} .. {:catch} .. {/await}
 	* ..
 
-## Tested and developed on
-Windows + XAMPP as http://localhost/any-project
-WSL-Ubuntu + BUN
-
-any-project can be any sub-folder to the SvelteKit-project. 
-The builds run completly on any httpd/root or /any-folder 
 
 ## example load in /src/routes/*/+page.js
 ```JS
