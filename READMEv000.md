@@ -1,14 +1,6 @@
 # Svelte-ZeeltePHP
-# v0.1.0 (rc1.0.0)
 Svelte + PHP <br>
 PHP Backend for SvelteKit
-
-Install via 
-bun add github:derharry/svelte-zeeltephp#vrc1
-or tgz
-via 
-
-
 
 This repo holds some configuration as "base template" to use PHP as Svelte(Kit) backend.
 Use load() or actions() within +page.server.php similar to SvelteKit +page.server.js or api/+server.js
