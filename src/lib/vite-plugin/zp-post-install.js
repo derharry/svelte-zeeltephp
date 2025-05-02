@@ -44,8 +44,6 @@ async function zeeltephp_postinstall() {
     if (!fs.existsSync('../api/log')) 
       await mkdir('../api/log', { recursive: true })
 
-
-
   } catch (err) {
 
     console.error('❌ Post-install error:')

@@ -15,9 +15,9 @@ export async function zeeltephp_postbuild() {
 
     // PHP file operations
     const operations = [
-      { src: process.env.ZP_PATH_API,    dest: BUILD_DIR +'api' },
-      { src: process.env.ZP_PATH_ZPLIP,  dest: BUILD_DIR +'api/zeeltephp/zplib' },
-      { src: process.env.ZP_PATH_ROUTES, dest: BUILD_DIR +'api/zeeltephp/zproutes' },
+      { src: process.env.ZP_PATH_API,    dest: BUILD_DIR +'/api' },
+      { src: process.env.ZP_PATH_ZPLIP,  dest: BUILD_DIR +'/api/zeeltephp/zplib' },
+      { src: process.env.ZP_PATH_ROUTES, dest: BUILD_DIR +'/api/zeeltephp/zproutes' },
     ];
     operations.forEach(({ src, dest }) => {
       console.log(`   📁 Copying ${src} ${dest}`);
@@ -46,8 +46,8 @@ export async function zeeltephp_postbuild() {
 
     
     // 4. if not exist create /node_modules/zeeltephp/dist/api/log
-    if (!fs.existsSync(BUILD_DIR +'/api/log')) 
-      await mkdir(BUILD_DIR +'/api/log', { recursive: true })
+    if (!fs.existsSync(BUILD_DIR +'/api/zeeltephp/log')) 
+      await mkdir(BUILD_DIR +'/api/zeeltephp/log', { recursive: true })
 
     console.log('✅ ZeeltePHP build completed');
   } catch (error) {
