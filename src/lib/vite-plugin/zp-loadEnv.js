@@ -1,6 +1,6 @@
 import { loadEnv } from 'vite';
 import path from 'path';
-
+import { zeeltephp_postinstall } from './zp-post-install.js';
 
 export function zeeltephp_loadEnv(mode) {
   try {
@@ -21,6 +21,9 @@ export function zeeltephp_loadEnv(mode) {
     const DIR_BUILD   = process.env.BUILD_DIR || 'build-env';
     const DIR_PROJECT = path.basename(process.cwd());
 
+
+    // check for minimum file requirements for consumer and install them if required
+    zeeltephp_postinstall();
 
     console.log(`🚀 ZeeltePHP - environment .env.${mode} dev:${ZP_MODE}`)
     //console.log('    :', process.env.ZP_CP, process.env.npm_package_name, `--mode env.${mode}`);
@@ -56,6 +59,7 @@ export function zeeltephp_loadEnv(mode) {
       // paths for self mode
       process.env.ZP_PATH_API    = './static/api/';
     }
+
   } catch (error) {
     console.error(' EEE ', error);
   }
