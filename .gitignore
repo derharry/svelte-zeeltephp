@@ -1,5 +1,8 @@
 node_modules
 
+# temp
+.temp
+
 # Output
 .output
 .vercel
@@ -7,13 +10,14 @@ node_modules
 .wrangler
 /.svelte-kit
 /build*
+!/dist
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Env
-.env*
+.env
 .env.*
 !.env.example
 !.env.test
@@ -22,11 +26,8 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Bun
-bun.lock
+# Bun, Node
+*.lock
 
-# Project
-#!.env.build
-#!.env.dev
-error.log
+# ZeeltePHP
 *.log
