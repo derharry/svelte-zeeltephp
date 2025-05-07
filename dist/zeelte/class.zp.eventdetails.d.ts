@@ -10,7 +10,7 @@ export class ZP_EventDetails {
      */
     constructor(event: any);
     message: any;
-    route: string;
+    route: any;
     event: any;
     name: any;
     action: any;

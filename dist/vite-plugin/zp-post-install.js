@@ -1,32 +1,30 @@
 // create-static-api.js
 import { mkdir, copyFile, cp } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { zeeltephp_loadEnv } from './zp-loadEnv.js'
+import { join, basename } from 'node:path'
 import fs from 'node:fs'
 
 //const __dirname = dirname(fileURLToPath(import.meta.url)) // in link mode this is sym-link
 //const _consumerRoot = process.cwd(); // Always the consumer's root
 
-async function zeeltephp_postinstall() {
+export async function zeeltephp_postinstall() {
   try {
-    const debug = true;
-    console.log('🚀 ZeeltePHP - post-install ');
-    //zeeltephp_loadEnv();
-
+    //return // deactivated
+    const debug = false;
+    
     const packageRoot = process.cwd(); // path to @zeeltephp
-    const isConsumer  = packageRoot.includes('node_modules'); // current exec is from @zeeltephp
-    if (!isConsumer)
-      throw new Error('post-install is only for consumer projects! ;-) ')
+    const iSelf = process.env?.VITE_ZP_SELF ? true : false;
+    if (iSelf)
+        return; // skip self environment - install is only for consumer project
+
+    console.log('🚀 ZeeltePHP - post-install ');
 
     //const packageName  = process.env.npm_package_name;
-    const moduleBase = join(packageRoot, 'dist');
+    const moduleBase = join(packageRoot, 'node_modules', 'zeeltephp', 'dist');
     const apiBase    = join(moduleBase, 'api')
     const tmplBase   = join(moduleBase, 'templates')
 
-    const consumerRoot = join(packageRoot, '..', '..');
-    const destBase     = consumerRoot
-    let isFirstInstallTime = false;
+    const consumerRoot = join(packageRoot);
+    const destBase     = consumerRoot;
 
     if (debug) {
       console.log('  -  packageRoot    ', packageRoot);
@@ -35,7 +33,7 @@ async function zeeltephp_postinstall() {
       console.log('     apiBase        ', apiBase);
       console.log('     tmplBase       ', tmplBase);
       console.log('  -  consumerRoot   ', consumerRoot);
-      console.log('     isConsumer     ', isConsumer);
+      //console.log('     isConsumer     ', isConsumer);
       console.log('     destBase       ', destBase);
       //console.log('  -  Config      ', process.env);
     }
@@ -54,7 +52,6 @@ async function zeeltephp_postinstall() {
     if (!fs.existsSync(apiDestPath)) {
       console.log('  create /static/api/index.php');
       cp(apiSourcePath, apiDestPath, { recursive: true });
-      isFirstInstallTime = true;
     }
 
     // 3. Create /src/lib/zplib/
@@ -77,6 +74,7 @@ async function zeeltephp_postinstall() {
       await mkdir(apiLogPathM, { recursive: true })
     }
 
+    /*
     if (isFirstInstallTime) {
       // install the zpdemo too
       console.log('  copy /src/routes/zpdemo');
@@ -87,6 +85,7 @@ async function zeeltephp_postinstall() {
       cp(demoSourcePath, demoDestPath, { recursive: true });
       cp(demoSourcePathApi, demoDestPathApi, { recursive: true });
     }
+    */
   } catch (err) {
     console.error('❌ Post-install error:')
     console.error('- Message:', err.message)
@@ -95,4 +94,3 @@ async function zeeltephp_postinstall() {
     process.exit(1)
   }
 }
-zeeltephp_postinstall();

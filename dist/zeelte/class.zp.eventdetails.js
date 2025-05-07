@@ -1,6 +1,6 @@
 //import { base } from "$app/paths";
 import { page } from '$app/state';
-import { ZP_ApiRouter } from './class.zp.apirouter';
+import { ZP_ApiRouter } from "./class.zp.apirouter.js" // -> import { ZP_ApiRouter } from "../../../zeeltephp"
 
 
 // function get_form_event_action_details(event) {

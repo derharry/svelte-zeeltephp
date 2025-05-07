@@ -1,11 +1,9 @@
 // class.zp.api.router.php
-import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 import { dev }  from "$app/environment";
-import { base } from "$app/paths";
-import { json } from "@sveltejs/kit";
 import { page } from '$app/state';
-import { ZP_EventDetails } from "./class.zp.eventdetails";
-
+import { ZP_EventDetails } from "./class.zp.eventdetails.js" // -> import { ZP_EventDetails } from "../../../zeeltephp"
+import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
+//let PUBLIC_ZEELTEPHP_BASE = '';
 
 export class ZP_ApiRouter 
 {
@@ -59,9 +57,14 @@ export class ZP_ApiRouter
                         this.message = 'ZP_ApiRouter-URL'
                   }
                   else if (typeof routeUrl == 'string') {
-                        this.message = 'ZP_ApiRouter-string'
-                        if (debug) console.log('STRING', routeUrl)
-                        this.parse_url_string(routeUrl)
+                        if (routeUrl.startsWith('+')) {
+                              // v1.0.1 - added + to route to /src/routes/api/**
+                              this.message = 'ZP_ApiRouter-api/**'
+                              this.route   = routeUrl;
+                        } else {
+                              this.message = 'ZP_ApiRouter-string'
+                              this.parse_url_string(routeUrl)
+                        }
                   }
                   else {
 

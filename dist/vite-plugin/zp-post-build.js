@@ -6,7 +6,7 @@ import path from 'path';
 
 export async function zeeltephp_postbuild() {
   try {
-    console.log('🚀 ZeeltePHP - postbuild (closeBundle)');
+    //console.log('🚀 ZeeltePHP - postbuild (closeBundle)');
 
     // Create base directories
     //await ensureDir(`${DIR_API}`);
@@ -21,9 +21,9 @@ export async function zeeltephp_postbuild() {
       { src: process.env.ZP_PATH_ROUTES, dest: BUILD_DIR +'/api/zeeltephp/zproutes' },
     ];
     operations.forEach(({ src, dest }) => {
-      console.log(`   📁 Copying ${src} ${dest}`);
+      logSameLine(`   📁 Copying ${src} → ${dest}`);
       if (!fs.existsSync(src)) {
-        console.warn(`   ⚠️  Source missing: ${src}`);
+        console.warn(`     Source missing: ${src}`);
         return;
       }
       if (!fs.existsSync(dest))
@@ -44,6 +44,7 @@ export async function zeeltephp_postbuild() {
       .join('\n');
     fs.writeFileSync(envFile, envVars);
     console.log(`   ✅ Generated: ${envFile}`);
+
 
     
     // 4. if not exist create /node_modules/zeeltephp/dist/api/log
@@ -76,5 +77,18 @@ function copyRecursiveSync(src, dest, filter = () => true) {
   } else if (filter(src)) {
     // 🚨 Force overwrite files
     fs.copyFileSync(src, dest, fs.constants.COPYFILE_FICLONE);
+  }
+}
+
+function logSameLine(msg) {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    return;
+  if (process.stdout.isTTY) { // Only if terminal supports it
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(msg);
+  } else {
+    console.log(msg); // Fallback for non-TTY (e.g., redirected output)
   }
 }

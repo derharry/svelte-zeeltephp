@@ -1,12 +1,8 @@
 /**
  * Original file within the Zeelte-Lib-Project /lib/api/zeeltephp.api.js
  */
-import { browser } from "$app/environment";
-import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
-import { base } from "$app/paths";
-import { ZP_ApiRouter } from "./class.zp.apirouter";
-import { ZP_EventDetails } from "./class.zp.eventdetails";
-
+import { ZP_ApiRouter } from "./class.zp.apirouter.js" // -> import { ZP_ApiRouter } from "../../../zeeltephp"
+import { ZP_EventDetails } from "./class.zp.eventdetails.js" // -> import { ZP_EventDetails } from "../../../zeeltephp" 
 
 export function zp_get_eventDetails(event) {
         return new ZP_EventDetails(event);
@@ -14,7 +10,16 @@ export function zp_get_eventDetails(event) {
 
 
 /**
- * 
+ * Fetch from SvelteKit-Backend 
+ * (placeholder for new feature)
+ */
+export function fetch_api(fetch) {
+    // to be used when switching to SvelteKit-only
+    // a file search-and-replace in project is enough
+}
+
+/**
+ * Fetch from API-Backend
  * @param {*} fetch Svelte's fetch
  * @param { ZP_ApiRouter ZP_EventDetails } urlOrRouter 
  * @param {*} data 
@@ -23,7 +28,7 @@ export function zp_get_eventDetails(event) {
  * @returns 
  */
 export function zp_fetch_api(fetch, urlOrRouterOrEvent, data = undefined, method = undefined, headers = undefined) {
-    const debug = false;
+    const debug = true;
     try {
         const zpar = new ZP_ApiRouter(urlOrRouterOrEvent, data, method);
         if (debug) zpar.dump();

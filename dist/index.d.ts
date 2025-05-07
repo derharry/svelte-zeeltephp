@@ -1,4 +1,6 @@
-export { ZP_ApiRouter } from "./zeeltephp/class.zp.apirouter.js";
-export { zp_fetch_api } from "./zeeltephp/zp.fetch.api.js";
-export { default as VarDump } from "./zeeltephp/VarDump.svelte";
-export { ZP_EventDetails, get_event_action_details } from "./zeeltephp/class.zp.eventdetails.js";
+export { zp_fetch_api } from "./zeelte/zp.fetch.api";
+export { ZP_ApiRouter } from "./zeelte/class.zp.apirouter.js";
+export { ZP_EventDetails } from "./zeelte/class.zp.eventdetails.js";
+export { default as VarDump } from "./zeelte/VarDump.svelte";
+export { default as ZPDev } from "./zeeltephp/ZPDev.svelte";
+export { default as Loader } from "./zeeltephp/Loader.svelte";

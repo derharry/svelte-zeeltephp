@@ -2,65 +2,12 @@
 /**
  * INIT-ZEELTE.PHP
  * 
- * Core init script of ZeeltePHP
+ * Core init script of ZeeltePHP (aka main())
  */
 
 
-// Allow CORS (allow from anywhere *)
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: *");
-header('Access-Control-Max-Age: 0'); // cache 0
-
-
-// Disable default PHP error display
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-
-// Set the header content-type
-header('Content-Type: application/json');
-
-
-// Create output buffer to capture fatal errors
-ob_start();
-
-// Convert warnings/notices to exceptions
-set_error_handler(function($severity, $message, $file, $line) {
-     throw new ErrorException($message, 0, $severity, $file, $line);
-});
-
-// Handle fatal errors
-register_shutdown_function(function() {
-     $error = error_get_last();
-     if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR])) {
-         echo json_encode([
-             'ok' => false,
-             'code' => 500,
-             'message' => 'Critical error',
-             'error' => [
-                 'type' => 'Fatal Error',
-                 'message' => $error['message'],
-                 'file' => $error['file'],
-                 'line' => $error['line']
-             ],
-             'cwd' => getcwd()
-         ]);
-     }
-});
-
-//main()
-//autoload settings
-$path_ZP_LIB    = './zeeltephp/zplib/';
-$path_ZP_ROUTES = './zeeltephp/zproutes/';
-if (!is_file('./zeeltephp/.env')) {
-     // presume dev mode when no .env file is found
-     if (is_dir('../../node_modules/zeeltephp/dist/api/'))
-          chdir('../../node_modules/zeeltephp/dist/api/');
-     $path_ZP_LIB = getcwd().'/../../../../src/lib/zplib/';
-     $path_ZP_ROUTES = getcwd().'/../../../../src/routes/';
-}
-define('PATH_ZPLIB', $path_ZP_LIB);
-define('PATH_ZPROUTES', $path_ZP_ROUTES);
-
+require_once('zp-bootstrap.php');
+require_once('zp-paths.php');
 require_once('zeeltephp/lib/sveltekit/class.zp.apirouter.php');
 require_once('zeeltephp/lib/cfg/cfg.env.php');
 require_once('zeeltephp/lib/io/io.dir.php');
@@ -74,7 +21,6 @@ global $debug;
 global $db;
 global $env;
 global $zpAR;
-
 
 
 try {
@@ -92,7 +38,7 @@ try {
      $data = null;
 
      if (!$zpAR->routeFileExist) {
-          throw new Error('No route defined');
+          throw new Error('No route/+page.server.php found');
      }
      else {
 
