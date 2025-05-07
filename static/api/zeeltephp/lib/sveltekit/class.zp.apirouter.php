@@ -69,49 +69,64 @@ class ZP_ApiRouter
                         $this->routeBaseApi= isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
                   }
                   if ($this->route) {
-                        //$this->message = 'set_environment()/route';
-                        //$this->environment == 'dev' ? '../../src/routes/' : './routes/';
-                        //echo $this->routeBase."\n";
-                        //echo $this->route."\n";
-                        //echo getcwd();
-                        $routePath = $this->routePath;
-                        $this->route = str_replace($this->routeBase, '', $this->route); // whatever? - removes the / in case
-                        //echo $this->route."\n";
-                        $pageServerPHP = $routePath . '/'.$this->route .'/+page.server.php';
-                        if (!is_file($pageServerPHP)) {
-                              // check for collection dirs (.*) 
-                              // this method allows only 1-level collection
-                              $paths = zp_scandir($routePath);
-                              foreach ($paths as $_) {
-                                    if (str_contains($_, '/+page.server.php') 
-                                     && str_starts_with($_, '(') 
-                                     && str_contains($_, $this->route)) {
-                                          $pageServerPHP = $routePath .$_;
-                                          if (is_file($pageServerPHP))
-                                                break;
-                              }}
-                        }
-                        // final - does the +page.server.php exists?
-                        $this->routeFile = $pageServerPHP;
-                        $this->routeFileExist = is_file($this->routeFile);
-                        //echo $this->routeFile."\n";
+                        // v1.0.1 added +api.php
                         if (!$this->routeFileExist) {
-                              $this->error = 'ZP: could not find route: '.$this->routeFile.'.';
-                        }
-                        //$this->route = ltrim($this->route, '/', rtrim($this->route, '/'));
-                        //$this->route = '/'.$this->route.'/';
-                        
-                        // we need the full path structure
-                        // for like hooks or +server.php, etc
-                        // and folder path like (admin)/*
+                              $routeFile = '';
+                              $pageServerPHP = '';
+                              if (str_starts_with($this->route, '+'))
+                                    $this->route = str_replace($this->route, '+', 'api/');
+                              if (str_starts_with($this->route, 'api/')) {
+                                    // assume /api/route/+server.php
+                                    // or     /routes/**/+api.php
+                                    $pageServerPHP = $this->route .'/+server.php';
+                                    $pageServerPHP = $this->route .'/+api.php';
+                              } else {
 
-                        //$routeFile = $this->route .'/+page.server.php';
-                        //$this->routeFile = $routePath.$routeFile;
-                        //$this->routeFileExist = is_file($this->routeFile);
-                        //if (!$this->routeFileExist) {
-                              //$this->error = 'ZP: could not find route: '.$this->routeFile.'.';
-                              //$this->routeFile = null; // set default value back
-                        //}
+                                    //$this->message = 'set_environment()/route';
+                                    //$this->environment == 'dev' ? '../../src/routes/' : './routes/';
+                                    //echo $this->routeBase."\n";
+                                    //echo $this->route."\n";
+                                    //echo getcwd();
+                                    $routePath = $this->routePath;
+                                    $this->route = str_replace($this->routeBase, '', $this->route); // whatever? - removes the / in case
+                                    //echo $this->route."\n";
+                                    $pageServerPHP = $routePath . '/'.$this->route .'/+page.server.php';
+                                    if (!is_file($pageServerPHP)) {
+                                          // check for collection dirs (.*) 
+                                          // this method allows only 1-level collection
+                                          $paths = zp_scandir($routePath);
+                                          foreach ($paths as $_) {
+                                                if (str_contains($_, '/+page.server.php') 
+                                                && str_starts_with($_, '(') 
+                                                && str_contains($_, $this->route)) {
+                                                      $pageServerPHP = $routePath .$_;
+                                                      if (is_file($pageServerPHP))
+                                                            break;
+                                          }}
+                                    }
+                                    // final - does the +page.server.php exists?
+                                    $this->routeFile = $pageServerPHP;
+                                    $this->routeFileExist = is_file($this->routeFile);
+                                    //echo $this->routeFile."\n";
+                                    if (!$this->routeFileExist) {
+                                          $this->error = 'ZP: could not find route: '.$this->routeFile.'.';
+                                    }
+                                    //$this->route = ltrim($this->route, '/', rtrim($this->route, '/'));
+                                    //$this->route = '/'.$this->route.'/';
+                                    
+                                    // we need the full path structure
+                                    // for like hooks or +server.php, etc
+                                    // and folder path like (admin)/*
+
+                                    //$routeFile = $this->route .'/+page.server.php';
+                                    //$this->routeFile = $routePath.$routeFile;
+                                    //$this->routeFileExist = is_file($this->routeFile);
+                                    //if (!$this->routeFileExist) {
+                                          //$this->error = 'ZP: could not find route: '.$this->routeFile.'.';
+                                          //$this->routeFile = null; // set default value back
+                                    //}
+                              }
+                        }
                   }
                   zp_log_debug('//set_environment()');
             }
