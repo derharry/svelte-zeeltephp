@@ -1,15 +1,11 @@
 <script>
       import { page } from "$app/state";
       import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
-      import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
-      import { ZP_EventDetails } from "$lib/zeeltephp/class.zp.eventdetails";
-      import {
-            get_typeof,
-            is_typeof,
-            var_dump,
-      } from "$lib/zeeltephp/dev.types";
-      import VarDump from "$lib/zeeltephp/VarDump.svelte";
-      import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
+
+      import { zp_fetch_api } from "zeeltephp";
+      import { ZP_ApiRouter } from "zeeltephp";
+      import { ZP_EventDetails } from "zeeltephp";
+      import { VarDump } from "zeeltephp";
 
       export let zpAR_Svelte = new ZP_ApiRouter(); // {}
       export let zpAR_zpPHP = {};

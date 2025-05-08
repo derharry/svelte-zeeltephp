@@ -1,6 +1,5 @@
 <?php
 
-
       function load() {
             global $jsonResponse, $zpAR;
             return [
@@ -11,6 +10,7 @@
                   ]
             ];
       }
+
       function actions($action, $value) {
             global $jsonResponse, $zpAR;
             $data = null;
@@ -50,9 +50,6 @@
                   'ok' => false,
                   'data' => $zpAR
             ];
-            //$jsonResponse->ok   = true;
-            //$jsonResponse->data = $zpAR;
-            //return true;
       }
 
 

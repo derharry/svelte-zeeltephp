@@ -1,23 +1,19 @@
 <script>
-      import { page } from "$app/state";
-      import VarDump from "$lib/zeeltephp/VarDump.svelte";
-      import { zp_fetch_api } from "$lib/zeeltephp/zp.fetch.api";
       import { onMount } from "svelte";
-      
 
+      import { zp_fetch_api } from "zeeltephp";
+      import { VarDump } from "zeeltephp";
+      
       let promise_load
       let data_load
 
       let sqlStatement = "SELECT 'Hello World from default query'";
-
 
       onMount(() => {
             promise_load = zp_fetch_api(fetch)
                   .then((data) => data_load = data)
                   .catch((error) => data_load = error)
       })
-
-
 
       function handle_dbwp (e) {
             try {

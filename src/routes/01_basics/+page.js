@@ -1,7 +1,5 @@
 
-import { zp_fetch_api } from '$lib/zeeltephp/zp.fetch.api.js';
-
-
+import { zp_fetch_api } from 'zeeltephp';
 
 export async function load({ params, fetch, url }) {
       try {

@@ -1,7 +1,7 @@
 
-import { zp_fetch_api } from '$lib/zeeltephp/zp.fetch.api.js';
-import { ZP_ApiRouter } from "$lib/zeeltephp/class.zp.apirouter";
-import { ZP_EventDetails } from '$lib/zeeltephp/class.zp.eventdetails.js';
+import { zp_fetch_api } from 'zeeltephp';
+import { ZP_ApiRouter } from "zeeltephp";
+import { ZP_EventDetails } from 'zeeltephp';
 
 
 export async function load({ params, fetch, url }) {
