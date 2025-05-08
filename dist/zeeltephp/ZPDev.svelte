@@ -8,6 +8,7 @@
      import { zp_fetch_api } from "../zeelte/zp.fetch.api.js";
      import VarDump from "../zeelte/VarDump.svelte";
      import Loader from "./Loader.svelte";
+     import { invalidateAll } from "$app/navigation";
 
      /**
       * use the usual export let data; directly from page.data.
@@ -59,6 +60,20 @@
                });
      }
 
+     async  function btnInvalidate(event) {
+          console.clear();
+          reset_data();
+          await invalidateAll()
+          /*
+          promise_fetch = new Promise((resolve, reject) => {
+               setTimeout(() => {
+                    resolve("foo");
+               }, 500);
+          })
+          .then(value => {})
+          */
+     }
+
      function zped(event) {
           console.clear();
           reset_data();
@@ -67,7 +82,7 @@
           promise_fetch = zp_fetch_api(fetch, zpAR_svelte);
      }
 
-     function zpaction(event) {
+     function btnAction(event) {
           console.clear();
           reset_data();
           zpED_svelte = new ZP_EventDetails(event);
@@ -81,6 +96,8 @@
                     console.error(error);
                });
      }
+
+     function submitForm(e) {}
 
      function post_api_response(datax) {
           if (datax?.zpAR) {
@@ -99,16 +116,30 @@
      }
 </script>
 
-<h2>ZP_Demo (debugger)</h2>
+<div class="" style="">
 
-<button on:click={load} name="(re)load"> load() </button>
-<button on:click={zped} formaction="?/example" name="zpED">
-     ZP_EventDetails
-</button>
-<button on:click={zpaction} formaction="?/foo" name="actionBtn" value="bar">
-     ?/action
-</button>
+<form>
+     <button on:click={load} name="(re)load"> load() </button>
+     <button on:click={btnInvalidate} name="invalidate"> invalidate() </button>
+     <button on:click={btnAction} formaction="?/foo" name="actionBtn" value="bar">
+          ?/action
+     </button>
+     <button on:click={submitForm} formaction="?/example" name="zpED">
+          form_submit()
+     </button>
+</form>
 
+<!--
+<table>
+     <tbody>
+          <tr>
+               <td width="50">+.php file found</td>
+               <td width="50">
+               </td>
+          </tr>
+     </tbody>
+</table>
+-->
 
 <table>
      <tbody>
@@ -178,13 +209,6 @@
                     ></td
                >
           </tr>
-          <tr>
-               <td>ZP fetch api url</td>
-               <td
-                    ><a href="{zpAR_svelte?.fetch_url}?//" target="_blank"
-                         >{zpAR_svelte?.fetch_url}?//</a
-                    ></td
-               >
-          </tr>
      </tbody>
 </table>
+</div>
