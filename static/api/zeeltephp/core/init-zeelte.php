@@ -61,9 +61,9 @@ try {
           'ok'   => true,
           'code' => 200,
           'data' => $data,
-          'zpAR' => $zpAR,
-          'zpDB' => $db,
-          'le' => $db->last_error()
+          //'zpAR' => $zpAR,
+          //'zpDB' => $db,
+          //'le' => $db->last_error()
      ]);
      
 } catch (Error $e) {
@@ -77,8 +77,8 @@ try {
                'file' => $e->getFile(),
                'line' => $e->getLine()
           ],
-          'zpAR' => $zpAR,
-          'zpDB' => $db,
+          //'zpAR' => $zpAR,
+          //'zpDB' => $db,
      ]);
 } catch (ErrorException $e) {
      // Handle non-fatal errors
@@ -92,8 +92,8 @@ try {
                'file' => $e->getFile(),
                'line' => $e->getLine()
           ],
-          'zpAR' => $zpAR,
-          'zpDB' => $db,
+          //'zpAR' => $zpAR,
+          //'zpDB' => $db,
      ]);
 }
 finally {
