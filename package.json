@@ -1,7 +1,7 @@
 {
 	"name": "zeeltephp",
-	"version": "1.0.1",
-	"description": "Svelte-frontend, PHP-backend",
+	"version": "1.0.2",
+	"description": "Svelte-frontend, PHP-backend (rc1)",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",

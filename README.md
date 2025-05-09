@@ -143,20 +143,32 @@ async function handle_submit(event) {
 
 <form on:submit={handle_submit}>
       <button
-            on:click={handle_click}
+            type="submit"
             formaction="?/FOO"
             value="zoo"
       />
       {#await promise}
+            ..
       {:then data}
-      {:catch} 
+            ..
+      {:catch error}
+            .. 
       {/await}
 </form>
+
+<button
+      type="button"
+      formaction="?/FOO"
+      name="btn"
+      value="zoo"
+      on:click={handle_click}
+/>
 ```
 
 
 ## Description in a nutshell
-`zp_fetch_api()` acts as API between your Svelte(Kit)-project and ZeeltePHP. It handles SvelteKits load(), actions of Forms or Buttons, etc.. 
+`zp_fetch_api()` acts as API between your Svelte(Kit)-project and ZeeltePHP. 
+<br>It handles SvelteKits load(), actions of Forms or Buttons, etc.. 
 <br>Instead of repeating code like:
 ```
 tbd paste example
@@ -167,7 +179,6 @@ tbd paste example
 ```
 It sends the request as GET, POST as JSON or FormData as required which is all set by `ZP_ApiRouter`
 <br>ZeeltePHP-api will handle the ZP_ApiRouter-request and load the files PHP-files from DEV:`/src/lib/zplib,/src/routes`,/src or BUILD:`/api/zplib/,/api/zproutes`. 
-<br>The response is JSON where `zp_fetch_api()` returns the resolved JSON-response like `data = await response.json()` already.
 
 
 ### idea of project (origins)
@@ -221,6 +232,8 @@ Dumps the content of given variable
 
 #### .env variables
 The variables are auto-generated at runtime by zeeltephp_loadEnv() when no .env file is found.
+<br>auto-generated variables are for when project is saved inside your [DOCUMENT_ROOT]/<your-project>
+<br>when 
 <br>For final production-builds set relative paths from its 'document_root' http://domain/<BUILD_DIR>
 ``` 
 BUILD_DIR   path/to/build-output 
@@ -229,9 +242,16 @@ PUBLIC_ZEELTEPHP_BASE=  (dev)http://localhost/path/to/project/static/api (produc
 ```
 
 ``` example.production
-BUILD_DIR   = build-prod 
-BASE        = /sub/build-output   # running hat http://domain/sub/BUILD_DIR
-PUBLIC_ZEELTEPHP_BASE=[DOCUMENT_ROOT]/path/to/build/api
+BUILD_DIR   = build-prod          # auto dev    (empty - not used)
+                                  #      build  build-env
+                                  # /path/to/htdocs/build-prod
+BASE        = /build-output       # auto dev    (empty)
+                                  #      build  /build-prod
+                                  # 
+PUBLIC_ZEELTEPHP_BASE = http:///path/to/build/api
+                                  # auto dev    http://localhost/your-package/static/api
+                                  #      build  http://localhost/build-env/api
+                                  # http://domain.com/build-prod
 ```
 
 ``` DB-Providers
@@ -280,4 +300,4 @@ Holds the PUBLIC .env variables or BUILD:/api/zeeltephp.env
 * (done 25-05-06) ZP_DEMO should be /src/routes/** as complete example, documentation and Live-app (Demo.svelte) within consumer project
 *                 Live Demo and Debugger - use Demo.svelte to load Documentation and Debugger in consumer project.
 *                 Integrate PostInstallation to zeeltephp_loadEnd() and so Postinstall and package.json/trustedDependencies is not required anymore.
-* (done 25-05-07) add a Debug Component to use in lib and consumer project if all is up and running. -> ZPDev
+* (done 25-05-07) add a debug-Component to use in lib and consumer project to see if all is up and running. -> ZPDev.svelte
