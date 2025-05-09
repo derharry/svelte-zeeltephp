@@ -15,7 +15,7 @@ const config = {
 		},
 		// set alias zeeltephp - so /routes/** can be used as zpdemo
 		alias: {
-			'zeeltephp': process.env.ZP_SELF ? path.resolve('./src/lib/index.js') : 'zeeltephp'
+			'zeeltephp': process.env.ZP_IS_SELFENV ? path.resolve('./src/lib/index.js') : 'zeeltephp'
 		},
      }, 
 	trailingSlash: 'always',

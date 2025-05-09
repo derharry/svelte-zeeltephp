@@ -1,96 +1,124 @@
-// create-static-api.js
-import { mkdir, copyFile, cp } from 'node:fs/promises'
+// zp-post-install.js
+//      issued by zeeltephp_loadEnv()
+//      replaces previous versions: @/postinstall, @/trustedDependencies, @/zeeltephp-post-install.sh
+import { mkdir, cp } from 'node:fs/promises'
 import { join, basename } from 'node:path'
 import fs from 'node:fs'
+import { console_log_sameline } from './inc.tools.js';
 
-//const __dirname = dirname(fileURLToPath(import.meta.url)) // in link mode this is sym-link
-//const _consumerRoot = process.cwd(); // Always the consumer's root
+// -- const __dirname = dirname(fileURLToPath(import.meta.url)) // -- in link mode this is sym-link
+// -- const _cpRoot = process.cwd(); // Always the consumer's root
 
+/**
+ * Installs required paths and files, if not exists, to consumer-project.
+ * @returns void
+ */
 export async function zeeltephp_postinstall() {
   try {
-    //return // deactivated
+    // flag to use debugging output
     const debug = false;
-    
-    const packageRoot = process.cwd(); // path to @zeeltephp
-    const iSelf = process.env?.VITE_ZP_SELF ? true : false;
-    if (iSelf)
-        return; // skip self environment - install is only for consumer project
 
-    console.log('🚀 ZeeltePHP - post-install ');
-
-    //const packageName  = process.env.npm_package_name;
-    const moduleBase = join(packageRoot, 'node_modules', 'zeeltephp', 'dist');
-    const apiBase    = join(moduleBase, 'api')
-    const tmplBase   = join(moduleBase, 'templates')
-
-    const consumerRoot = join(packageRoot);
-    const destBase     = consumerRoot;
+    // set basic paths
+    const cpRoot = process.cwd();                                      // path to /consumer-project-root
+    const zpRoot = join(cpRoot, 'node_modules', 'zeeltephp', 'dist');  // path to @zeeltephp-package
+    const zpApi  = join(zpRoot, 'api');                                // path to @zeeltephp/api       
+    const zpTmpl = join(zpRoot, 'templates');                          // path to @zeeltephp/templates
 
     if (debug) {
-      console.log('  -  packageRoot    ', packageRoot);
-      //console.log('  -  packageName    ', packageName);
-      console.log('     moduleBase     ', moduleBase);
-      console.log('     apiBase        ', apiBase);
-      console.log('     tmplBase       ', tmplBase);
-      console.log('  -  consumerRoot   ', consumerRoot);
-      //console.log('     isConsumer     ', isConsumer);
-      console.log('     destBase       ', destBase);
+      console.log('🐘 ZeeltePHP - post-install ');
+      console.log('  -  cpRoot    ', cpRoot);
+      console.log('  -  zpRoot    ', zpRoot);
+      console.log('  -  zpApi     ', zpApi);
+      console.log('  -  zpTmpl    ', zpTmpl);
       //console.log('  -  Config      ', process.env);
     }
 
-    // 1. Copy ./src/routes/+layout.js file 
-    const layoutSource = join(tmplBase, 'src', 'routes', '+layout.js');
-    const layoutDest   = join(destBase, 'src', 'routes', '+layout.js');
-    if (!fs.existsSync(layoutDest)) {
-      console.log('  create /src/routes/+layout.js');
-      await copyFile(layoutSource, layoutDest);
+    // 1. copy static/api
+    // 2. create /node_modules/zeeltephp/dist/api/log
+    // 3. create /node_modules/zeeltephp/dist/api/log
+    // 4. create /src/lib/zplib/
+    // 5. copy ./src/routes/+layout.js file 
+    const copyNpaste_tasks = [
+      {
+        name: '/static/api',
+        src: join(zpTmpl, 'static', 'api'),
+        dst: join(cpRoot, 'static', 'api')
+      },
+      {
+        name: '@zeeltephp/api/zeeltephp/log',
+        dst: join(zpRoot, 'api', 'zeeltephp', 'log'),
+      },
+      {
+        name: '/static/api/log',
+        dst: join(cpRoot, 'static', 'api', 'zeeltephp', 'log'),
+      },
+      {
+        name: '/src/lib/zplib',
+        dst: join(cpRoot, 'src', 'lib', 'zplib'),
+      },
+      {
+        name: '/src/routes/+layout.js',
+        src: join(zpTmpl, 'src', 'routes', '+layout.js'),
+        dst: join(cpRoot, 'src', 'routes', '+layout.js')
+      }
+    ];
+
+    // process copyNpaste_tasks
+    //   create path  = !src & dst 
+    //   copy         = src & dst
+    for (const task of copyNpaste_tasks) {
+
+      // run task only when path not exists - presuming first time setup
+      if (!fs.existsSync(task.dst)) {
+        console_log_sameline('🐘  zeeltephp-postinstall, ', task.name);
+
+        // init task-state flag
+        //    false  = task unsupported
+        //    string = task processed
+        task.state = false
+
+        // process task
+        if (!task.src && task.dst && !fs.existsSync(task.dst)) {
+          // create path
+          await mkdir(task.dst, { recursive: true })
+          task.state = 'created';
+        } else if (task.src && task.dst) {
+          // copy
+          cp(task.src, task.dst, { recursive: true });
+          task.state = 'copied';
+        }
+        // output state
+        console.log('🐘', !task.state ? '❌' : '✅', 'zeeltephp-postinstall', task.state, task.name);
+      }
+      /*
+        -- instead of repeating:
+        const create Src  = join(..)
+        const create Dest = join(..)
+        if (!fs.existsSync(Dest)) {
+          await mkdir(Dest, { recursive: true })
+          await copyFile(Src, Dest);
+          console.log('🚀 ZeeltePHP - created ', DEST);
+        }
+      */
     }
 
-    // 2. Copy static/api
-    const apiSourcePath = join(tmplBase, 'static', 'api');
-    const apiDestPath   = join(destBase, 'static', 'api');
-    if (!fs.existsSync(apiDestPath)) {
-      console.log('  create /static/api/index.php');
-      cp(apiSourcePath, apiDestPath, { recursive: true });
-    }
-
-    // 3. Create /src/lib/zplib/
-    const zplibDest = join(destBase, 'src', 'lib', 'zplib');
-    if (!fs.existsSync(zplibDest)) {
-      console.log('  create /lib/zplib');
-      await mkdir(zplibDest, { recursive: true })
-    }
-
-    // 4. if not exist create /node_modules/zeeltephp/dist/api/log
-    const apiLogPathC = join(destBase, 'static', 'api', 'zeeltephp', 'log');
-    const apiLogPathM = join(moduleBase, 'api', 'zeeltephp', 'log');
-    if (!fs.existsSync(apiLogPathC)) {
-      console.log('  create /static/api/zeeltephp/log');
-      await mkdir(apiLogPathC, { recursive: true })
-    }
-
-    if (!fs.existsSync(apiLogPathM)) {
-      console.log('  create @zeeltephp/api/zeeltephp/log');
-      await mkdir(apiLogPathM, { recursive: true })
-    }
-
-    /*
-    if (isFirstInstallTime) {
-      // install the zpdemo too
-      console.log('  copy /src/routes/zpdemo');
-      const demoSourcePath    = join(tmplBase, 'src', 'routes', 'zpdemo');
-      const demoDestPath      = join(destBase, 'src', 'routes', 'zpdemo');
-      const demoSourcePathApi = join(tmplBase, 'src', 'lib', 'zplib', 'inc.zpdemo.php');
-      const demoDestPathApi   = join(destBase, 'src', 'lib', 'zplib', 'inc.zpdemo.php');
-      cp(demoSourcePath, demoDestPath, { recursive: true });
-      cp(demoSourcePathApi, demoDestPathApi, { recursive: true });
-    }
-    */
   } catch (err) {
-    console.error('❌ Post-install error:')
+    console.error('🐘 ❌ zeeltephp-postinstall ERROR ')
     console.error('- Message:', err.message)
     console.error('- Code:', err.code || 'N/A')
     console.error('- Path:', err.path || 'N/A')
     process.exit(1)
+  }
+}
+
+
+function console_log_sameLine(msg) {
+  if (process.stdout.isTTY) { // Only if terminal supports it
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(msg);
+  } else {
+    // not use the fallback in case
+    // -- console.log(msg); // Fallback for non-TTY (e.g., redirected output)
   }
 }

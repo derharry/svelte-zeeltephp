@@ -5,7 +5,7 @@ import { zeeltephp } from '$lib/vite-plugin/zeeltephp-vite-plugin.js';
 export default defineConfig(({ mode }) => {
 
 	// set ZP_SELF because of ZeeltePHP-context and not in consumer/dist
-	process.env.ZP_SELF = true;
+	process.env.ZP_IS_SELFENV = true;
 
 	return {
 		 plugins: [

@@ -1,35 +1,38 @@
-//zp-build-main.js
+// zp-post-build.js
+//      issued by vite/closebundle()
+//      replaces @:/package.json/scripts-configs, @:/zp-post-build.sh
 import { mkdir, copyFile } from 'node:fs/promises'
 import fs from 'fs';
 import path from 'path';
+import { console_log_sameline } from './inc.tools.js';
 
-
+/**
+ * postbuild copies and creates required paths to SvelteKits final build
+ */
 export async function zeeltephp_postbuild() {
   try {
-    //console.log('🚀 ZeeltePHP - postbuild (closeBundle)');
+    console.log('🐘 ZeeltePHP - post-build ');
 
-    // Create base directories
-    //await ensureDir(`${DIR_API}`);
-    //await ensureDir(`${DIR_ROUTES}`);
-
+    // get BUILD_DIR from .env
     const BUILD_DIR = path.join(process.env.BUILD_DIR);
 
-    // PHP file operations
-    const operations = [
-      { src: process.env.ZP_PATH_API,    dest: BUILD_DIR +'/api' },
-      { src: process.env.ZP_PATH_ZPLIB,  dest: BUILD_DIR +'/api/zeeltephp/zplib' },
-      { src: process.env.ZP_PATH_ROUTES, dest: BUILD_DIR +'/api/zeeltephp/zproutes' },
+    // copy file tasks for +.php and zplib
+    const copy_php_tasks = [
+      { src_path: process.env.ZP_PATH_API,    dest_path: BUILD_DIR +'/api' },
+      { src_path: process.env.ZP_PATH_ZPLIB,  dest_path: BUILD_DIR +'/api/zeeltephp/zplib' },
+      { src_path: process.env.ZP_PATH_ROUTES, dest_path: BUILD_DIR +'/api/zeeltephp/zproutes' },
     ];
-    operations.forEach(({ src, dest }) => {
-      logSameLine(`   📁 Copying ${src} → ${dest}`);
-      if (!fs.existsSync(src)) {
-        console.warn(`     Source missing: ${src}`);
+    // process tasks
+    copy_php_tasks.forEach(({ src_path, dest_path }) => {
+      console_log_sameline(`   📁 Copying ${src_path} → ${dest_path}`);
+      if (!fs.existsSync(src_path)) {
+        console.warn(`     source missing: ${src_path}`);
         return;
       }
-      if (!fs.existsSync(dest))
-        fs.mkdirSync(dest, { recursive: true });
-      copyRecursiveSync(src, dest, (file) => file.endsWith('.php'));
-      console.log(`   ✅ Copied: ${src} → ${dest}`);
+      if (!fs.existsSync(dest_path))
+        fs.mkdirSync(dest_path, { recursive: true });
+      copyRecursiveSync(src_path, dest_path, (file) => file.endsWith('.php'));
+      console.log(`   ✅ copied  ${src_path} → ${dest_path}`);
     });
 
     // Generate PHP .env
@@ -43,7 +46,7 @@ export async function zeeltephp_postbuild() {
       )
       .join('\n');
     fs.writeFileSync(envFile, envVars);
-    console.log(`   ✅ Generated: ${envFile}`);
+    console.log(`   ✅ created ${envFile}`);
 
 
     
@@ -51,9 +54,10 @@ export async function zeeltephp_postbuild() {
     if (!fs.existsSync(BUILD_DIR +'/api/zeeltephp/log')) 
       await mkdir(BUILD_DIR +'/api/zeeltephp/log')
 
-    console.log('✅ ZeeltePHP build completed');
+    console.log('🐘 ZeeltePHP postbuild complete');
+
   } catch (error) {
-    console.error('❌ ZeeltePHP build failed:', error.message);
+    console.error('🐘 ❌ ZeeltePHP postbuild ERROR: ', error.message);
     process.exit(1);
   }
 }
@@ -80,15 +84,3 @@ function copyRecursiveSync(src, dest, filter = () => true) {
   }
 }
 
-function logSameLine(msg) {
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    return;
-  if (process.stdout.isTTY) { // Only if terminal supports it
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    process.stdout.write(msg);
-  } else {
-    console.log(msg); // Fallback for non-TTY (e.g., redirected output)
-  }
-}

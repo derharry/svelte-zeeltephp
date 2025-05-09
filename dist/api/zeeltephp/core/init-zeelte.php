@@ -30,6 +30,7 @@ try {
           $env = [];
           // load defaults
          $env['ZEELTEPHP_DATABASE_URL'] = 'mysql2://root@localhost/test';
+         $env['ZEELTEPHP_DATABASE_URL'] = 'wordpress://../../../wordpress/wp-load.php';
           //throw Error('could not find .env file');
      }
      

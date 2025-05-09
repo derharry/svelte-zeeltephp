@@ -17,10 +17,10 @@ $path_ZP_ENVfile = './zeeltephp/.env';       // exist only in builds
 if (!is_file($path_ZP_ENVfile)) {
 
      $path_ZP_ENVfile = ''; 
-     $consumerRoot = getcwd();
+     $consumerRoot = getcwd();  // expected /path/to/htdocs/<your-project>
      $pathDistApi  = $consumerRoot.'/node_modules/zeeltephp/dist/api';
      $isConsumer   = is_dir($pathDistApi);
-     $isSelf       = str_contains(getcwd(), 'svelte-zeeltephp');
+     $isSelf       = str_contains(getcwd(), '/svelte-zeeltephp/');
 
      // default isConsumer
      $path_ZP_LIB    = "$consumerRoot/src/lib/zplib";
