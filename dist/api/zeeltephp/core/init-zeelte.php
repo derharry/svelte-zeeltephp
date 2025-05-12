@@ -6,13 +6,16 @@
  */
 
 
+// import core
 require_once('zp-bootstrap.php');
-require_once('zp-paths.php');
-require_once('zeeltephp/lib/sveltekit/class.zp.apirouter.php');
+require_once('zp-pathsEnv.php');
+require_once('zp-inc.php');
+require_once('zp-errors.php');
+require_once('class.zp.apirouter.php');
+
+// import core minimum dependencies
 require_once('zeeltephp/lib/cfg/cfg.env.php');
 require_once('zeeltephp/lib/io/io.dir.php');
-require_once('zeeltephp/lib/helper/zp.log.error.handler.php');
-require_once('zeeltephp/lib/helper/load.php.files.php');
 require_once('zeeltephp/lib/db/db.db.php');
 
 
@@ -22,28 +25,46 @@ global $db;
 global $env;
 global $zpAR;
 
-
+// zeeltephp_main();
 try {
-     // read config .env_file
-     $env = zp_read_env_file();
-     if (!$env) {
-          $env = [];
-          // load defaults
-         $env['ZEELTEPHP_DATABASE_URL'] = 'mysql2://root@localhost/test';
-         $env['ZEELTEPHP_DATABASE_URL'] = 'wordpress://../../../wordpress/wp-load.php';
-          //throw Error('could not find .env file');
-     }
-     
-     // load the ApiRouter to get the rest :-)
-     $zpAR = new ZP_ApiRouter();
+
+     // hello at ZeeltePHP
+     // I should now be running after zp-pathsEnv set me in correct cwd()
+
+     // lets load the .env or auto generate missing ones 
+     $env = zeeltephp_loadEnv();
+
+     // load the ApiRouter to get @zeelte:api
+     // deparse  zp_fetch_api() 
+     //        deparse ZP_API request
+     //        check if all routes exist 
+     //             parse routes and handle pushing, receving the data - like sveltekit does
+     //
+     //  ....
+     $zpAR = new ZP_ApiRouter($env);
+
+     // default response of 
+     //    +page.server.php
+     //    // roadmap also from further +.php files like SvelteKit does
      $data = null;
 
-     if (!$zpAR->routeFileExist) {
-          throw new Error('No route/+page.server.php found');
+     // exists first 
+     // then executes
+
+
+     if (!$zpAR->route) {
+          // nothing to do - just no route is given
+          //throw new Error('500');
+          throw new Error('501');
+     }
+     else if (!$zpAR->routeFileExist) {
+          throw new Error('502');
      }
      else {
 
           // real main() for +page.server.php
+          require_once('exec.page.server.php');
+
 
           // load lib files
           zp_load_lib($zpAR->environment);
@@ -70,15 +91,12 @@ try {
 } catch (Error $e) {
      echo json_encode([
           'ok'      => false,
-          'code'    => 500,
-          'message' => 'error',
-          'error'   => [
-               'type' => get_class($e),
-               'message' => $e->getMessage(),
-               'file' => $e->getFile(),
-               'line' => $e->getLine()
-          ],
-          //'zpAR' => $zpAR,
+          'code'    => zp_get_errorMessage($e->getMessage(), true),
+          'message' => zp_get_errorMessage($e->getMessage()),
+          'type'    => get_class($e),
+          'file' => $e->getFile(),
+          'line' => $e->getLine(),
+          'zpAR' => $zpAR,
           //'zpDB' => $db,
      ]);
 } catch (ErrorException $e) {
@@ -86,13 +104,11 @@ try {
      echo json_encode([
           'ok'      => false,
           'code'    => 500,
-          'message' => 'Runtime error',
-          'error'   => [
-               'type' => get_class($e),
-               'message' => $e->getMessage(),
-               'file' => $e->getFile(),
-               'line' => $e->getLine()
-          ],
+          'message1' => 'Runtime error',
+          'type' => get_class($e),
+          'message2' => $e->getMessage(),
+          'file' => $e->getFile(),
+          'line' => $e->getLine(),
           //'zpAR' => $zpAR,
           //'zpDB' => $db,
      ]);
@@ -101,112 +117,6 @@ finally {
     ob_end_flush();
 }
 
-
-/**
- * check for 
- */
-function zp_read_SvelteKitRoutes() {
-     try {
-          //code...
-     } catch (\Throwable $th) {
-          //throw $th;
-     }
-}
-
-
-/**
- * read $lib/*
- * read ./lib/*
- */
-function zp_load_lib($environment) {
-     global $path_ZP_LIB;
-     // if dev-env load all php files from /src/lib/zplib 
-     zp_load_php_files(PATH_ZPLIB);
-     /*
-     //var_dump($environment);
-     if (is_dir('./lib')) {
-          echo 'ewflkwöflkweölfwekföl';
-          zp_load_php_files('./lib');
-     } else {
-          //echo '3242423432423';
-          zp_load_php_files( '../../src/lib/zplib/' );
-     }
-     //if ($environment == 'dev' && is_dir('../../src/lib/zplib/'))
-     //     zp_load_php_files( '../../src/lib/zplib/' );
-     // load default /api/lib
-     //zp_load_php_files( './lib' );
-     */
-}
-
-
-function zp_exec_pageserverphp() {
-     global $zpAR;
-     //try {
-          zp_log_debug($zpAR->routeFile);
-
-          // include +page.server.php
-          include($zpAR->routeFile);
-
-          // response from load or actions
-          // we use states :string for internal knowing what we are doing / where we are.
-          $action_response = '__ZP-INIT__';
-
-          // if no zpAR->action defined -> its basic GET load()
-          // if no action then just call load()
-          if (is_null($zpAR->action)) {
-               // no action -> load()
-               if (function_exists('load')) {
-                    $action_response = '__ZP-LOAD__';   // at least set true because found
-                    zp_log_debug('  >> '.$action_response);
-                    $action_response = load();
-               }
-          }
-          else if (!is_null($zpAR->action)) {
-               $action_response = '__ZP-ACTIONS?__';   // at least set true because found
-               // support custom function action_ACTION($value)
-               // instead of e.g. actions() switch ($action) case 'ACTION'
-               $action_name_stripped = str_replace('?/', '', $zpAR->action);
-               $action_function_name = 'action_'.$action_name_stripped;
-               if (function_exists($action_function_name)) {
-                    // exec action_ACTION
-                    $action_response = '__ZP-ACTION_-'.$action_function_name.'__';
-                    zp_log_debug('  >> '.$action_response);
-                    $action_response = $action_function_name($zpAR->value);
-               }
-               else if (function_exists('actions')) {
-                    // exec actions($action, $value, $data)
-                    $action_response = '__ZP-ACTIONS__';
-                    zp_log_debug('  >> '.$action_response);
-                    $action_response = actions($action_name_stripped, $zpAR->value, $zpAR->data);
-               }
-          }
-
-          //return 'No response of load() or action(?/action) :'.$action_response;
-          $msg = 'valid response from +page.server.php';
-          if (is_string($action_response) && str_starts_with($action_response, '__ZP')) {
-               $msg = null;
-               if      ($action_response == '__ZP-ACTIONS?__')               $msg = "no action(s) found for ".$zpAR->action; 
-               else if (str_starts_with('__ZP-ACTION_-', $action_response))  $msg = "no response of ".$action_function_name;
-               else if (str_starts_with('__ZP-ACTIONS_-', $action_response)) $msg = "no response of actions()";
-               else if ($action_response == '__ZP-LOAD__')                 $msg = "no response of load()";
-               else if ($action_response == '__ZP-INIT__')                 $msg = "no load() or actions() found.";
-               else $msg = $action_response;
-               $action_response = $msg;
-          }
-          return $action_response;
-     
-     /*
-     }
-     catch (Exception $exp) {
-          zp_log_debug(' !! '.$exp->getMessage());
-          zp_error_handler($exp);
-          return $exp->getMessage();
-     }
-     finally {
-          zp_log_debug('//'.$zpAR->routeFile);
-     }
-     */
-}
 
 
 ?>

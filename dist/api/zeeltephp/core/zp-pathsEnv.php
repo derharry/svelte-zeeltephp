@@ -1,21 +1,29 @@
 <?php
 /*
      DEFAULT PATHS and RUNNING environment context
+     Preload the paths
+
+     default - production first - we presume to be in build (production)
+             - development env  - no .env file
 */
 
 //
-// 1st - BUILD/api/zeeltephp environment (default)
+// Default is BUILD (productive) environment
+//     BUILD/api/zeeltephp environment (default)
+//     all is setup by zeeltephp_postbuild()
 //
-$path_ZP_LIB     = './zeeltephp/zplib/';     // from CP/src/lib/zplib/** (aka $lib/zplib/)
-$path_ZP_ROUTES  = './zeeltephp/zproutes/';  // from CP/src/routes/**
+$path_ZP_LIB     = './zeeltephp/zplib/';     // from CP /src/lib/zplib
+$path_ZP_ROUTES  = './zeeltephp/zproutes/';  // from CP /src/routes/
+$path_ZP_LOG     = './zeeltephp/log/';       // php errors
 $path_ZP_ENVfile = './zeeltephp/.env';       // exist only in builds
 
-//
-// 2nd - no BUILD, so in which dev-project context am I running? 
-//       as lib-package       (cp: consumer project)            (default) 
-//       or lib-development   (zp: self zeeltephp lib-project)
+
 if (!is_file($path_ZP_ENVfile)) {
 
+     // no .env file - presume dev mode
+     //       so in which dev-project context am I running? 
+     //       as lib-package       (cp: consumer project)            (default) 
+     //       or lib-development   (zp: self zeeltephp lib-project)
      $path_ZP_ENVfile = ''; 
      $consumerRoot = getcwd();  // expected /path/to/htdocs/<your-project>
      $pathDistApi  = $consumerRoot.'/node_modules/zeeltephp/dist/api';
@@ -25,6 +33,7 @@ if (!is_file($path_ZP_ENVfile)) {
      // default isConsumer
      $path_ZP_LIB    = "$consumerRoot/src/lib/zplib";
      $path_ZP_ROUTES = "$consumerRoot/src/routes";
+     $path_ZP_LOG    = "$consumerRoot/static/api/zeeltephp/log"; // php errors
      $title = "";
      if ($isSelf) {
           // self project context
@@ -66,10 +75,12 @@ if (!is_file($path_ZP_ENVfile)) {
      if ($debug)  echo " - chdir ".getcwd()."\n";
      chdir($pathDistApi);
      if ($debug)  echo " - chdir ".getcwd()."\n";
-}
+} 
 
-define('PATH_ZPLIB',    $path_ZP_LIB);
-define('PATH_ZPROUTES', $path_ZP_ROUTES);
+define('PATH_ZPLIB',      $path_ZP_LIB);
+define('PATH_ZPROUTES',   $path_ZP_ROUTES);
+define('PATH_ZP_LOG',     $path_ZP_LOG);
+define('PATH_ZP_ENVfile', $path_ZP_ENVfile);
 
 /*
 

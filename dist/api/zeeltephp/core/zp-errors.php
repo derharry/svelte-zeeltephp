@@ -1,6 +1,22 @@
 <?php
 
 
+function zp_get_errorMessage($code, $codeNr = false) {
+     $zeeltephp_errors = [
+          '501' => 'no zp_route?',
+          '502' => 'no +page.server.php found',
+          '503' => 'no load() found',
+          '504' => 'no action() found',
+     ];
+     if (isset($zeeltephp_errors[$code])) {
+          if ($codeNr)
+               return (string)$code;
+          else 
+               return $zeeltephp_errors[$code];
+     }
+     return $code; // if no translation - return just the code anyway
+}
+
 function zp_log($content) {
       if (is_array($content) || is_object($content)) $content = json_encode($content, JSON_PRETTY_PRINT, 3);
       error_log($content."\n", 3, 'zeeltephp/log/log.log');

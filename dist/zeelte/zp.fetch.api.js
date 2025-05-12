@@ -97,9 +97,11 @@ export function zp_fetch_api(fetch, router, dataOrEvent = undefined, method = un
                         // PHP response is ok - resolve the returned data from +.php
                         if (rawZPresponseData?.data)
                             resolve(rawZPresponseData?.data);
-                        // roadmap feature $page
-                        // resolve into $page.data or $page.form to imitate SvelteKit's behaviour (trigger) 
-                        // if (debug) console.log('data zp_fetch_api()', data_api.data, data.error, data)
+                        if (true) {
+                            // roadmap feature $page
+                            // resolve into $page.data or $page.form to imitate SvelteKit's behaviour (trigger) 
+                            // if (debug) console.log('data zp_fetch_api()', data_api.data, data.error, data)
+                        }
                     } else {
                         // thats a pitty - lets resolve an the raw response - might be a javascript failure or custom response
                         resolve(rawZPresponseData);

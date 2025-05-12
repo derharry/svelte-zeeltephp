@@ -1,6 +1,7 @@
 // index.js
 // Reexport your entry components here
 export { zp_fetch_api } from './zeelte/zp.fetch.api';
+export { zp_page_route } from './zeelte/inc.zp.tools.js';
 export { ZP_ApiRouter } from './zeelte/class.zp.apirouter.js';
 export { ZP_EventDetails } from './zeelte/class.zp.eventdetails.js';
 export { default as VarDump } from './zeelte/VarDump.svelte';

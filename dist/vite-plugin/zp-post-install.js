@@ -110,15 +110,3 @@ export async function zeeltephp_postinstall() {
     process.exit(1)
   }
 }
-
-
-function console_log_sameLine(msg) {
-  if (process.stdout.isTTY) { // Only if terminal supports it
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    process.stdout.write(msg);
-  } else {
-    // not use the fallback in case
-    // -- console.log(msg); // Fallback for non-TTY (e.g., redirected output)
-  }
-}
