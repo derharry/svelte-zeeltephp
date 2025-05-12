@@ -2,9 +2,14 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 
+// https://github.com/l-portet/svelte-switch-case
+//import switchCase from 'svelte-switch-case';
 
 const config = { 
-	preprocess: vitePreprocess(),
+	preprocess: [
+		vitePreprocess(),
+		//switchCase()
+	],
      kit: { 
 		adapter: adapter({
 			pages: process.env.BUILD_DIR,

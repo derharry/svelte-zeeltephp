@@ -1,11 +1,12 @@
 {
 	"name": "zeeltephp",
 	"version": "1.0.2",
-	"description": "Svelte-frontend, PHP-backend (rc1)",
+	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files, aka `+page.server.php`.",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
+		"re": "vite build && npm run prepack && vite dev",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack.org": "svelte-kit sync && svelte-package && npm run  publint",
@@ -49,6 +50,7 @@
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"publint": "^0.3.2",
 		"svelte": "^5.0.0",
+		"svelte-switch-case": "^2.0.0",
 		"typescript": "^5.3.2",
 		"vite": "^6.2.6"
 	},
