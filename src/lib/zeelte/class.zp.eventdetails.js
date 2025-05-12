@@ -1,19 +1,18 @@
-//import { base } from "$app/paths";
-import { page } from '$app/state';
 import { ZP_ApiRouter } from "./class.zp.apirouter.js" // -> import { ZP_ApiRouter } from "zeeltephp"
-
+import { zp_page_route } from "./inc.zp.tools.js";
+import { tinyid } from './tiny.id.js';
 
 // function get_form_event_action_details(event) {
 export function get_event_action_details(event) {
-return new ZP_EventDetails(event);
+      return new ZP_EventDetails(event);
 }
 
 /**
- * Destructs details of most Event Types to have all in 1 Zeelte structure :-)
+ * Destructs details of most EventTypes to have all in 1 Zeelte structure :-)/**
  */
-export class ZP_EventDetails {
-
-      message     // state/debug message
+export class ZP_EventDetails 
+{
+      message     = ""; // deprecated to use log and debug_msgs // state/debug
       route       // current route of page
       event       // source of event
 
@@ -36,34 +35,56 @@ export class ZP_EventDetails {
       //wherefor used?
       target
 
+      // internal
+      runtimeID  = '';
+      debug      = false;
+      debug_msgs = [];
+      log(msg, value = '') {
+            if (this.debug) {
+                  this.debug_msgs.push({msg, value});
+                  console.log('  ', msg, value);
+            }
+      }
 
     /**
      * 
      * @param { app-page | URLSearchParams | SubmitEvent | PointerEvent | ZP_ApiRouter} event 
+     * @param { bool } debug 
      * @returns 
      */
-      constructor(event) {
+      constructor(event, debug = false) {
             try {
-                  //# if instance of self - just return self
-                  if (!event || event == null || event == undefined) { return false; }  //  event is_nullish
+                  // exit first
+                  //   if is_nullish( event ) - exit false
+                  //   if typeof( event) == myself - return myself
+                  if (!event || event == null || event == undefined) return false;
                   if (event instanceof ZP_EventDetails) return event;
-                  //console.log('ZP_EventDetails()', event)
 
+                  // debugging?
+                  this.debug = debug; // for now because @debug is no param
+                  if (debug) console.log('-- ZP EventDetails ');
+
+                  // main()
+                  if (debug) this.runtimeID = tinyid(); // avoid overhead, only dev mode
+                  if (debug) this.log('rtid', this.runtimeID);
+
+                  // add current page.routing to event details (also for zp_route)
+                  this.route = zp_page_route();
+                  this.log('route', this.route);
+                  
                   //# set defaults
-                  this.event   = event  // set src
-                  //this.target  = event?.target || undefined 
+                  this.event = event  // set src
+                  //this.target = event?.target || undefined 
                   //this.srcElement = event.srcElement || undefined
 
-                  //# set current routing as minimum requirement
-                  this.route   = page?.url.pathname || page.route.id +'/';
-                  //page?.route.id+'/'; // todo: page.url.pathname or page.route.id to be preferred!
-
                   //# ready
-                  this.message = 'init'
-                  //this.parse_keyboard();
-                  //this.parse_mouse();
+                  this.log('state', 'init')
 
-                  // parse event
+                  // parse anyway?
+                  // -- this.parse_keyboard();
+                  // -- this.parse_mouse();
+
+                  // parse EventTypes
                   if (event instanceof SubmitEvent) 
                         this.parse_SubmitEvent()
                   else if (event instanceof KeyboardEvent) 
@@ -71,22 +92,29 @@ export class ZP_EventDetails {
                   else if (event instanceof PointerEvent) 
                         this.parse_PointerEvent()
                   else if (event instanceof URLSearchParams)
-                        return this.parse_URLSearchParams()
+                        this.parse_URLSearchParams()
                   else if (event instanceof URL)
-                        return this.parse_URL()
+                        this.parse_URL()
                   else if (event instanceof ZP_ApiRouter)
-                        this.message = 'instance of ZP_ApiRouter. nothing to do.'
+                        this.log('event is type of ZP_ApiRouter. nothing to do.')
                   else if (event?.detail) {
+                        this.log('event.detail');
                         this.action = event.detail.formaction;
                         this.name   = event.detail.name;
                         this.value  = event.detail.value;
                   }
                   else
-                        this.message = 'Unknown event '+event +' '+typeof event
-                  //console.log(this.message)
+                        this.log('unknown event-type', typeof event, event);
+
+                  // all ok by now
+                  // but to we have all data?
+                  // this.log('<<-->> finally')
+
+                  this.log(this);
+                  if (debug) console.log('// ZP EventDetails ');
             } catch (error) {
-                  this.message = error.message;
-                  console.error({ error })
+                  this.log(' ! ERROR ', error);
+            } finally {
             }
       }
 
@@ -104,7 +132,7 @@ export class ZP_EventDetails {
 
       parse_SubmitEvent() {
             // event is typeof HTMLElementForm | FormSubmit?
-            this.message = 'SubmitEvent'
+            this.log('parse_SubmitEvent');
             this.parse_form(this.event.target)
             // Display the key/value pairs
             // for (var pair of this.data.entries()) { console.log(pair[0]+ ', ' + pair[1]); }
@@ -112,17 +140,22 @@ export class ZP_EventDetails {
       }
 
       parse_URL() {
+            this.log('parse_URL !');
             this.parse_URLSearchParams();
             //const url  = this.event
             //this.route = url?.pathname
             //this.parse_URLSearchParams(url.searchParams)
-            this.message = 'parse_URL'
       }
 
+      /**
+       * mostly used for +page.js to resolve the current route!! ;-)
+       * otherwise a bahavoiur like 1 route behind occurs
+       */
       parse_URLSearchParams() {
+            this.log('parse_URLSearchParams');
             const url  = this.event            
-            this.route = url.pathname //.replace(/\/$/, '')+'/' // remove trailing slash
-            //this.route   = e.target.pathname
+            //console.log(url)
+            this.route = url.pathname;
             //this.search  = this.event.search
             const params = url.searchParams
             if (params && params.size > 0) {
@@ -136,18 +169,18 @@ export class ZP_EventDetails {
                   }}
                   this.data = Object.fromEntries(params)
             }
-            this.message = 'URLSearchParams'
       }
 
 
       parse_KeyBoardEvent() {
+            this.log('parse_KeyBoardEvent');
             const keyEvent = this.event;
             this.keyId = keyEvent.keyCode;
             //this.parse_keyboard()
       }
 
       parse_PointerEvent() {
-            this.message = 'PointerEvent'
+            this.log('parse_PointerEvent');
             //console.log(' @@ event      ', this.event)
             //console.log(' @@ target     ', typeof this.event.target)
             //console.log(' @@ src Element', typeof this.event.srcElement)
@@ -158,14 +191,17 @@ export class ZP_EventDetails {
 
       
       parse_keyboard() {
+            this.log('parse_keyboard');
             this.keyId   = this.event?.keyId   || this.event?.submitter?.keyId || undefined
             this.keyName = this.event?.keyName || this.event?.submitter?.keyId || undefined
       }
       parse_mouse(e) {
+            this.log('parse_mouse');
 
       }
 
       parse_form(form) {
+            this.log('parse_form');
             this.form       = form
             this.formAction = form?.formAction
             this.data       = new FormData(form)
@@ -176,12 +212,12 @@ export class ZP_EventDetails {
       }
 
       parse_button(button) {
+            this.log('parse_button');
             this.button = button
             this.title      = button?.title
             this.name       = button?.name
             this.value      = button?.value
             this.action     = button?.formAction && button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined
-
             this.encoding   = button?.encoding || this.encoding
             this.enctype    = button?.enctype  || this.enctype
             //console.log('BUTTON', button)

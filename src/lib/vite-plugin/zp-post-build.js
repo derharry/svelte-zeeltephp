@@ -5,6 +5,7 @@ import { mkdir, copyFile } from 'node:fs/promises'
 import fs from 'fs';
 import path from 'path';
 import { console_log_sameline } from './inc.tools.js';
+import { copyRecursiveSync } from './inc.tools.js';
 
 /**
  * postbuild copies and creates required paths to SvelteKits final build
@@ -32,7 +33,7 @@ export async function zeeltephp_postbuild() {
       if (!fs.existsSync(dest_path))
         fs.mkdirSync(dest_path, { recursive: true });
       copyRecursiveSync(src_path, dest_path, (file) => file.endsWith('.php'));
-      console.log(`   ✅ copied  ${src_path} → ${dest_path}`);
+      console.log(`   ✔ copied  ${src_path} → ${dest_path}`);
     });
 
     // Generate PHP .env
@@ -46,7 +47,7 @@ export async function zeeltephp_postbuild() {
       )
       .join('\n');
     fs.writeFileSync(envFile, envVars);
-    console.log(`   ✅ created ${envFile}`);
+    console.log(`   ✔ created ${envFile}`);
 
 
     
@@ -62,25 +63,4 @@ export async function zeeltephp_postbuild() {
   }
 }
 
-
-function copyRecursiveSync(src, dest, filter = () => true) {
-  const stats = fs.statSync(src);
-
-  if (stats.isDirectory()) {
-    // 🚨 Force create directory (even if exists)
-    if (!fs.existsSync(dest))
-      fs.mkdirSync(dest, { recursive: true });
-
-    fs.readdirSync(src).forEach(child => {
-      copyRecursiveSync(
-        path.join(src, child),
-        path.join(dest, child),
-        filter
-      );
-    });
-  } else if (filter(src)) {
-    // 🚨 Force overwrite files
-    fs.copyFileSync(src, dest, fs.constants.COPYFILE_FICLONE);
-  }
-}
 

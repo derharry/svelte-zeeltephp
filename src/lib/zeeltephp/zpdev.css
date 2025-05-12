@@ -1,0 +1,83 @@
+    .zpDevComponent {
+          border: 1px orange solid;
+          border-radius: 0.5em;
+          padding: 0.25em;
+     }
+
+     /* fill up space - use full width*/
+     table {
+          width: 100%;
+          padding: 0;
+          margin: 0;
+     }
+
+     /* always have any cell-content on top */
+     table tr {
+          vertical-align: top;
+     }
+
+     table td {
+          padding: 0.15em;
+          margin: 0;
+     }
+
+     table tbody th {
+          padding: 0.15em;
+          margin: 0;
+          white-space: nowrap;
+     }
+
+     .header {
+          width: 100%;
+          align-items: center;
+          /*border-bottom: 1px orange solid;*/
+     }
+
+     .header nav {
+          display: inline-flex;
+          gap: 0.5em;
+
+          padding: 0 0.5em;
+     }
+
+     .header nav button {
+          padding: 0.25em;
+          background-color: gray;
+     }
+
+     .header .activeApp {
+          background-color: silver !important;
+     }
+
+     /* style of apps Buttons */
+     section button {
+          padding: 0.25em;
+          background-color: sliver;
+     } 
+
+     /* style of apps Input */
+     section input {
+          padding: 0.1em 0.25em;
+          margin: 0;
+          margin-left: 0.5em;
+          max-height: fit-content;
+          align-items: center;
+     }
+
+     /* style of appKeyValueInput rows */
+     section .keyValueInput {
+          display:inline-flex; 
+          align-items: center;
+     }    
+
+     .dashSpacer { 
+          border-top: 1px gray solid;
+     }
+
+     .nowrap {
+          white-space: nowrap;
+     }
+
+     .formButtonsJsonForm {
+          display:flex; 
+     }
