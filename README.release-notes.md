@@ -1,4 +1,4 @@
-# v1.0.2 (rc1)   2025-05-  ..
+# v1.0.2 (rc1)   2025-05-12
 * New Installation steps !
 *        previous installation should remain working.
 *        if not follow "reinstall" steps to reinstall ZeeltePHP.
