@@ -251,7 +251,7 @@ function setSvelteStates() {}
                          -->
                          
                     </nav>
-                    <a href="{PUBLIC_ZEELTEPHP_BASE}?{zpAR_svelte?.route || ''}" target="_blank">?{zpAR_svelte?.route || ''} vs {zp_page_route()}</a>
+                    <a href="{PUBLIC_ZEELTEPHP_BASE}?{zp_page_route()}" target="_blank">?{zpAR_svelte?.route || ''} vs {zp_page_route()}</a>
                </td>
           </tr>
      </thead>

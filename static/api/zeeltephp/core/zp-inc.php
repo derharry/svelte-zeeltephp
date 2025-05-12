@@ -17,28 +17,33 @@
           } else {
                define('ZP_ENV', 'development'); // required by ZP_Router
                // presume dev mode
-               // check paths if dev-.env files exist
+
+               //// check and load .env.dev
+               // check paths for .env
                $cfgFile = '';
-               if (file_exists('../../.env.development')) $cfgFile = '../../.env.development';
-               else if (file_exists('../../.env.dev'))    $cfgFile = '../../.env.dev';
-               // load the config
+               if      (file_exists('../../.env.development')) $cfgFile = '../../.env.development';
+               else if (file_exists('../../.env.dev'))         $cfgFile = '../../.env.dev';
+               // load config
                if (file_exists($cfgFile)) {
                     $cfg = parse_ini_file($cfgFile);
-                    $cfg['zp_env'] = 'dev';
+                    $cfg['zp_env'] = 'loaded '.$cfgFile;
                } 
                if (!$cfg) {
-                    // no cfg so - lets start 
+                    // no cfg so - init the $env
                     $cfg = [];
-                    $cfg['zp_env'] = 'dev';
+                    $cfg['zp_env'] = '.env.dev auto generate';
                     //throw Error('could not find .env file');
                }
-               // check for defaults here
-               // preload missing ones
-               // load defaults
-               //if (!isset($cfg['BASE'])) $cfg['BASE'] = '';
+               //// check for missings defaults and auto generate
+
+               // BASE / PUBLIC_BASE - same as in SvelteKit (to replace from route)
+               // -- ah i already did, but with BASE -> should be PUBLIC_BASE!
+               // -- if (!isset($cfg['BASE'])) $cfg['BASE'] = ''; 
+               if (!isset($cfg['PUBLIC_BASE'])) $cfg['PUBLIC_BASE'] = ''; 
+
+               // default DB provider
                if (!isset($cfg['ZEELTEPHP_DATABASE_URL'])) $cfg['ZEELTEPHP_DATABASE_URL'] = 'wordpress://../../../wordpress/wp-load.php';
                if (!isset($cfg['ZEELTEPHP_DATABASE_URL'])) $cfg['ZEELTEPHP_DATABASE_URL'] = 'mysql2://root@localhost/test';
-          
           }
           return $cfg;
      }

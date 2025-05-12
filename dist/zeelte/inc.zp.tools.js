@@ -42,8 +42,14 @@ export function zp_page_route(returnRoutes = false) {
           //        page.route.id     (reads from current store of page (might be 1 step behind from actual routeing) )
           // Mr.Route should be found by now
           zp_route = page.url.pathname ||  page.route.id; // if this is going to be a 2-liner, then push it to EventDetails or ApiRouter
-          if (zp_route instanceof String)
-          zp_route = zp_route.replace(base, '');  // remove BASE on builds 
+          
+          
+          if (zp_route instanceof String) {
+               // !! tmpFix-001-v103-Routing-zp_route
+               // Svelte should do this, but doesn't
+               // PHP does now the counterpart.
+               zp_route = zp_route.replace(base, '');  // remove BASE on builds 
+          }
           // -- pitfalls
           //      +page.js         example.com   use load({url})
           //      +page.js         ApiRouter is 1-route behind - URL is not deparsed, preloading works with page.url.pathname)

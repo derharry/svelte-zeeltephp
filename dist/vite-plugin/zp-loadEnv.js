@@ -47,7 +47,7 @@ export function zeeltephp_loadEnv(mode) {
         ['BUILD_DIR', '', DIR_BUILD],
         ['BASE', '', `/${DIR_PROJECT}/${DIR_BUILD}`],
         ['PUBLIC_ZEELTEPHP_BASE', 'http://localhost/' + DIR_PROJECT + '/static/api/', `/${DIR_PROJECT}/${DIR_BUILD}/api/`],
-        ['ZEELTEPHP_DATABASE_URL', 'wordpress://../../../wordpress/wp-load.php', 'wordpress://../../../wordpress/wp-load.php'],
+        ['ZEELTEPHP_DATABASE_URL', 'wordpress://../../../wordpress/wp-load.php', 'wordpress://../../wp-load.php'],
         ['ZEELTEPHP_DATABASE_URL', 'mysql2:root@localhost/test', 'mysql2:root@localhost/test'],
       ];
 

@@ -45,15 +45,16 @@ class ZP_ApiRouter
                $this->environment  = ZP_ENV;        // from zeeltephp_loadEnv();
                $this->routeBase    = PATH_ZPROUTES; // from zp-paths.php
                $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
-               // check route
-               $this->check_route();
+               
+               // check route -and replace BASE !tmpfix-001
+               $this->check_route($env['PUBLIC_BASE']);
             // collect routes for +page.server.php, +api.php, +server.php, ..
             // routes found? yes or no
             // exec_route
             return;
       }
 
-      function check_route() {
+      function check_route($replaceBaseRoute) {
           // do we have a route?
           if (!$this->route) {
                $error   = true;
@@ -67,9 +68,13 @@ class ZP_ApiRouter
           // check direct paths
           // if no scandir and recheck
           // done
-          // first check direct paths as presuming we are in production 
-          // v1.0.2 overhoul
+          // first check direct paths as presuming we are in production
+
           // support /src/routes/**/+page.server.php only for now.
+          // !! tmpFix-001-v103-Routing-zp_route counterpart PHP - replace BASE zp_route. 
+          $this->route = str_replace($replaceBaseRoute, '', $this->route);  
+          
+          // v1.0.2 overhoul
           $zp_route      = str_replace('//', '/', $this->route);
           $zp_routeBase  = $this->routeBase;
           $zp_routeBase  = str_replace('/api/', '/', $zp_routeBase);
