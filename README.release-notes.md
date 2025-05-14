@@ -1,13 +1,12 @@
-# v1.0.2 (rc1)   2025-05-12
+# v1.0.2 (rc1)   2025-05-14
 * New Installation steps !
 *        previous installation should remain working.
 *        if not follow "reinstall" steps to reinstall ZeeltePHP.
 * README         - meet v1.0.2 (rc1). 
 * v102 core      - code cleanup, code documentation, improvements, removed code repeating (e.g. spoc), 
 *                  cleaner cli-log output, internal variable renamings, vite-plugin, ZP_ApiRouter, ZP_EventDetails, zp_fetch_api(), and PHP-@/api/core
-*                - zp-paths.php corrected path when running in dev dist/api (no .env) $isSelf, $isConsumer
 * ZP_Demo        - can be used as template, skeleton and debugger for your project.
-*                   - copy&paste /zpdemo into your /src/routes/**, run bun run dev, open in browser.
+*                   - copy&paste /zpdemo into your /routes, run npm run dev, open in browser.
 *                   * Green lights ? yeah, minimal installation is done and ZeeltePHP environment is running (finds current route and .page.server.php).
 *                   * Other lights ? well... minimal installation is correct? .. Well, check your svelte,php code. Is there a +.php file? ;-) 
 * ZP_Dev         - works directly on ZP_Demo.
@@ -17,18 +16,17 @@
 *                           or it can be used as initial helper/debugger to check if all setup is ok or to find the root-cause.
 *                           ZP_Dev works directly on ZP_Demo.
 *                - parts of /src/routes/ as documentation and live-demo moved into ZPDev as 'debugger-feature'
-*                - action name,value editor to hook ZPDev into any of .
+*                - action name,value editor to use ZPDev into any of your routes and test your php-code.
 * ZP_ApiRouter-PHP    - fix to support grouped-routes /routes/(any)/..
 * zeeltephp_loadEnv() - changed auto db-provider generation .. to .. and set as default (instead mysql).
-*                       .. wordpress://../wordpress/
-*                       .. wordpress://../../../wordpress/wp-load.php
+*                       .. 'wordpress://../wordpress/' to 'wordpress://../../../wordpress/wp-load.php'
 
 
 # v1.0.1 (rc1)   2025-05-07
 * README         - re-written to meet v1.0.0 and v1.0.1 requirements, examples, installation-steps, code-cleanup, etc. 
 *                - added new README.relaease-notes, -.project.project.env (renamed), -.project.pack-exposing
 * ZPDev          - A Component helping debugging on +page.server.php files. 
-* trustedDependencies and postinstall - is not required anymore, postinstall is now done via zeeltephp_loadEnv() at bun run;
+* trustedDependencies and postinstall - is not required anymore, postinstall is now done via zeeltephp_loadEnv() at npm run;
 * -- library self only -- 
 * post-build      - added 'sameLine' for console.log
 * zeelte-init.php - moved code to zp-bootstrap.php and zp-paths for cleanup and readability.

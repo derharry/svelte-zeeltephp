@@ -1,17 +1,21 @@
 # ZeeltePHP (v1.0.2 rc1)
-A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files, aka `+page.server.php`.
-* Svelte + PHP.
-* combine best of both worlds in <your-project>.
-* use `+server.php` files inside SvelteKit-projects like its counter parts.
-* port existing PHP-project into SvelteKit project structure, to be ready-to-port to SvelteKit-native. 
-* port vice-verca - fully SvelteKit-native <<-->> SvelteKit-apapter-static + PHP. 
+A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files, `+page.server.php`.
+* Svelte + PHP - combine best of both worlds in <your-project>.
+* use ` + .php ` files inside your project as sveltekit's `+ server js|.ts`.
+* develop almost as just SvelteKit native.
+* port existing PHP-project into SvelteKit project structure, ready-to-port to SvelteKit-native. 
+* port vice-verca - SvelteKit-native <-> SvelteKit-apapter-static + PHP. 
+* ZeeltePHP acts as api/router/gateway between Svelte and PHP. (or imitates SvelteKit's backend)
 
+## in short
+* `npm run dev` and consume ` + .php´` files inside your `/src/routes` the same way as SvelteKit.
+* `npm run build`, test the build, export/ftp to your production environment and call http://www.domain.com/<build>. 
 
 ## Instalation
-1) create your SvelteKit-project via `bunx sv create` including `adapter-static` into /path/to/your/htdocs aka http://locahost/<your-project>
-2) install ZeeltePHP `bun add github:derharry/svelte-zeeltephp`, from `tgz` or copy `dist`.
+1) create your SvelteKit-project via `npx sv create` including `adapter-static` into /htdocs or like http://locahost/<your-project>
+2) install ZeeltePHP `npm add github:derharry/svelte-zeeltephp`, from `tgz` or copy `dist` to `/your-project/node-modules/zeeltephp`.
 3) add `zeeltephp-vite-plugin`/`zeeltephp(mode)` to `vite.config.js`. 
-``` vite.config.js
+``` // vite.config.js
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { zeeltephp } from 'zeeltephp/vite-plugin';
@@ -25,12 +29,58 @@ export default defineConfig(({ mode }) => {
       };
 });
 ```
-4) run `npm run dev`, and all should be running. 
-5) *optional* demo/debugging, copy&paste `/zpdemo/` into your `/src/routes/**` and see if your project is running in `dev`.
+
+4) run `npm run dev`  and dev should be running.  
+* If not, check the cli output 🐘 ZeeltePHP and the path of `PUBLIC_ZEELTEPHP_BASE` meets meet your current dev-environment. It not, step 5 is required with .env.dev`PUBLIC_ZEELTEPHP_BASE` to your current dev-environment.
+Hint - not existing paths are, if not exists, created:
+```
+/src/lib/zplib            # shared lib for your +.php files
+/src/routes/+layout.js    # required by adapter-static
+/static/api/index.php     # entry point of ZeeltePHP/Api
+/.zp-log                  # PHP errors or your logs are output here.
+```
+
+5) for `npm bun build`, configure `svelte.config.js` to consume .env variables.
+``` // svelte.config.js
+import adapter from '@sveltejs/adapter-static';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+	preprocess: vitePreprocess(),
+	kit: {
+		adapter: adapter({
+			pages: process.env.BUILD_DIR,
+			assets: process.env.BUILD_DIR,
+		}),
+		prerender: {
+			entries: ['*']
+		},
+		paths: {
+			base: process.env.BASE
+		}
+	},
+	trailingSlash: 'always'
+};
+export default config;
+```
+
+and in your projects root place or configure your .env file
+``` # .env.buid  (dev-env: .env.dev or .env.development)
+BUILD_DIR               = build-env             #  path/to/build-output 
+BASE                    = /path/to/build        # [DOCUMENT_ROOT]
+PUBLIC_ZEELTEPHP_BASE   = (dev)http://localhost/path/to/project/static/api 
+PUBLIC_ZEELTEPHP_BASE   = (dev)http://localhost/path/to/project/static/api 
+
+PUBLIC_ZEELTEPHP_BASE   = /path/to/build/ (build)/[DOCUMENT_ROOT]/path/to/build/api
+```
+
+
+6) *optional* demo/debugging, copy&paste `/zpdemo/` into your `/src/routes/**` and see if your project is running in `dev`.
 > green lights ? happy `SveltePHP-ing`
 > other lights ? well ... include 6 and recheck 1-6.
-6) *required for builds*, configure `svelte.config.js` to use .env variables. see `/templates/example.svelte.config.js` for details.
 
+7) if its still not working, check steps 1-6, feel free to contact me.
 
 ## Uninstall or Reinstall
 1) *un-install* `npm remove zeeltephp`.
@@ -38,22 +88,23 @@ export default defineConfig(({ mode }) => {
 3) *re-install* if required - move existing paths to let postinstaller re-create the paths.
 4) *re-install* follow the install steps.
 
+
 ## Requirements
-* Svelte 5 (4 should work)
-* SvelteKit 2
-* SvelteKit-Adapter-Static
-* HTTPD environment (apache, nginx, any static)
-* PHP 8
+* Svelte 5 (^4.0 should work)
+* SvelteKit ^2.0
+* SvelteKit-Adapter-Static ^3.0
+* HTTPD environment (apache, nginx, ...)
+* PHP 8.3 (should work on ^8.0 (I will test it))
 
 ### Environments (examples as currently used)
 Production
 * https://www.example.com/<your-project> 
-* HTTPd, PHP8, MySQL, wordpress, ..
+* HTTPd, PHP8, MySQL, ..
 
 Development and testing
-* http://localhost/**/<your-sveltekit-project>
-* Windows only  : bun, httpd 
-* Windows + WSL : htpd / bun 
+* http://localhost/**/<your-project>
+* Windows       : bun, httpd 
+* Windows + WSL : httpd / bun 
 * httpd (dev local) = XAMPP from Apachefriends, PHP8
 
 
@@ -164,88 +215,104 @@ async function handle_submit(event) {
 />
 ```
 
+
 ## Description
 
 ### tl;tr
-start using `zp_fetch_api()` or  `/zpdemo`.
+start using `zp_fetch_api()` and copy&paste `/zpdemo` within your /routes.
 
-#### zeeltephp vite-plugin
-* loads .env 
-* post-install In dev-mode it will create, if not exist, minimum required paths.
-* post-build   runs at vite-closeBunlde and after svelte-package to do post-install-steps on final build, which is ready for production (ftp?).
+#### zeeltephp vite-plugin `zeeltephp(mode)`
+* loads your .env-file and generates missing variables.  
+* post-install - at `npm run dev` minimum required paths are, if not exist, created.
+* post-build - after svelte-package, post-build finalizes the build with your PHP.
 
-#### paths - development and build environment
-> dev/src/lib/zplib/    /BUILD/api/zplib
-Shared-library for your PHP - all files are autoloaded.
+#### paths - development and build 
+The following paths are auto-created by post-install. 
 
-> /src/routes/**    /BUILD/api/zproutes
-Place any +page.server.php files in the routes. 
-Use zp_fetch_api() to handle the request (the rest..)
+> /src/lib/zplib/  ->  /BUILD/api/zplib
+Your shared PHP-lib - all files here are pre-loaded before +.php files are processed.
 
-> /static/api/index.php     /BUILD/api/
-* if path not exists - zeeltephp_loadEnv() autoinstalls this path.
-* if you need your own api-path - you need to integrate zeelte-init.php.
-<br>in mode dev     will use zeeltephp from @zeeltephp/dist/templates/static/api
-<br>in mode build   will copy @zeeltephp/../api to /BUILD/api
+> /src/routes/**  ->  /BUILD/api/zproutes
+Place any +.php files in the routes, same as SvelteKit-SSR +.js|.ts files.
+You can place any other PHP files in routes, but you have to manually include them.
 
-> /dist/api         /BUILD/api 
-> /static/api       /BUILD/api
-This is where ZeeltePHP lives in your project and "acts" as "SvelteKit" imitating backend.
-<br>BUILD: this folder is copied to /BUILD/api/ 
+> /static/api/index.php  ->  /BUILD/api/index.php
+In your project this file points to ZeeltePHP which runs from `@zeeltephp/dist/api`.
+<br>In post-build the `@zeeltephp/dist/api/` folder is copied to /BUILD/api 
+
+> /.zp-log  ->  /BUILD/api/log/
+Any PHP errors will logged here.
+
+#### .gitignore
+you might want to exclude some folders.
+```
+# ignore PHP error folder
+/.zp-log 
+# or ignore *.log files
+*.log
+```
 
 #### Methods, Components, Classes
-> zp_fetch_api(fetch, url) 
-Its a wrapper over Svelte's fetch which does 1 in all.
-Acts as API between Svelte-project and .
-<br>is using PUBLIC_ZEELTEPHP_BASE which points to respective /api/index.php
+> zp_fetch_api(fetch, router, dataOrEvent = undefined, method = undefined, headers = undefined)
+You probably will use this method most of the time to request your +.php.
+```
+      handle_btnClick(event) {
+            const promise = zp_fetch_api(fetch, event);
+      }
+      handle_formSubmit(event) {
+            const promise = zp_fetch_api(fetch, event);
+      }
+      sendAnyData(event) {
+            const promise = zp_fetch_api(fetch, event, myData);
+      }
+      load({url}) {
+            // in +.page.js
+            const promise = zp_fetch_api(fetch, url);
+      }
+```
 
-> ZP_ApiRouter (svelte, php)
-On both sides, Svelte and PHP, this is the main API/router between your Svelte and PHP code.
-If something does not work, use ZPDev to debug.
+
+> ZP_ApiRouter
+Acts as router between Svelte and your PHP code.
+
 
 > Class ZP_EventDetails
-tbd
+Collects data from EventTypes for action, value, data to send. 
 
 > ZPDev.svelte
-This component helps for general debugging of +page.server.php in any /routes/**/+page.svelte file to see if all is corretly setup to use ZeeltePHP.
+This component helps for general debugging of +page.server.php in any /routes/**/+page.svelte.
+```
+import { ZPDev } from "zeeltephp";
+<ZPDev />
+```
 
 > VarDump.svelte
 Dumps the content of given variable
 
 
-#### .env variables
-The variables are auto-generated at runtime by zeeltephp_loadEnv() when no .env file is found.
-<br>auto-generated variables are for when project is saved inside your [DOCUMENT_ROOT]/<your-project>
-<br>when 
+#### .env config and variables
+At runtime are auto-generated when no `.env file` is found or is missing. 
+<br>At build they are saved to `/api/zeeltephp/.env` containing public from Vite, Svelte and some of ZP-isself. 
 <br>For final production-builds set relative paths from its 'document_root' http://domain/<BUILD_DIR>
-``` 
-BUILD_DIR   path/to/build-output 
-BASE        [DOCUMENT_ROOT]/path/to/build
-PUBLIC_ZEELTEPHP_BASE=  (dev)http://localhost/path/to/project/static/api (production)[DOCUMENT_ROOT]/path/to/build/api
-```
 
 ``` example.production
-BUILD_DIR   = build-prod          # auto dev    (empty - not used)
-                                  #      build  build-env
-                                  # /path/to/htdocs/build-prod
-BASE        = /build-output       # auto dev    (empty)
-                                  #      build  /build-prod
-                                  # 
+BUILD_DIR   = build-prod          # dev    (empty - not used)
+                                  # build  build-env        /path/to/htdocs/build-prod
+BASE        = /build-output       # dev    (empty)
+                                  # build  /build-prod      /path/build-prod to running-directory
 PUBLIC_ZEELTEPHP_BASE = http:///path/to/build/api
-                                  # auto dev    http://localhost/your-package/static/api
-                                  #      build  http://localhost/build-env/api
-                                  # http://domain.com/build-prod
+                                  # dev    http://localhost/your-project/static/api
+                                  # build  http://localhost/build-env/api     http://domain.com/build-env
 ```
 
 ``` DB-Providers
 ZEELTEPHP_DATABASE_URL=mysql2://username:password@database
 ZEELTEPHP_DATABASE_URL=wordpress://path/to/wp-load.php
-ZEELTEPHP_DATABASE_URL=sqlite3://path/to/sqlitedb
 ```
 
 #### PHP
 > Errors / exceptions
-PHP errors are logged to your-project `/static/api/zeeltephp/log`.
+PHP errors are logged to `/.zp-log/`.
 
 > global $zpAR
 Holds the ZP_ApiRouter of PHP side. 
