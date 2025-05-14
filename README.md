@@ -94,7 +94,7 @@ PUBLIC_ZEELTEPHP_BASE   = /path/to/build/ (build)/[DOCUMENT_ROOT]/path/to/build/
 * SvelteKit ^2.0
 * SvelteKit-Adapter-Static ^3.0
 * HTTPD environment (apache, nginx, ...)
-* PHP 8.3 (should work on ^8.0 (I will test it))
+* PHP 8.3 (should work on ^8.0)
 
 ### Environments (examples as currently used)
 Production
@@ -182,7 +182,7 @@ export let data;
 let promise; 
 
 async function handle_click(event) {
-      promise = zp_fetch_ap(fetch, event)
+      promise = zp_fetch_api(fetch, event)
             .then(data => {})
             .catch(error => {})
 }
