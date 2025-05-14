@@ -1,5 +1,27 @@
 <?php
-     require_once('zeeltephp/lib/io/io.dir.php');
+
+     /**
+      * changes/replaces full paths from string to 
+      * removes full file-system paths to relative in $error (readability).
+      */
+     function zp_change_full_paths_to_zp_relative($stringToReplace) {
+          // # get current system path from PATH_CPROOT   as defined by zp_set_running_environment() 
+          $removeFullSystemPath = PATH_CPROOT;
+          // # change paths \\ to /  
+          //     always use / in paths, so str-replace(is i skip if-on-env-win) 
+          $removeFullSystemPath = str_replace('\\',   '/', PATH_CPROOT); 
+          $stringToReplace      = str_replace('\\\\', '/', $stringToReplace); 
+          // # remove full path from String
+          $stringToReplace = str_replace($removeFullSystemPath, '', $stringToReplace);
+          // # shorty-fy zeeltephp related paths 
+          $stringToReplace = str_replace('node_modules/dist/', '', $stringToReplace); // remove dev-env node_modules/
+          $stringToReplace = str_replace('static/', '', $stringToReplace); // remove dev-env static/ 
+          $stringToReplace = str_replace('/api/zeeltephp/', 'api/', $stringToReplace);
+          $stringToReplace = str_replace('src/lib/zplib/', 'zplib/', $stringToReplace);
+          $stringToReplace = str_replace('src/routes/', 'routes/', $stringToReplace);
+          return $stringToReplace;
+     }
+
 
      /**
       * deprecated - v1.0.2 loads env from zp-env.php
@@ -49,30 +71,9 @@
      }
 
      /**
- * read $lib/*
- * read ./lib/*
- */
-function zp_load_lib($environment) {
-     global $path_ZP_LIB;
-     // if dev-env load all php files from /src/lib/zplib 
-     zp_load_php_files(PATH_ZPLIB);
-     /*
-     //var_dump($environment);
-     if (is_dir('./lib')) {
-          echo 'ewflkwöflkweölfwekföl';
-          zp_load_php_files('./lib');
-     } else {
-          //echo '3242423432423';
-          zp_load_php_files( '../../src/lib/zplib/' );
-     }
-     //if ($environment == 'dev' && is_dir('../../src/lib/zplib/'))
-     //     zp_load_php_files( '../../src/lib/zplib/' );
-     // load default /api/lib
-     //zp_load_php_files( './lib' );
-     */
-}
-
-     
+      * read $lib/*
+      * read ./lib/*
+      */
      function zp_load_php_files($path, $phpfiles = null) {
           $path  = rtrim($path, '/') . '/';
           if ($phpfiles == null) {
@@ -84,7 +85,17 @@ function zp_load_lib($environment) {
      }
 
 
-
+     /**
+      * allow CORS (allow from anywhere *)
+      * required in dev mode runs in different environments, svelte 5173, httpd 80/443.
+      * in production this should not be needed, because same environment.
+      */
+     function zp_allow_cors() {
+          // allow CORS (allow from anywhere *)
+          header("Access-Control-Allow-Origin: *");
+          header("Access-Control-Allow-Methods: *");
+          header('Access-Control-Max-Age: 0'); // cache 0
+     }
 
 
 ?>

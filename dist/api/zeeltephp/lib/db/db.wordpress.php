@@ -45,7 +45,7 @@ class ZeeltePHP_DB_wordpress {
                   }
             }
             catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
             */
       }
@@ -80,7 +80,7 @@ class ZeeltePHP_DB_wordpress {
                   }
             }
             catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
       } 
 
@@ -106,7 +106,7 @@ class ZeeltePHP_DB_wordpress {
                   $result = $this->wpdb->get_results( $sql, 'ARRAY_A' );
                   return $result;
             } catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
       }
 

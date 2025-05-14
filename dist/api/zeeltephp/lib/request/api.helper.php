@@ -22,7 +22,7 @@
           }
           catch (\Exception $exp) {
                     zp_log_debug('//read_json_input() !!'.json_last_error());
-                    zp_error_handler($exp);
+                    zp_handle_error($exp);
           }
           return null;
      }

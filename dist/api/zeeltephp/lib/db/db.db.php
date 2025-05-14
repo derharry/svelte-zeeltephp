@@ -35,7 +35,7 @@ class ZP_DB {
                   }
                   throw new \Exception("ZPDB: Property $name not found in DB adapter");
             } catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
             if ($this->dbsrc && property_exists($this->dbsrc, $name)) {
                   return $this->dbsrc->$name;
@@ -56,7 +56,7 @@ class ZP_DB {
                   throw new \Exception("ZPDB: Method $method not found in DB adapter");
             }
             catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }*/
       }      
       
@@ -95,13 +95,13 @@ class ZP_DB {
                   }
 
             } catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
       }
 
       function parse_connectionUrl($databaseUrl) {
             try {
-                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/wp.load.php/
+                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/wp.load.php@database
                   //ZEELTEPHP_DATABASE_URL=provider://username:password@hostname/database
                   $parts = parse_url($databaseUrl);
                   $this->dbtype = isset($parts['scheme']) ? $parts['scheme'] : null;
@@ -115,32 +115,19 @@ class ZP_DB {
                   $this->port     = isset($parts['port']) ? $parts['port'] : null;
 
                   if ($this->dbtype == 'wordpress') {
-                        $parts = explode('@', $this->database);
-                        $this->database = array_pop($parts);
-                        $parts = array_unshift($this->hostname);
-                        $this->hostname = 'xx';//implode('/', $parts);
-                        //$this->database = array_pop($parts);
-
-                        //$this->hostname .= implode('/', $parts);
-                        //repair the string to datase (full path again because first .. is stripped)
-                        // split / -> last part is database when not wp-load.php
-
-                        //$parts    = explode(':', $databaseUrl);
-                        //$database = array_pop($parts);
-                        //if ($database != 'wp-load.php') {
-                              //$this->hostname = implode('/', $parts);
-                              //$this->database = $database;
-                        //}
-                        //else {
-                              //$this->hostname = $databaseUrl;
-                        //}
-
-                        //$this->database = $this->hostname.$this->database;
-                        //$this->hostname = null;
+                        // parse_url destructs wordpress url into:
+                        //     dbtype   = wordpress
+                        //     hostname = ../ 
+                        //     database = /../wp-load.php 
+                        // to be safe - let's destruct it my-self
+                        $wpUrl   = str_replace('wordpress://', '', $databaseUrl);
+                        $wploadDB = explode("@", $wpUrl);
+                        if (count($wploadDB)>1)
+                              $this->database = $wploadDB[1];
+                        $this->hostname = $wploadDB[0];
                   }
-                  $this->database = str_replace('/', '', $this->database);
             } catch (\Throwable $th) {
-                  zp_error_handler($th);
+                  zp_handle_error($th);
             }
       }
 

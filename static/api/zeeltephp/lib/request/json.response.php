@@ -36,7 +36,7 @@
                 }
             } 
             catch (\Throwable $th) {
-                zp_error_handler($th);
+                zp_handle_error($th);
             }
         }
     }

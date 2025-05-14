@@ -155,29 +155,33 @@ class ZP_ApiRouter
           //$contentType  = $_SERVER['CONTENT_TYPE'];
 
           if (isset($_POST['zp_route'])) {
+               $this->message = 'parse_method_zp_routing(POST)';  
                // normal PHP POST request  
                // contentType = 'multipart/form-data, application/x-www-form-urlencoded';
                // nothing to do :-)
           } else {
                // no default PHP post
                // check for JSON and push into $_POST and $_REQUEST
+               $this->message = 'parse_method_zp_routing(JSON)';  
                $rawInput = file_get_contents('php://input');
                $json     = json_decode($rawInput, true);
                $_POST    = $json;
-               $_REQUEST = $json;
+               //$_REQUEST = $json;
                // json should be destructed as normal $_POST now.
           }
           if (isset($_POST['zp_route'])) { 
+               $this->message = 'parse_method_zp_routing( finals )';  
                if (isset($_POST['zp_route']))  $this->route  = $_POST['zp_route'];
                if (isset($_POST['zp_action'])) $this->action = $_POST['zp_action'];
                if (isset($_POST['zp_value']))  $this->value  = $_POST['zp_value'];
+               // remove zp_ from $_POST
                unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
                unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
                if (isset($_POST['zp_data'])) {
-                         $this->data = $_POST['zp_data'];
-                         $_POST      = $_POST['zp_data'];
-                         $_REQUEST   = $_POST;
+                    $this->data = $_POST['zp_data'];
+                    $_POST      = $_POST['zp_data'];
+                    $_REQUEST   = $_POST;
                } 
           }
      }

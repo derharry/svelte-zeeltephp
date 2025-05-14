@@ -6,117 +6,99 @@
  */
 
 
-// import core
-require_once('zp-bootstrap.php');
-require_once('zp-pathsEnv.php');
-require_once('zp-inc.php');
-require_once('zp-errors.php');
-require_once('class.zp.apirouter.php');
-
-// import core minimum dependencies
-require_once('zeeltephp/lib/cfg/cfg.env.php');
-require_once('zeeltephp/lib/io/io.dir.php');
-require_once('zeeltephp/lib/db/db.db.php');
+// # first - set everything ready
+include_once('zp-bootstrap.php');
 
 
+// register globals to use in any +.php files
 $debug = false;
-global $debug;
-global $db;
-global $env;
-global $zpAR;
-
-// zeeltephp_main();
-try {
-
-     // hello at ZeeltePHP
-     // I should now be running after zp-pathsEnv set me in correct cwd()
-
-     // lets load the .env or auto generate missing ones 
-     $env = zeeltephp_loadEnv();
-
-     // load the ApiRouter to get @zeelte:api
-     // deparse  zp_fetch_api() 
-     //        deparse ZP_API request
-     //        check if all routes exist 
-     //             parse routes and handle pushing, receving the data - like sveltekit does
-     //
-     //  ....
-     $zpAR = new ZP_ApiRouter($env);
-
-     // default response of 
-     //    +page.server.php
-     //    // roadmap also from further +.php files like SvelteKit does
-     $data = null;
-
-     // exists first 
-     // then executes
+global $debug, $data, $zpAR, $env, $db;
+// debug
+// data - contains data returned from +.php files (prev $responseData)
+// zpAR - new ZP_ApiRouter()
+// $env - your .env variables
+// $db  - new ZP_DB()
 
 
-     if (!$zpAR->route) {
-          // nothing to do - just no route is given
-          //throw new Error('500');
-          throw new Error('501');
+//# exec ZeeltePHP()
+zeeltephp_main();
+/// thats it bye bye
+
+function zeeltephp_main() {
+     global $debug, $zpAR, $env, $db, $data;
+     try {
+
+          // hello at ZeeltePHP
+          // I should now be running in my environment 
+
+          // # lets load the .env or auto generate missing ones 
+          $env = zeeltephp_loadEnv();
+
+          // # load the ApiRouter to get @zeelte:api
+          //   deparse 
+          //      deparse ZP_API request
+          //      check if all routes exist 
+          //         parse routes and handle pushing, receving the data - like sveltekit does
+
+          //  ....
+          $zpAR = new ZP_ApiRouter($env);
+
+          // # check for exit reasons first
+          if (!$zpAR->route) {
+               // nothing to do - just no route is given
+               throw new Error('400');
+          }
+          else if (!$zpAR->routeFileExist) {
+               // no .php file found in route
+               throw new Error('404');
+          }
+          else if ($zpAR->routeFileExist) {
+               // real main()
+               // lets execute the +.php files
+
+               // # load lib files
+               zp_load_php_files(PATH_ZPLIB);
+
+               // # init ZP_DB provider
+               $db = new ZP_DB($env['ZEELTEPHP_DATABASE_URL']);
+               //$db->connect();
+               //$data = $db->query('SELECT 5 as x');
+               //$db = new ZeeltePHP_DB_WordPress($env['ZEELTEPHP_DATABASE_URL']);
+
+               // init response of +.php files
+               $data = null;
+
+               // # run +.php files
+
+               // todo - add $zpAR->type  or $zpAR->preExecuteRoute to 
+               //   execute +hook, +server.php, etc.. in route until +api or +page.server
+
+               // # run +page.server.php
+               require_once('exec.page.server.php');
+               $data = zp_exec_pageserverphp();
+
+               // # yuhu - all is good :-)
+               //   return data as JSON response, and let zp_fetch_api() do the rest :-)
+               echo json_encode([
+                    'ok'   => true,
+                    'code' => 200,
+                    'data' => $data,
+                    'zpDB' => $db
+                    // -- ...$data // pitfall - do not because of send-data-JSON of any data  
+               ]);
+          }
+          else {
+               // # last resort return an unsupported error
+               throw new Error(501);
+          }
+     } catch (Error $e) {
+          zp_handle_error($e);
+     } catch (ErrorException $e) {
+          zp_handle_error($e, "Runtime error");
      }
-     else if (!$zpAR->routeFileExist) {
-          throw new Error('502');
+     finally {
+          ob_end_flush();
      }
-     else {
-
-          // real main() for +page.server.php
-          require_once('exec.page.server.php');
-
-
-          // load lib files
-          zp_load_lib($zpAR->environment);
-
-          // init ZP_DB - database provider
-          $db = new ZP_DB($env['ZEELTEPHP_DATABASE_URL']);
-          //$db->connect();
-          //$data = $db->query('SELECT 5 as x');
-          //$db = new ZeeltePHP_DB_WordPress($env['ZEELTEPHP_DATABASE_URL']);
-
-          $data = zp_exec_pageserverphp();
-     }
-
-     // Normal JSON response
-     echo json_encode([
-          'ok'   => true,
-          'code' => 200,
-          'data' => $data,
-          //'zpAR' => $zpAR,
-          //'zpDB' => $db,
-          //'le' => $db->last_error()
-     ]);
-     
-} catch (Error $e) {
-     echo json_encode([
-          'ok'      => false,
-          'code'    => zp_get_errorMessage($e->getMessage(), true),
-          'message' => zp_get_errorMessage($e->getMessage()),
-          'type'    => get_class($e),
-          'file' => $e->getFile(),
-          'line' => $e->getLine(),
-          'zpAR' => $zpAR,
-          //'zpDB' => $db,
-     ]);
-} catch (ErrorException $e) {
-     // Handle non-fatal errors
-     echo json_encode([
-          'ok'      => false,
-          'code'    => 500,
-          'message1' => 'Runtime error',
-          'type' => get_class($e),
-          'message2' => $e->getMessage(),
-          'file' => $e->getFile(),
-          'line' => $e->getLine(),
-          //'zpAR' => $zpAR,
-          //'zpDB' => $db,
-     ]);
 }
-finally {
-    ob_end_flush();
-}
-
-
 
 ?>
