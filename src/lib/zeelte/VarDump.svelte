@@ -1,13 +1,14 @@
 <script>
       export let title = undefined;
-      export let vardump = undefined;
+      export let vardump = undefined;   
       export let dumpAll = false;
       export let dumpJson = false;
       export let debug = false;
       export let debugTitle = "";
-      export let _depth = 0; // Current recursion depth
-      export let maxDepth = 2; // Maximum recursion depth
+      export let _depth = 0;   // Current recursion depth
+      export let maxDepth = 5; // Maximum recursion depth
       export let cssStyle = "";
+      export let dumpConsole = false;
 
       // Helper functions
       function get_typeof(value) {
@@ -46,6 +47,8 @@
                   console.log(error);
             }
       }
+
+      $: if (dumpConsole) console.log(`VD ${title}`, {vardump});
 </script>
 
 <div class="borderBox" style="{cssStyle}">
@@ -71,6 +74,20 @@
                                                 2,
                                           )}</pre></td
                               >
+                        </tr>
+                  {:else if vardump == undefined}
+                              <tr>
+                                    <td></td>
+                              </tr>
+                  {:else if vardump == null}
+                        <tr>
+                              <td width="1" class="nowrap">{get_label("", vardump)}</td>
+                              <td width="1" class="nowrap">
+                                    {#if debug}
+                                          :{get_typeof(vardump)}
+                                    {/if}
+                              </td>
+                              <td>null</td>
                         </tr>
                         <!--
                   {:else if vardump instanceof URL}
@@ -116,7 +133,7 @@
                                     </td>
                               </tr>
                         {/each}
-                  {:else if vardump && get_typeof(vardump) === "object"}
+                  {:else if vardump && get_typeof(vardump) == "object"}
                         {#each Object.entries(vardump) as [label, value], id1}
                               {#if (get_typeof(value) != "undefined" && get_typeof(value) != "null") || dumpAll}
                                     <tr>
@@ -149,6 +166,7 @@
                                           </td>
                                     </tr>
                                     {#if get_typeof(value) === "object"}
+                                          {#if Object.entries(value).length > 0}
                                           <tr>
                                                 <td
                                                       class="pad"
@@ -163,6 +181,7 @@
                                                       />
                                                 </td>
                                           </tr>
+                                          {/if}
                                     {/if}
                               {:else}
                                     <!--
@@ -173,16 +192,13 @@
                               {/if}
                         {:else}
                               <tr>
-                                    <td>{vardump}</td>
+                                    <td></td>
                               </tr>
                         {/each}
                   {:else}
                         <tr>
-                              <td width="1" class="nowrap"
-                                    >{get_label("", vardump)}</td
-                              >
-                              <td width="1" class="nowrap"
-                                    >??
+                              <td width="1" class="nowrap">{get_label("", vardump)}</td>
+                              <td width="1" class="nowrap">
                                     {#if debug}
                                           :{get_typeof(vardump)}
                                     {/if}

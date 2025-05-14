@@ -9,13 +9,14 @@
 
 <style>
      marquee {
-          width: fit-content;
-          height: fit-content;
-          background-color: orange;
-          color: black;
-          border: 2px darkorange solid;
-          border-radius: 0.5em;
           font-style: italic bold;
           text-align: center;
+          display: inline-block;
+          width: fit-content;
+          height: fit-content;
+          b_ackground-color: orange;
+          c_olor: black;
+          bo_rder: 2px darkorange solid;
+          bo_rder-radius: 0.5em;
      }
 </style>

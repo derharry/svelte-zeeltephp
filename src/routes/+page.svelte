@@ -2,6 +2,5 @@
     import { ZPDev } from "zeeltephp";
 </script>
 
-<h1>ZP Home</h1>
-<p>Expected zp_route //</p>
+<h1>Home</h1>
 <ZPDev/>
