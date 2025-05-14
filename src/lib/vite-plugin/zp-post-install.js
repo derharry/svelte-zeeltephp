@@ -19,11 +19,10 @@ export async function zeeltephp_postinstall() {
     const debug = false;
 
     // set basic paths
-    const cpRoot = process.cwd();                                      // path to /consumer-project-root
+    const cpRoot = process.cwd();                                      // path to /project-root
     const zpRoot = join(cpRoot, 'node_modules', 'zeeltephp', 'dist');  // path to @zeeltephp-package
     const zpApi  = join(zpRoot, 'api');                                // path to @zeeltephp/api       
     const zpTmpl = join(zpRoot, 'templates');                          // path to @zeeltephp/templates
-
     if (debug) {
       console.log('🐘 ZeeltePHP - post-install ');
       console.log('  -  cpRoot    ', cpRoot);
@@ -44,14 +43,14 @@ export async function zeeltephp_postinstall() {
         src: join(zpTmpl, 'static', 'api'),
         dst: join(cpRoot, 'static', 'api')
       },
-      {
-        name: '@zeeltephp/api/zeeltephp/log',
-        dst: join(zpRoot, 'api', 'zeeltephp', 'log'),
-      },
-      {
-        name: '/static/api/log',
-        dst: join(cpRoot, 'static', 'api', 'zeeltephp', 'log'),
-      },
+      //{
+      //  name: '@zeeltephp/api/zeeltephp/log',
+      //  dst: join(zpRoot, 'api', 'zeeltephp', 'log'),
+      //},
+      //{
+      //  name: '/static/api/log',
+      //  dst: join(cpRoot, 'static', 'api', 'zeeltephp', 'log'),
+      //},
       {
         name: '/src/lib/zplib',
         dst: join(cpRoot, 'src', 'lib', 'zplib'),
@@ -60,6 +59,10 @@ export async function zeeltephp_postinstall() {
         name: '/src/routes/+layout.js',
         src: join(zpTmpl, 'src', 'routes', '+layout.js'),
         dst: join(cpRoot, 'src', 'routes', '+layout.js')
+      },
+      {
+        name: '/zp-log',
+        dst: join(cpRoot, '.zp-log')
       }
     ];
 

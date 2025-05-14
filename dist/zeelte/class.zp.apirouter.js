@@ -104,7 +104,9 @@ export class ZP_ApiRouter
                               this.parse_url_string(router)
                         }
                   } else {                        
-
+                        // fallback event details
+                        //   ZP_EventDetails knows most use-cases
+                        //       SubmitEvent, PointerEvent, etc etc
                         let check = false; // as soon true, no furthers checks required.
                         if (!check) {
                               // lets check if router can be fetched by ZP_EventDetails
@@ -112,9 +114,6 @@ export class ZP_ApiRouter
                               check = this.parse_routingFromZPeventDetails(router);
                         }
 
-                        // fallback event details
-                        //   ZP_EventDetails knows most use-cases
-                        //       SubmitEvent, PointerEvent, etc etc
                         /*
                         if (!check) {
                               this.log('  zpED from data')
@@ -137,7 +136,8 @@ export class ZP_ApiRouter
                   this.route = this.route.replace('//', '/');
 
                   // finalize
-                  this.log('finalize')
+                  this.log('finalize');
+                  this.set_data(data);
                   this.set_best_method(method);
                   // -- this.prepare(); // is called in set_best_method();
             } catch (error) {
@@ -184,6 +184,8 @@ export class ZP_ApiRouter
                   this.action = zpED.action || this.action;
                   this.value  = zpED.value || this.value;
                   this.route  = zpED.route || this.route;
+                  this.set_data(zpED.data);
+                  // data ??
                   //this.route  = this.routezp || zpED.route;
                   //this.action = zpED.action || this.action;
                   //this.value  = zpED.value || this.value;

@@ -46,7 +46,7 @@ export function zp_fetch_api(fetch, router, dataOrEvent = undefined, method = un
     try {
         // create the ApiRouter to defaults or take hooked ApiRouter
         const zpar = new ZP_ApiRouter(router, dataOrEvent, method);
-        if (debug) zpar.dump();
+        //if (debug) zpar.dump();
 
         // lets fetch 
         //   create and return the Promise that 
@@ -80,32 +80,39 @@ export function zp_fetch_api(fetch, router, dataOrEvent = undefined, method = un
             fetch(zpar.fetch_url, zpar.fetch_options)
                 // resolve the json-response
                 .then(response => response.json())
-                // return (resolve) the data to project
-                .then(rawZPresponseData => {
+                // resolve the data to project
+                .then(rawData => {
                     // received raw JSON response from ZeeltePHP as @zeelte:fetch_api
-                    // lets destruct and resolve it
-                    /*
-                        {
-                            ok:
-                            code:,
-                            data:,     // data from  +.php  
-                            error:,    // when an PHP error occured
-                            //zpAR:    // when returned within in project #.php files
-                        }
-                    */
-                    if (rawZPresponseData.ok) {
-                        // PHP response is ok - resolve the returned data from +.php
-                        if (rawZPresponseData?.data)
-                            resolve(rawZPresponseData?.data);
-                        if (true) {
-                            // roadmap feature $page
-                            // resolve into $page.data or $page.form to imitate SvelteKit's behaviour (trigger) 
-                            // if (debug) console.log('data zp_fetch_api()', data_api.data, data.error, data)
-                        }
-                    } else {
-                        // thats a pitty - lets resolve an the raw response - might be a javascript failure or custom response
-                        resolve(rawZPresponseData);
+                    // push data to $page.data or $page.form or $page.error
+                    if (rawData.ok && 'data' in rawData) {
+                        // all ok - received 200 from php
+                        //          received data response from +.php files
+                        console.log('ok', rawData.data)
+                        resolve(rawData.data);
                     }
+                    else {
+                        // thats a pitty - lets resolve an the raw response
+                        //    might be a javascript failure or custom response
+                        console.error(rawData);
+                        resolve(rawData);
+                    }
+                    /*if (false) {
+                        // roadmap feature $page
+                        // resolve into $page.data or $page.form to imitate SvelteKit's behaviour (trigger) 
+                        // if (debug) console.log('data zp_fetch_api()', data_api.data, data.error, data)
+                        // # deparse zpAR, zpDB, zpARjs
+                        /*
+                        const zp_debug = {
+                            zpAR_php : rawData?.zpAR,
+                            zpAR_js  : rawData?.zpAR_js,
+                            zpED_js  : rawData?.zpED_js,
+                            zpDB     : rawData?.zpDB
+                        }
+                        delete rawData.zpAR;
+                        delete rawData.zpAR_js;
+                        delete rawData.zpED_js;
+                        delete rawData.zpDB;
+                    }*/
                 })
                 // catch errors
                 .catch(error => {
@@ -118,4 +125,3 @@ export function zp_fetch_api(fetch, router, dataOrEvent = undefined, method = un
         console.error({ error });
     }
 }
-

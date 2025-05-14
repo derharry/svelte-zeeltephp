@@ -33,12 +33,17 @@ export function zeeltephp_loadEnv(mode) {
     process.env.ZP_PATH_ROUTES = './src/routes/';
     process.env.ZP_PATH_API    = process.env.ZP_IS_SELFENV ? './static/api/' : './node_modules/zeeltephp/dist/api/';
 
-    // generate environment variables for ZeeltePHP, otherwise variables were loaded from .env-file
+    // generate missing environment variables that are not loaded from .env
     // -- always run so missing variables are generated : if (!process.env?.PUBLIC_ZEELTEPHP_BASE) {
     if (true) {
       //    presuming project is installed at /path/to/htdocs/<your-svelte-project>
-      const DIR_BUILD = process.env.BUILD_DIR || 'build-env';   // name of build folder
+      const DIR_BUILD   = process.env.BUILD_DIR || 'build-env';   // name of build folder
       const DIR_PROJECT = path.basename(process.cwd());           // path to project-root
+
+      // -- todo - get rid of /static/api and run within node_modules
+      // -- let devApiUrl = process.env.ZP_PATH_API;
+      // -- devApiUrl = `http://localhost/${DIR_PROJECT}/node_modules/zeeltephp/dist/api`;
+      // -- ['PUBLIC_ZEELTEPHP_BASE', devApiUrl, `/${DIR_PROJECT}/${DIR_BUILD}/api/`],
 
       // set default (generated) paths for mode dev and build 
       // list < key, value, value >
@@ -47,7 +52,7 @@ export function zeeltephp_loadEnv(mode) {
         ['BUILD_DIR', '', DIR_BUILD],
         ['BASE', '', `/${DIR_PROJECT}/${DIR_BUILD}`],
         ['PUBLIC_ZEELTEPHP_BASE', 'http://localhost/' + DIR_PROJECT + '/static/api/', `/${DIR_PROJECT}/${DIR_BUILD}/api/`],
-        ['ZEELTEPHP_DATABASE_URL', 'wordpress://../../../wordpress/wp-load.php', 'wordpress://../../wp-load.php'],
+        ['ZEELTEPHP_DATABASE_URL', 'wordpress://../../../wordpress/wp-load.php', 'wordpress://../../../wordpress/wp-load.php'],
         ['ZEELTEPHP_DATABASE_URL', 'mysql2:root@localhost/test', 'mysql2:root@localhost/test'],
       ];
 
