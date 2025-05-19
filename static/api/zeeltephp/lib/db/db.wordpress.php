@@ -1,35 +1,47 @@
 <?php
+
 /**
- * db.wordpress.php
+ * ZeeltePHP WordPress Database Adapter
+ *
+ * Provides seamless integration with WordPress $wpdb while maintaining
+ * isolation from full WordPress environment bootstrapping.
  */
-
 class ZeeltePHP_DB_wordpress {
+
+      public $dbconn = null;
+
+      /** @var object|null Wordpress $wpdb */
+      public $wpdb = null;
+
+      /** @var string|null path to wp-load.php file */
+      public $pathToWPload = '';
+
+      /** @var string|null is true when wp-load.php file is found */
+      public $isConnected = false;
       
-      public $message = null;
-      public $dbconn  = null;
+      /** @var string|null Last message  */
+      public $last_message = null;
 
-
-      public $wpdb         = null;
-      public $pathToWPload = '../../wp-load.php';
-      public $isConnected  = false;
-      
-
-      // Handle property access
-      public function __get($name) {
+      /**
+       * Magic getter - proxies to WordPress $wpdb properties
+       */
+      public function __get($name) 
+      {
             $this->connect();
-            return $this->wpdb->$name;
+            return $this->wpdb->$name ?? null;
             /*
-            $this->connect();
             if ($this->wpdb && property_exists($this->wpdb, $name)) {
                   return $this->wpdb->$name;
             }
-            $this->message = "Property $name not found in WPDB adapter";
+            $this->last_message = "Property $name not found in WPDB adapter";
             */
       }
 
-
-      // Add magic method to forward calls to wpdb
-      public function __call($method, $args) {
+      /**
+       * Magic method - proxies to WordPress $wpdb methods
+       */
+      public function __call($method, $args) 
+      {
             $this->connect();
             return $this->wpdb->$method(...$args);
             /*
@@ -40,8 +52,8 @@ class ZeeltePHP_DB_wordpress {
                               return $this->wpdb->$method(...$args);
                         }
                         //throw new Exception("Method $method not found in DB adapter");
-                        $this->message = "Method $method not found in DB adapter";
-                        //throw new \Exception($this->message); 
+                        $this->last_message = "Method $method not found in DB adapter";
+                        //throw new \Exception($this->last_message); 
                   }
             }
             catch (\Throwable $th) {
@@ -50,25 +62,36 @@ class ZeeltePHP_DB_wordpress {
             */
       }
       
-
+      /**
+       * Constructor - validates wp-load.php path
+       * @param string $pathToWPload Path to wp-load.php (e.g. wordpress://../wp-load.php)
+       * @throws Exception If wp-load.php not found
+       */
       function __construct( $pathToWPload ) {
             $this->pathToWPload = str_replace('wordpress://', '', $pathToWPload);
-            $file = $this->pathToWPload;
             if (!is_file($this->pathToWPload)) {
-                  $this->message = "path to wp-load.php not found.";
-                  throw new \Exception($this->message); 
+                  $this->last_message = "path to wp-load.php not found.";
             }
+            //throw new \Exception($this->last_message); 
       }
 
+      /**
+       * Close the DB connection
+       */
       function __destruct() {
             $this->disconnect();
-      }      
+      }
 
+      /**
+       * Establishes WordPress database connection
+       */
       public function connect() {
             try {
+                  if ($this->isConnected) return;
+
                   //zp_log('DB_WPDB connect()');
                   if (is_null($this->dbconn) && !is_file($this->pathToWPload)) 
-                        $this->message = "path to wp-load.php not found.";
+                        $this->last_message = "path to wp-load.php not found.";
                   else if (is_null($this->dbconn) && is_file($this->pathToWPload)) {
                         //include_once(str_replace('/wp-load.php/', '', $this->pathToWPload).'/wp-load.php');
                         include_once($this->pathToWPload);
@@ -78,40 +101,64 @@ class ZeeltePHP_DB_wordpress {
                         $this->isConnected = true;
                         // connect is done by including the wp-load.php file
                   }
+
+                  /*
+                  // Isolate WordPress environment
+                  $wp_load = function() {
+                        define('WP_USE_THEMES', false);
+                        global $wpdb;
+                        return $wpdb;
+                  };
+                  // Load WordPress database abstraction
+                  include_once($this->pathToWPload);
+                  $wpdb = require $this->pathToWPload;
+                  if ($wpdb instanceof wpdb) {
+                        $this->wpdb = $wpdb;
+                        $this->isConnected = true;
+                  } else {
+                        throw new \Exception("Failed to initialize WordPress database");
+                  }
+                   */
             }
             catch (\Throwable $th) {
                   zp_handle_error($th);
             }
-      } 
+      }
 
+      /**
+       * Close the DB connection
+       */
       public function disconnect() {
             if (!is_null($this->dbconn))
                   $this->wpdb->close();
       }
 
-      public function last_error() {
-          if ($this->connect())
-              return $this->wpdb->last_error;
+      /**
+       * Returns last error message
+       */
+      public function last_error() 
+      {
+            return $this->wpdb->last_error ?? $this->last_message;
       }
 
-
-      public function query($sql) {
+      /**
+       * Executes a SQL query and returns results
+       * @param string $sql Valid SQL query
+       * @return array|false Query results or false on failure
+       */
+      public function query($sqlStatement) {
             try {
-                  //zp_log($sql);
                   $this->connect();
                   if (!$this->isConnected) return;
                   if (!$this->wpdb) return;
-                  //$result = $this-->query($sql);
-                  //$result = $db->wpdb->get_results( $sql, 'ARRAY_A' );
-                  $result = $this->wpdb->get_results( $sql, 'ARRAY_A' );
-                  return $result;
+                  return $this->wpdb->get_results($sqlStatement, ARRAY_A);
             } catch (\Throwable $th) {
+                  $this->last_message = $this->wpdb->last_error ?: $th->getMessage();
                   zp_handle_error($th);
+                  return false;
             }
       }
 
-
 }
-
 
 ?>
