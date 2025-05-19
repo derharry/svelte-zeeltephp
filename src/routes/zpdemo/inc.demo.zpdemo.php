@@ -12,7 +12,7 @@
 //
 
     /**
-     * return hello
+     * return hello from $lib/zplib
      */
     function demo_lip_example() {
         return "inc.demo.zpdemo.php";
