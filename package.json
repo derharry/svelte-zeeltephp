@@ -1,7 +1,7 @@
 {
 	"name": "zeeltephp",
-	"version": "1.0.2",
-	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files, aka `+page.server.php`.",
+	"version": "1.0.3",
+	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files `+page.server.php`.",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
@@ -55,7 +55,7 @@
 		"vite": "^6.3.5"
 	},
 	"keywords": [
-		"svelte php adapter-static"
+		"svelte sveltekit adapter-static php"
 	],
 	"dependencies": {
 		"@picocss/pico": "^2.1.1"
