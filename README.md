@@ -21,9 +21,9 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [Example Environments](#example-environments)
   - [Uninstall](#uninstall)
 - [Usage Examples](#usage-examples)
-    [+page.server.php](#php-pageserverphp)
-    [+page.server.php](#svelte-pagejs)
-    [+page.svelte](#svelte-pagejs)
+  - [+page.server.php](#php-pageserverphp)
+  - [+page.server.php](#svelte-pagejs)
+  - [+page.svelte](#svelte-pagejs)
 - [Description](#description)
   - [ZeeltePHP Vite Plugin](#database-providers)
   - [Key Paths](#database-providers)
@@ -232,7 +232,7 @@ export async function load({ fetch, url }) {
 ```
 
 ### Svelte: `+page.svelte`
-```svelte
+```html
 <script>
 import { zp_fetch_api } from "zeeltephp";
 
