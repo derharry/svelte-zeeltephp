@@ -15,6 +15,6 @@
 #    - If you add logic after including init.php, use `chdir(__DIR__);` to restore the current working directory.
 #
 #  Start ZeeltePHP:
-include('../../node_modules/zeeltephp/dist/api/init.php');
+include('../../node_modules/zeeltephp/dist/api/zeeltephp/init.php');
 # chdir(__DIR__); // Uncomment if you implement logic after init.php.
 ?>
