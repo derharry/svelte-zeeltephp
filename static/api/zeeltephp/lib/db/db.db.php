@@ -14,9 +14,6 @@ class ZP_DB {
       /** @var object|null Real DB provider */
       public $dbsrc = null;
 
-      /** @var object|null Real DB provider */
-      public $dbconn = null;
-
       /** @var string|null Used DB provider/schmema */
       public $dbtype = null;
 
@@ -98,7 +95,7 @@ class ZP_DB {
        */
       function __destruct() {
             if ($this->dbsrc)
-                  $this->dbsrc->disconnect();
+                  $this->dbsrc->close();
       }  
             
       /**
