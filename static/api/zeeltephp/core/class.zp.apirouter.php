@@ -129,8 +129,7 @@ class ZP_ApiRouter
           //else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE') {}
           //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {}
           else
-               $this->error = 'ZP unsupported method :'.$_SERVER['REQUEST_METHOD'];
-                         $this->error = 'ZP unsupported method :' . $_SERVER['REQUEST_METHOD'];
+               $this->log('ZP unsuxxpported method :'.$_SERVER['REQUEST_METHOD']);
           // Clean up route slashes
           $this->route = str_replace('//', '/', $this->route ?? '');
      }
@@ -202,72 +201,80 @@ class ZP_ApiRouter
           }
      }
 
-     
-     /*
-     !! don't delete, test grouped routes first
-     function check_route_prev($replaceBaseRoute) {
-          if (!$this->routeFileExist) {
-               // route not found? is it in a (sub)/structure?
-               // currently 1-level is supported 
-               $paths = zp_scandir($zp_routeBase);
-               foreach ($paths as $_) {
-                    //echo "$_\n";
-                    if (
-                         str_contains($_, '/+page.server.php')
-                         && str_starts_with($_, '(')
-                         && str_contains($_, $zp_route)
-                    ) {
-                         $routeFile = $zp_routeBase .'/'. $_;
-                         $this->routeFile = $routeFile;
-                         $this->routeFileExist = is_file($this->routeFile);
-                         if (is_file($routeFile)) break; // skip when found
-                    }
-               }
-          }
-     }
-     */
-
      /**
       * Collects all +.php files in the current route path (upwards).
       * @param string $replaceBaseRoute Path prefix to remove from route.
       */
      function collect_plusPHPfilesInRoute($replaceBaseRoute) {
+          $this->log('  -- collect_plusPHPfilesInRoute()');
           if (!$this->route) {
-               $error   = true;
-               $this->log = " ! route is missing, i need a route to collect +.php files"; 
+               $this->log(" ! route is missing, i need a route to collect +.php files"); 
                return;
           }
-          $this->log('  -- collect_plusPHPfilesInRoute()');
 
           // Remove base route prefix if present (tmpFix-001)
           $this->route = str_replace($replaceBaseRoute, '', $this->route);
 
           // v1.0.3 overhoul
           //    from current route - collect +.php files
-          //    check route in case for upwards +.php files that needs to be preexecuted
+          //    check route in case for upwards +.php files that needs to be pre-executed
           //   
           $route = $this->route;
           $route_path       = str_replace('//', '/', $this->routeBase."/$route");
           $route_path_depth = ($route === '//' || $route === '/') ? 0 : max(0, count(array_filter(explode('/', $route))) - 2);
           $route_path_depth = count(explode('/', $route)) -2; // -2 because of / at start and end
-          $this->log("     $route_path_depth $route_path");
+          $this->log("     route depth: $route_path_depth");
+          $this->log("     route path:  $route_path");
 
           // Collect all +.php files upwards from the route path
           // -- $phpFiles = ['+page.server.php', '+server.php', '+api.php'];
           $this->routeFiles = zp_scandirRecursiveUp($route_path, '^\+.*\.php$', $route_path_depth);
-          $this->log("     ".count($this->routeFiles)." +.php file matches");
+          if ($this->routeFiles) {
+               // For now, only support +page.server.php
+               $this->routeFile      = $route_path.'+page.server.php';
+               $this->routeFileExist = is_file($this->routeFile);
+               $this->log('     route file found');
+          }
+          else {
+               $this->log('     ! route not found. check for grouped paths');
+               $this->routeFiles = $this->scandir_withGroupedRoutes() ?? [];
 
-          // For now, only support +page.server.php
-          $this->routeFile      = $route_path.'+page.server.php';
-          $this->routeFileExist = is_file($this->routeFile);
-
+          }
+          //$this->log("     ".count($this->routeFiles)." +.php file matches");
           // -- why did we replace /api/ with / again?
           // -- $zp_routeBase  = str_replace('/api/', '/', $$this->routeBase);
      }
 
-     function exec_route() {
+     /**
+      * Scan for SvelteKits Grouped-Routes. e.g. (admin)/**
+      */
+     function scandir_withGroupedRoutes() {
+          // currently 1-level is supported
+          $this->log('  -- scandir_withGroupedRoutes()');
+          $grouped_paths = zp_scandir($this->routeBase, '^\(.*\)$');
+          foreach ($grouped_paths as $_) {
+               $route_path = $this->routeBase . $_ . $this->route;
+               if (is_dir($route_path)) {
+                    $real_route = $_ . $this->route;
+                    $this->log("     route match $real_route");
+                    $this->log("     route path  $route_path");
+                    $this->routeFiles = zp_scandir($route_path, '^\+.*\.php$');
+                    if ($this->routeFiles) {
+                         // For now, only support +page.server.php
+                         $this->routeFile      = $route_path.'+page.server.php';
+                         $this->routeFileExist = is_file($this->routeFile);
+                         $this->log('     +page.server.php found in grouped route');
+                    }
+                    else {
+                         $this->log('     ! no +.php files found in grouped route');
+                    }
+                    break;
+               }
+          }
+     }
 
-     } 
+     function exec_route() {}
+
 }
 
 ?>
