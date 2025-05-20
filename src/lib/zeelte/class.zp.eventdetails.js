@@ -116,7 +116,7 @@ export class ZP_EventDetails {
                         this.log('unknown event-type', typeof event, event);
 
                   // ready
-                  this.log(this);
+                  //this.log(this);
                   this.log('// ZP EventDetails ');
             } catch (error) {
                   this.log(' ! ERROR ', error);
@@ -183,8 +183,8 @@ export class ZP_EventDetails {
        */
       parse_KeyBoardEvent() {
             this.log('parse_KeyBoardEvent');
-            this.keyId   = this.event?.keyId   || this.event?.submitter?.keyId   || this.keyId;
-            this.keyName = this.event?.keyName || this.event?.submitter?.keyName || this.keyName;
+            this.keyCode = this.event.keyCode || this.keyCode; // || this.event.submitter?.keyCode
+            this.keyName = this.event.key     || this.keyName; // || this.event.submitter?.keyName
       }
 
       /**
