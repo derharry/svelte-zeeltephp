@@ -16,7 +16,13 @@
             }
             foreach (scandir($path) as $file) {
                   if ($file === '.' || $file === '..') continue;
-                  if (is_file("$path/$file")) {
+                  $fullPath = "$path/$file";
+                  if (is_dir($fullPath)) {
+                        if ($regExp === null || preg_match("/$regExp/", $file)) {
+                              $files[] = $file;
+                        }
+                  }
+                  if (is_file($fullPath)) {
                         if ($regExp === null || preg_match("/$regExp/", $file)) {
                               $files[] = $file;
                         }
