@@ -3,18 +3,37 @@
 A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`).
 
 **Combine the best of Svelte and PHP in your project.**
-- Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`, including hotreload.
-- Develop almost as if you’re using SvelteKit natively.
+- Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`.
+- Develop almost as if you’re using SvelteKit natively, including hot-reloading.
 - Easily port existing PHP projects into the SvelteKit project structure, or move SvelteKit-native projects to a PHP backend.
 
 ---
 
-
-
 ## In Short
 
-- Run `npm run dev` and use `+.php` files inside your `/src/routes` as you would in SvelteKit.
+- Run `npm run dev` and use `+.php` files inside your `/src/routes`.
 - Run `npm run build` and deploy to your production environment. Access your app at `http://domain/<build>`.
+
+[TOC]: # "## Table of Contents"
+## Table of Contents
+- [Installation](#instalation)
+  - [Miminum requirements](#minimum-requirements)
+  - [Example Environments](#example-environments)
+  - [Uninstall](#uninstall)
+- [Usage Examples](#usage-examples)
+    [+page.server.php](#php-pageserverphp)
+    [+page.server.php](#svelte-pagejs)
+    [+page.svelte](#svelte-pagejs)
+- [Description](#description)
+  - [ZeeltePHP Vite Plugin](#database-providers)
+  - [Key Paths](#database-providers)
+  - [.ignore example](#gitignore-example)
+  - [ZPDemo](#zpdemo)
+  - [.env Configuration](#env-configuration)
+  - [Key Methods, Classes & Components](#key-methods-classes--components)
+  - [Database Providers](#database-providers)
+  - [PHP and globals](#php-and-globals)
+- [Release Notes & Roadmap](#release-notes--roadmap)
 
 ---
 
@@ -24,7 +43,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    ```
    npx create svelte myZPproject
    ```
-   Be sure to use `adapter-static` and place your project in your local `/htdocs` or as your `DOCUMENT_ROOT` directory. 
+   Be sure to use `adapter-static` and place your project in your local `DOCUMENT_ROOT` directory. e.g. `/htdocs`. 
 
 2. **Install ZeeltePHP**  
    ```
@@ -59,8 +78,8 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    npm run dev
    ```
    Open `http://localhost:5173/myZPproject` and see if your App is working at this stage. 
-   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP.  
-   You might need a `.env.development` with the correct `PUBLIC_ZEELTEPHP_BASE`.
+   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP. 
+   <br>A `.env.development` with the correct `PUBLIC_ZEELTEPHP_BASE` might be required.
 
 5. **(Optional) Demo & Debug**  
    Copy `/zpdemo/` into `/src/routes/` and verify if it runs in `dev mode`.
@@ -143,7 +162,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 ## Usage Examples
 
 ### PHP: `+page.server.php`
-``` 
+```php
 <?php
 
       function load() {
@@ -163,7 +182,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
             // e.g. ?/myAction from SvelteKit.
 
 		switch ($action) {
-                  
+
                   case 'myAction':
                               return "Hello myAction from PHP. received value: $value";
                         break;
@@ -193,7 +212,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 ```
 
 ### Svelte: `+page.js`
-```
+```js
 import { zp_fetch_api } from "zeeltephp";
 
 export async function load({ fetch, url }) {
@@ -213,7 +232,7 @@ export async function load({ fetch, url }) {
 ```
 
 ### Svelte: `+page.svelte`
-``` 
+```svelte
 <script>
 import { zp_fetch_api } from "zeeltephp";
 
@@ -317,12 +336,13 @@ The folder `/zpdemo/` is intended as full demo and debugger.
 
 ####  `VarDump.svelte`:  
   <br>Shows (dumps) the content of a variable visually in UI. Like PHPs var_dump().
+  
 
 ### .env Configuration
 - Auto-generated at both, development and build, if missing.
 - For production settings, use relative paths from the document root where the app will run.
 - Variables with prefix PUBLIC_ or ZEELTEPHP_ are exported to `/BUILD_DIR/api/zeeltephp/.env` to use in BUILD.
-```
+```sh
 BUILD_DIR=myBuild
       # development:    empty; not used
       # build:          build is saved to /myZPproject/myBuild;
@@ -346,7 +366,7 @@ PUBLIC_ZEELTEPHP_BASE=/myBuild/api
 
 ### Database Providers 
 - Optional; If specified in `.env`, the included /api/zeeltephp/lib/db/db.provider.php is available to use with `$db`.
-``` 
+```sh
 ZEELTEPHP_DATABASE_URL=mysql2://username:password@hostname:port/database
 ZEELTEPHP_DATABASE_URL=wordpress://path/to/your/wp-load.php
 ```
