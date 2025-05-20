@@ -53,7 +53,7 @@ export function fetch_api(fetch, dataOrEvent) {
  * @returns {Promise<any>} Resolves the backend response or the response object on error
  */
 export function zp_fetch_api(fetch, router, data = undefined, method = undefined, headers = undefined) {
-    const debug = true;
+    const debug = false;
     try {
         // Create the API router object (parse router/data/method)
         const zpar = new ZP_ApiRouter(router, data, method, debug);
