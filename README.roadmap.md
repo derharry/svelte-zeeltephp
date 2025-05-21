@@ -9,6 +9,8 @@
   - make PUBLIC_ZEELTEPHP_BASE optional and use just BASE. If set - its to let /api/zeeltephp work at different name or location.
 
 ### Done
+- (25-04-15)
+  - add post-build via vite-plugin (full port from .sh) 
 - (25-05-01) 
   - Installation via `bun add github` in readme.md 
   - Support for DB-MySQL -> api/lib/db/db.mysql2.php
@@ -26,5 +28,3 @@
   - add a debug-Component to use in lib and consumer project to see if all is up and running. -> ZPDev.svelte
 - (25-05-10) 
   - put PHP error logging default to /static/api/log  ! -> is changed to /.zp-log
-- (25-04-15)
-  - add post-build via vite-plugin (full port from .sh) 
