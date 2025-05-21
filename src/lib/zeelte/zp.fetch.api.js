@@ -38,11 +38,13 @@ export function fetch_api(fetch, dataOrEvent) {
  *      Resolve the response directly into Svelte $page.data, $page.form, $page.error, etc...(Trigger SvelteKit's behaviour)
  *  
  * Overloads:
- *   zp_fetch_api(fetch, ZP_ApiRouter [, Data])     If you have a custom prepared ZP_ApiRouter
- *   zp_fetch_api(fetch, ZP_EventDetails [, Data])  If you have a custom prepared ZP_EventDetails
- *   zp_fetch_api(fetch, Event [, Data])            AnyEvent - will be parsed by ZP_EventDetails
- *   zp_fetch_api(fetch, URL|URLParams, [, Data])   Will be parsed by ZP_EventDetails
- *   zp_fetch_api(fetch, string URL [, Data])       If your route or GET string (in near future: prefix + to fetch from +api.php).
+ *   zp_fetch_api(fetch, Event [, ..])             AnyEvent - will be parsed by ZP_EventDetails
+ *   zp_fetch_api(fetch, URL|URLParams   [, ..])   Will be parsed by ZP_EventDetails
+ *   zp_fetch_api(fetch, ZP_ApiRouter    [, ..])   If you created ZP_ApiRouter earlier.
+ *   zp_fetch_api(fetch, ZP_EventDetails [, ..])   If you created ZP_EventDetails earlier.
+ *   ... more tbd
+ * 
+ *   *not yet* zp_fetch_api(fetch, string URL [, Data]) If your route or GET string (in near future: prefix + to fetch from +api.php).
  *   ... more tbd
  * 
  * @param {Function} fetch - SvelteKit's fetch function; cannot be imported seperatly

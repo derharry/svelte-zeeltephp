@@ -11,7 +11,7 @@ const ENV_CONFIG = {
           ROUTES: './src/routes/'
      },
      DEFAULTS: {
-          BUILD_DIR: 'build-env',
+          BUILD_DIR: 'build',
           PUBLIC_ZEELTEPHP_BASE: '',
           DB_URLS: {
                WORDPRESS: 'wordpress://../../../wordpress/wp-load.php',
