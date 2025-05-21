@@ -22,7 +22,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [Uninstall](#uninstall)
 - [Usage Examples](#usage-examples)
   - [+page.server.php](#php-pageserverphp)
-  - [+page.server.php](#svelte-pagejs)
+  - [+page.svelte.js](#svelte-pagejs)
   - [+page.svelte](#svelte-pagejs)
 - [Description](#description)
   - [ZeeltePHP Vite Plugin](#database-providers)
@@ -41,7 +41,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 
 1. **Create your SvelteKit project**  
    ```
-   npx create svelte myZPproject
+   npx sv create myZPproject
    ```
    Be sure to use `adapter-static` and place your project in your local `DOCUMENT_ROOT` directory. e.g. `/htdocs`. 
 
@@ -56,14 +56,16 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    ```
    import { sveltekit } from '@sveltejs/kit/vite';
    import { defineConfig } from 'vite';
-   import { zeeltephp } from 'zeeltephp/vite-plugin';  // add
+   import { zeeltephp } from 'zeeltephp/vite-plugin'; // add
 
-   export default defineConfig(({ mode }) => ({  // add or change
-     plugins: [
-       sveltekit(),
-       zeeltephp(mode)  // add
-     ]
-   }));
+   export default defineConfig(({ mode }) => {  // add mode
+        return {
+             plugins: [
+                  sveltekit(),
+                  zeeltephp(mode) // add
+        ]
+      }
+   });
    ```
    Note: the vite-plugin creates following required paths in your project:
    ```
@@ -77,8 +79,8 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    ```
    npm run dev
    ```
-   Open `http://localhost:5173/myZPproject` and see if your App is working at this stage. 
-   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP. 
+   Open `http://localhost:5173/myZPproject` and see if your App is working at this stage.
+   <br>If you encounter issues, verify the CLI output for 🐘 ZeeltePHP and the required paths are created.
    <br>A `.env.development` with the correct `PUBLIC_ZEELTEPHP_BASE` might be required.
 
 5. **(Optional) Demo & Debug**  
