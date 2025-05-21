@@ -234,21 +234,21 @@ export async function load({ fetch, url }) {
 ### Svelte: `+page.svelte`
 ```html
 <script>
-import { zp_fetch_api } from "zeeltephp";
+      import { zp_fetch_api } from "zeeltephp";
 
-export let data;  
+      export let data;  
 
-let promise = data?.promise_php || undefined;
+      let promise = data?.promise_php || undefined;
 
-async function handle_click(event) {
-      promise = zp_fetch_api(fetch, event)
-            .then(data => {})
-            .catch(error => {})
-}
+      async function handle_click(event) {
+            promise = zp_fetch_api(fetch, event)
+                  .then(data => {})
+                  .catch(error => {})
+      }
 
-async function handle_submit(event) {
-      const data = await zp_fetch_ap(fetch, event)
-}
+      async function handle_submit(event) {
+            const data = await zp_fetch_ap(fetch, event)
+      }
 </script>
 
 <button
