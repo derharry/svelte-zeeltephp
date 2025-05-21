@@ -1,36 +1,33 @@
-export default VarDump;
-type VarDump = SvelteComponent<{
-    title?: any;
-    vardump?: any;
-    dumpAll?: boolean;
-    dumpJson?: boolean;
-    debug?: boolean;
-    debugTitle?: string;
-    _depth?: number;
-    maxDepth?: number;
-    cssStyle?: string;
-    dumpConsole?: boolean;
-    noBorder?: boolean;
+export default Loader;
+type Loader = SvelteComponent<$$__sveltets_2_PropsWithChildren<{
+    value?: string;
+    padding?: string;
+    direction?: string;
 }, {
+    default: {};
+}>, {
     [evt: string]: CustomEvent<any>;
-}, {}> & {
+}, {
+    default: {};
+}> & {
     $$bindings?: string;
 };
-declare const VarDump: $$__sveltets_2_IsomorphicComponent<{
-    title?: any;
-    vardump?: any;
-    dumpAll?: boolean;
-    dumpJson?: boolean;
-    debug?: boolean;
-    debugTitle?: string;
-    _depth?: number;
-    maxDepth?: number;
-    cssStyle?: string;
-    dumpConsole?: boolean;
-    noBorder?: boolean;
+declare const Loader: $$__sveltets_2_IsomorphicComponent<$$__sveltets_2_PropsWithChildren<{
+    value?: string;
+    padding?: string;
+    direction?: string;
 }, {
+    default: {};
+}>, {
     [evt: string]: CustomEvent<any>;
-}, {}, {}, string>;
+}, {
+    default: {};
+}, {}, string>;
+type $$__sveltets_2_PropsWithChildren<Props, Slots> = Props & (Slots extends {
+    default: any;
+} ? Props extends Record<string, never> ? any : {
+    children?: any;
+} : {});
 interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> = any, Events extends Record<string, any> = any, Slots extends Record<string, any> = any, Exports = {}, Bindings = string> {
     new (options: import("svelte").ComponentConstructorOptions<Props>): import("svelte").SvelteComponent<Props, Events, Slots> & {
         $$bindings?: Bindings;
