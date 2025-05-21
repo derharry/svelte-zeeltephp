@@ -7,5 +7,4 @@ export { ZP_EventDetails } from './zeelte/class.zp.eventdetails.js';
 
 export { default as Loader } from './zeelte/Loader.svelte';
 export { default as VarDump } from './zeelte/VarDump.svelte';
-
 export { default as ZPDev } from './zeeltephp/ZPDev.svelte';

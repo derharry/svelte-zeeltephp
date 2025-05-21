@@ -1,130 +1,131 @@
 <?php
+
 /**
- * db.db.php
+ * ZeeltePHP Database Adapter 
+ *
+ * Dynamically loads and proxies to the correct DB provider class.
+ * Based on .env.ZEELTEPHP_DATABASE_URL. 
  */
-
-//require_once('zeeltephp/lib/db/db.sqlite3.php');
-require_once('zeeltephp/lib/db/db.wordpress.php');
-require_once('zeeltephp/lib/db/db.mysql2.php');
-//require_once('zeeltephp/lib/db/db.mariadb.php');
-
 class ZP_DB {
 
-      public $message  = null;
-      public $dbsrc    = null;
-      public $dbconn   = null;
+      /** @var string|null Last message  */
+      public $last_message  = null;
 
-      public $dbtype   = null; // scheme
-      public $hostname = null;
-      public $port     = null;
-      public $username = null;
-      public $password = null;
-      public $database = null;
+      /** @var object|null Real DB provider */
+      public $dbsrc = null;
 
+      /** @var string|null Used DB provider/schmema */
+      public $dbtype = null;
 
-      // Handle property access
+      /** @var string|null Hostname to connect to */
+      public $hostname = "";
+
+      /** @var int|null Port to connect to */
+      public $port = null;
+
+      /** @var string|null Username for authentication */
+      public $username = "";
+
+      /** @var string|null Password for authentication */
+      public $password = "";
+
+      /** @var string|null Name of database */
+      public $database = "";
+
+      /**
+       * Magic getter: Proxy property access to the DB provider.
+       */
       public function __get($name) {
-            return $this->dbsrc->$name;
-            /*
-            try {
-                  if ($this->dbsrc && property_exists($this->dbsrc, $name)) {
-                        return $this->dbsrc->$name;
-                  }
-                  elseif ($this->dbsrc && isset($this->dbsrc->$name)) {
-                        return $this->dbsrc->$name;
-                  }
-                  throw new \Exception("ZPDB: Property $name not found in DB adapter");
-            } catch (\Throwable $th) {
-                  zp_handle_error($th);
-            }
             if ($this->dbsrc && property_exists($this->dbsrc, $name)) {
                   return $this->dbsrc->$name;
-            }*/
+            }
+            return null;
       }
 
-      // Add magic method to forward calls to dbsrc
+      /**
+       * Magic method: Proxy method calls to the DB provider.
+       */
       public function __call($method, $args) {
-            return $this->dbsrc->$method(...$args);
-            /*
-            try {
-                  if ($this->dbsrc && method_exists($this->dbsrc, $method)) {
-                        return $this->dbsrc->$method(...$args);
-                  }
-                  elseif ($this->dbsrc && isset($this->dbsrc->$method)) {
-                        return $this->dbsrc->$method;
-                  }
-                  throw new \Exception("ZPDB: Method $method not found in DB adapter");
+            if ($this->dbsrc && method_exists($this->dbsrc, $method)) {
+                  return $this->dbsrc->$method(...$args);
             }
-            catch (\Throwable $th) {
-                  zp_handle_error($th);
-            }*/
-      }      
-      
-      function __construct($ZEELTEPHP_DATABASE_URL = null) {
-            if (is_null($ZEELTEPHP_DATABASE_URL)) return;
+            throw new Exception("ZP_DB: Method $method not found in DB adapter");
+      }
+
+      /**
+       * Constructor: Parses the DB connection URL and loads the appropriate provider.
+       *
+       * @param string|null $DATABASE_URL or ZEELTEPHP_DATABASE_URL
+      */
+      public function __construct($DATABASE_URL = null) {
+            if (empty($DATABASE_URL)) return;
             try {
-                  $this->parse_connectionUrl($ZEELTEPHP_DATABASE_URL);
+                  $this->parse_connectionUrl($DATABASE_URL);
 
+                  // Determine provider class and file
+                  $className = 'ZeeltePHP_DB_' . $this->dbtype;
+                  $classFile = 'lib/db/db.' . $this->dbtype . '.php';
 
-                  // initialize
-                  $className  = 'ZeeltePHP_DB_'.$this->dbtype;     // Correct format: ZP_DB_mysql // ZeeltePHP_DB_wordpress
-                  $classFile  = 'db.'.$this->dbtype.'.php'; // File path
-
+                  // Load the DB-provider
                   if (!class_exists($className)) {
                         if (is_file($classFile)) {
                               require_once $classFile;
                         } else {
-                              $this->message = "Provider file '$classFile' not found.";
+                              $this->last_message = "Provider file '$classFile' not found.";
                               return;
                         }
                   }
-                  
                   if (class_exists($className)) {
-                        if ($this->username != null) {
-                              $this->dbsrc = new $className(
-                                    $this->hostname, 
-                                    $this->username, 
-                                    $this->password, 
-                                    $this->database);
-                        }
-                        else {
-                              $this->dbsrc = new $className($ZEELTEPHP_DATABASE_URL);
-                        }
+                        $this->dbsrc = new $className(
+                              $this->hostname,
+                              $this->username,
+                              $this->password,
+                              $this->database
+                        );
                   } else {
-                        $this->message = "Class $className not found.";
+                       $this->last_message = "Class $className not found."; 
                   }
-
             } catch (\Throwable $th) {
                   zp_handle_error($th);
             }
       }
 
+      /**
+       * Close the DB connection
+       */
+      function __destruct() {
+            if ($this->dbsrc)
+                  $this->dbsrc->close();
+      }  
+            
+      /**
+       * Parses a DB connection URL into its components.
+       *
+       * Supports:
+       *   - provider://username:password@hostname/database
+       *   - wordpress://../wp-load.php@database
+       *
+       * @param string $databaseUrl
+       */
       function parse_connectionUrl($databaseUrl) {
             try {
-                  //ZEELTEPHP_DATABASE_URL=provider://../wordpress-project/wp.load.php@database
-                  //ZEELTEPHP_DATABASE_URL=provider://username:password@hostname/database
                   $parts = parse_url($databaseUrl);
-                  $this->dbtype = isset($parts['scheme']) ? $parts['scheme'] : null;
-                  // by path
-                  $this->database = isset($parts['path']) ? $parts['path'] : null;
-                  // by credentials
-                  $this->username = isset($parts['user']) ? $parts['user'] : null;
-                  $this->password = isset($parts['pass']) ? $parts['pass'] : null;
-                  $this->hostname = isset($parts['host']) ? $parts['host'] : null;
-                  $this->database = isset($parts['path']) ? $parts['path'] : null;
-                  $this->port     = isset($parts['port']) ? $parts['port'] : null;
+                  $this->dbtype   = $parts['scheme'] ?? null;
+                  $this->hostname = $parts['host']   ?? null;
+                  $this->port     = $parts['port']   ?? null;
+                  $this->username = $parts['user']   ?? null;
+                  $this->password = $parts['pass']   ?? null;
+                  $this->database = str_replace('/', '', $parts['path']) ?? null;
 
-                  if ($this->dbtype == 'wordpress') {
-                        // parse_url destructs wordpress url into:
-                        //     dbtype   = wordpress
-                        //     hostname = ../ 
-                        //     database = /../wp-load.php 
-                        // to be safe - let's destruct it my-self
-                        $wpUrl   = str_replace('wordpress://', '', $databaseUrl);
-                        $wploadDB = explode("@", $wpUrl);
-                        if (count($wploadDB)>1)
-                              $this->database = $wploadDB[1];
-                        $this->hostname = $wploadDB[0];
+                  // Special handling for WordPress URLs
+                  if ($this->dbtype === 'wordpress') {
+                        // Example: wordpress://../wp-load.php@database
+                        $wpUrl    = str_replace('wordpress://', '', $databaseUrl);
+                        $wploadDB = explode("@", $wpUrl, 2);
+                        $this->hostname = $wploadDB[0] ?? null;
+                        $this->database = $wploadDB[1] ?? null;
+
+                        // todo - support select DB file_put_contents(PATH_ZPLOG.'/buu', $this->hostname .' '.$this->database);
                   }
             } catch (\Throwable $th) {
                   zp_handle_error($th);
