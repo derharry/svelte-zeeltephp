@@ -27,7 +27,6 @@ function zeeltephp_main() {
 
                // # init ZP_DB provider (if set)
                if (isset($env['ZEELTEPHP_DATABASE_URL'])) {
-               {
                     require_once('lib/db/db.db.php');
                     $db = new ZP_DB($env['ZEELTEPHP_DATABASE_URL']);
                }
