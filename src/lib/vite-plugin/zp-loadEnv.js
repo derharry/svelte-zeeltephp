@@ -87,11 +87,12 @@ function generate_missing_vars(mode) {
                          : `/${projectName}/${buildDir}/api/`,
                devOnly: false
           },
-          {
-               key: 'ZEELTEPHP_DATABASE_URL',
-               value: ENV_CONFIG.DEFAULTS.DB_URLS.WORDPRESS,
-               devOnly: true
-          }
+          // -- deactivated; must be specified in .env
+          //{
+          //     key: 'ZEELTEPHP_DATABASE_URL',
+          //     value: ENV_CONFIG.DEFAULTS.DB_URLS.WORDPRESS,
+          //     devOnly: true
+          //}
      ];
 
      envDefaults.forEach(({ key, value, devOnly }) => {
