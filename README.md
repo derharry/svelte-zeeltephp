@@ -47,7 +47,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 
 2. **Install ZeeltePHP**  
    ```
-   npm add github:derharry/svelte-zeeltephp
+   git add github:derharry/svelte-zeeltephp
    ```
    Or use a `.tgz` file.
 
