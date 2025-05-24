@@ -12,7 +12,7 @@ export async function load({ params, fetch, url }) {
                   //'+page.server.php': res_php,
                   // for ZPDev we need zpAR at least exposed to the root.
                   'zpAR_pageJS': zpAR_pageJS,
-                  'zpAR_php':    res_pageServerPHP.zpAR
+                  'zpAR_php':    res_pageServerPHP?.zpAR || null
             }
       } 
       catch (error) {
