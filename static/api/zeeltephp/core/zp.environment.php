@@ -14,7 +14,7 @@ function zeeltephp_loadRunEnvironment() {
           define('PATH_ZPAPIPHP', PATH_CPROOT.'/api/');
           define('PATH_ZPLOG',    PATH_CPROOT.'/api/zeeltephp/php_log/');
           define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/lib_php/');
-          define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/zproutes/');
+          define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/routes/');
      }
      // Development Environment Setup 
      else {
