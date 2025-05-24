@@ -52,7 +52,7 @@
                'node_modules/dist/' => '',
                'static/'            => '/',
                '/api/zeeltephp/'    => '/api/',
-               'src/lib/zplib/'     => '/zplib/',
+               'src/lib/php_log/'     => '/php_log/',
                'src/routes/'        => '/routes/'
           ];
           

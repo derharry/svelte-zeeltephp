@@ -11,7 +11,7 @@ function zeeltephp_loadRunEnvironment() {
      if (is_file('.env')) {
           define('ZP_ENV',        'production');
           define('PATH_CPROOT',   str_replace('\\', '/', realpath(getcwd().'/../..')));
-          define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/zplib/');
+          define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/php_log/');
           define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/zproutes/');
           define('PATH_ZPLOG',    PATH_CPROOT.'/api/zeeltephp/log/');
           define('PATH_ZPAPIPHP', PATH_CPROOT.'/api/');
@@ -82,9 +82,9 @@ function zp_loadRunEnvironmentDev() {
      // Define Constants
      define('ZP_ENV',         $envType);
      define('PATH_CPROOT',    $consumerRoot.'/');
-     define('PATH_ZPLIB',    "$consumerRoot/src/lib/zplib/");
+     define('PATH_ZPLIB',    "$consumerRoot/src/lib/php_log/");
      define('PATH_ZPROUTES', "$consumerRoot/src/routes/");
-     define('PATH_ZPLOG',    "$consumerRoot/.zp-log/");
+     define('PATH_ZPLOG',    "$consumerRoot/php_log/");
      define('PATH_ZPAPIPHP', "$consumerRoot/$apiPath/");
 
      // PHP Configuration

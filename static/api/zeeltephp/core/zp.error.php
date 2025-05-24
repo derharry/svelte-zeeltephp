@@ -86,7 +86,7 @@
      }
 
      /**
-      * Write a log entry to /zp-log/log.log.
+      * Write a log entry to /php_log/log.log.
       *
       * @param mixed $content String or data to log.
       */
@@ -98,7 +98,7 @@
      }
 
      /**
-      * Write a debug log entry to /zp-log/zp_debug.log.
+      * Write a debug log entry to /php_log/zp_debug.log.
       *
       * @param mixed $content  String or data to log.
       * @param bool  $restart  If true, restart (truncate) the log file.
