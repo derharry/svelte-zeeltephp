@@ -17,7 +17,8 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 [TOC]: # "## Table of Contents"
 ## Table of Contents
 - [Installation](#instalation)
-  - [Miminum requirements](#minimum-requirements)
+  - [Quick start](#instalation)
+  - [Minimum Requirements](#minimum-requirements)
   - [Example Environments](#example-environments)
   - [Uninstall](#uninstall)
 - [Usage Examples](#usage-examples)
@@ -37,7 +38,10 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 
 ---
 
-## Instalation
+## Quick start
+Follow the installation steps 1 - 5. 
+
+## Installation
 
 1. **Create your SvelteKit project**  
    ```
@@ -75,17 +79,16 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    /php_log                # PHP error and log output
    ```
 
-4. **(Optional) Start Development**  
+4. **4. Start Development (Optional)**  
    ```
    npm run dev
    ```
-   Open `http://localhost:5173/myZPproject` and see if your App is working at this stage.
-   <br>If you encounter issues, verify the CLI output for 🐘 ZeeltePHP and the paths are created.
-   <br>A `.env.development` with the correct `PUBLIC_ZEELTEPHP_BASE` might be used.
+   Open `http://localhost:5173/myZPproject` to check if your app is working.
+   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP and ensure the required paths hve been created.
 
-5. **(Optional) Demo & Debug**  
-   Copy `/zpdemo/` into `/src/routes/` and verify if it runs in `dev mode`.
-   Green lights and responses? Have fun with `SveltePHP'ing`.
+5. **Demo & Debug (Optional)**  
+   Copy `/zpdemo/` into `/src/routes/` and verify it runs in development mode.
+   <br>Green lights and receiving responses? Have fun `SveltePHP'ing`.
 
 6. **Configure for Build**  
    Update `svelte.config.js` to use `.env` variables:
@@ -118,11 +121,11 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
    See `Description/.env Configuration` for more details.
    ```
    BUILD_DIR=../build-prod                 # build-output folder; e.g. http://localhost/build-prod
-   BASE=/build-prod                        # starting from `DOCUMENT_ROOT`; e.g. http://localhost/build-prod
+   BASE=/build-prod                        # starting from `DOCUMENT_ROOT`; e.g. http://www.domain.com/build-prod
    PUBLIC_ZEELTEPHP_BASE=/build-prod/api/  # Same as BASE but ends with `api/`
    ```
    <ins>Note:</ins> If no `.env.production` is specified, the variables are auto-generated and will run by default as: 
-         `http://localhost/myZPproject/build` or `https://www.domain.com/build`.
+         `http://localhost/myZPproject/build` or `https://www.domain.com/myZPproject/build`.
 
 ---
 
@@ -296,32 +299,33 @@ export async function load({ fetch, url }) {
   <br> PHP errors are logged here.
 
 ### .gitignore Example
-```
+```sh
 # ignore PHP error and logs
 /php_lib
 ```
 
 ### ZPDemo
-The folder `/zpdemo/` is intended as full demo and debugger. 
-<br>Copy it into your `routes` and call it `http://localhost/myZPproject/zpdemo`.
-<br>If `zpdemo` does not work, there might be a mis-configuration from the install-steps. 
+The `/zpdemo/` folder serves as a complete demo and debugger. 
+<br>Copy it into your `routes` and access it at `http://localhost/myZPproject/zpdemo`.
+<br>If `zpdemo` does not work, there may be a misconfiguration from the installation steps. 
 
 ### Key Methods, Classes & Components
 
 #### `zp_fetch_api(fetch, router, [, data, method, headers])` (Svelte)
-  Handels and resolves most use-cases to fetch from PHP-api.
+  Handles most use cases for fetching data from the PHP API.
   <br> Uses Svelte's fetch which needs to be passed as parameter and ZP_ApiRouter for the routing details.
-  <br> This method has Overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.ssss 
+  <br> This method has overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.
+
+  ```js
+  zp_fetch_api(fetch, Event [, ..])            // AnyEventType; will be parsed by ZP_EventDetails 
+  zp_fetch_api(fetch, URL|URLParams, [, ..])   // Will be parsed by ZP_EventDetails
+  zp_fetch_api(fetch, ZP_ApiRouter [, ..])     // If you created (or modified) ZP_ApiRouter earlier.
+  zp_fetch_api(fetch, ZP_EventDetails [, ..])  // If you created (or modified) ZP_EventDetails earlier.
   ```
-  zp_fetch_api(fetch, Event [, ..])            AnyEventType; will be parsed by ZP_EventDetails 
-  zp_fetch_api(fetch, URL|URLParams, [, ..])   will be parsed by ZP_EventDetails
-  zp_fetch_api(fetch, ZP_ApiRouter [, ..])     If you created (or modified) ZP_ApiRouter earlier.
-  zp_fetch_api(fetch, ZP_EventDetails [, ..])  If you created (or modified) ZP_EventDetails earlier.
-  ```
-  If set:
-  * data {*}: overrules auto-detected data to send. 
-  * method {string}: overrules auto-detected request-method. e.g. GET or POST.
-  * headers {object}: if you want to use custom headers.  
+  
+  - **data {*}**: overrules auto-detected data to send. 
+  - **method {string}**: overrules auto-detected request-method. e.g. GET or POST.
+  - **headers {object}**: if you want to use custom headers.  
 
 #### `ZP_ApiRouter` (Svelte and PHP)
   <br>Prepares the request (at Svelte) and destructs the route (at PHP) for `+.php`. 
@@ -339,46 +343,121 @@ The folder `/zpdemo/` is intended as full demo and debugger.
 ### .env Configuration
 - Auto-generated at both, development and build, if missing.
 - For production settings, use relative paths from the document root where the app will run.
-- Variables with prefix PUBLIC_ or ZEELTEPHP_ are exported to `/BUILD_DIR/api/zeeltephp/.env` to use in BUILD.
+- Variables with prefix PUBLIC_, VITE_ or ZEELTEPHP_ are exported to `/BUILD_DIR/api/zeeltephp/.env`.
 ```sh
 BUILD_DIR=myBuild
-      # development:    empty; not used
-      # build:          build is saved to /myZPproject/myBuild;
-      #    or:          ../myStageTest
-      # production:     mySITE;  Build-name to export/FTP and on to run on final-destination; 
-      #                          For export the folder can be any naming e.g. myExportBuild, as long it is renamed
-      #                          to as specified at BASE at its final destination to run your App e.g. mySITE
+      # development:  empty; not used
+      # build:        build is saved to /myZPproject/myBuild;
+      #    or:        ../myStageTest
+      # production:   mySITE;  Build-name to export/FTP and on to run on final-destination; 
+      #                        For export the folder can be any naming e.g. myExportBuild, as long it is renamed
+      #                        to as specified at BASE at its final destination to run your App e.g. mySITE
 
 BASE=/myZPproject/myBuild
       # development:    empty
-      # build:          /myZPproject/myBuild ; http://localhost/myZPproject/myBuild
-      #    or:          /myStageTest            ; http://localhost/myStageTest
-      # production:     /mySITE                 ; http://www.domain.com/mySITE
+      # build:          /myZPproject/myBuild; http://localhost/myZPproject/myBuild
+      #    or:          /myStageTest; http://localhost/myStageTest
+      # production:     /mySITE     ; http://www.domain.com/mySITE
+      #    in root:     /           ; http://www.domain.com/ 
 
-PUBLIC_ZEELTEPHP_BASE=/myBuild/api
+PUBLIC_ZEELTEPHP_BASE=/myZPproject/myBuild/api
       # development:    http://localhost/myZPproject/static/api/
       # build:          /myZPproject/myBuild/api/
       #    or:          /myStageTest/api/
       # production:     /mySITE/api/
+      #    in root:     /api/
 ```
 
-### Database Providers 
-- Optional; If specified in `.env`, the included /api/zeeltephp/lib/db/db.provider.php is available to use with `$db`.
+---
+
+### PHP
+
+#### PHP error log
+Errors are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` as long its allowed to be set via `ini_set('error_log')`.
+
+#### Globals
+These global variables are accessible from anywhere in your PHP code.
+- **$zpAR**: is class ZP_ApiRouter; 
+- **$env**:  The exported `.env` configuration. 
+- **$db**:   Database provider (if configured). Or use it for your custom shared DB-connection.
+
+## What Happens Behind the Scenes
+- ZeeltePHP executes your PHP files, handles routing, and sends the response as JSON.
+- For advanced usage, refer to the documentation in `zp.fetch.api.js` and the `ZP_Router` class.
+
+---
+
+### Database Provider 
+*experimental!  in development!*
+<br>There are currently 2 classes for MySQL and WordPress available. 
+<br>They can be used for any custom query and contain some helper methods for like basic CRUD operations.
+<br>Any attribute or method that is available at `mysqli` or `wp-load` can be used (magic getter and method forwarding).
+<br>
+<br>When `.env.ZEELTEPHP_DATABASE_URL` is set, ZeeltePHP uses the corresponding internal database provider class.
+
 ```sh
 ZEELTEPHP_DATABASE_URL=mysql2://username:password@hostname:port/database
 ZEELTEPHP_DATABASE_URL=wordpress://path/to/your/wp-load.php
 ```
 
-### PHP and Globals
-- You can use and of the globals at any of your methods.
-- **`PHP errors`** are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` if its allowed to be change: ini_set('error_log').
-- **`$zpAR`**: is class ZP_ApiRouter; 
-- **`$env`**: your `.env` configuration. 
-- **`$db`**: Database connector/plugin (if configured).
+```php
 
-## What Happens Behind the Scenes
-- ZeeltePHP executes your PHP files, handles routing, and sends the response as JSON.
-- For advanced usage, see the documentation in `src/zp.fetch.api.js` and `ZP_Router`.
+   function example_db_usage() {
+      global $db;
+
+      // optional connect
+      //   the connect() is automatically opened as soon any $db->METHOD() is called;
+      $db->connect();
+
+      // is there a connection ?
+      if ($db->connect()) {
+            // returns true or false on succes 
+            // returns true when connection is already open to avoid multiple connections.
+      }
+      if ($db->isConnected()) {
+            // returns true or false if i connected.
+      }
+
+      // just a query
+      $res = $db->query('SELECT * FROM ...'); 
+
+      // prepare data for CRUD operations
+      //  * $data must be an array key-value-list where key = column-name.
+      //  * The data gets prepared, santizid for matching key/columns. 
+      //  * non matching key/columns will be ignored.
+      $data = $_POST;
+
+      // insert data
+      //   returns the inserted ID on success;  false on failure
+      $insertedID = $db->insert('tableName', $data); 
+
+      // update data
+      //  returns true of false; 
+      //       true  on 1+ affected-rows
+      //       false on 0  affected-rows
+      //  * id, uuid are ignored if in $data
+      //  @param id is an array key-value-list of matchings combined with AND
+      $success = $db->update('tableName', ['id' => $id], $data);
+                        
+      // delete data
+      //  returns true of false; 
+      //       true  on 1+ affected-rows
+      //       false on 0  affected-rows
+      //  @param id is an array key-value-list of matchings combined with AND
+      $success = $db->delete('tableName', ['id' => $id]);
+
+      // the number of affected rows of last query
+      $accectedRows = $db->affected_rows;
+
+      // the error message of last query
+      $error = $db->last_error();
+
+      // optional disconnect
+      //   the connection is automatically closed at __destruct();
+      $db->close();
+
+   }
+```
 
 ---
 
