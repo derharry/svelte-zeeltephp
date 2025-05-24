@@ -10,9 +10,9 @@
 		"moduleResolution": "NodeNext"
 	},
 	"exclude": [
-	  "src/lib/templates/example.*",
-	  "src/lib/zeeltephp/**",
-	  "src/lib/zplib/**",
-	  "node_modules/**"
+		"src/lib/templates/example.*",
+		"src/lib/zeeltephp/**",
+		"src/lib_php/**",
+		"node_modules/**"
 	]
 }

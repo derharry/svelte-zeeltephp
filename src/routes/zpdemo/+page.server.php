@@ -8,7 +8,7 @@
 
 // inc.demo.zpdemo.php 
 //    phpfiles inside same route - include manually.
-//    put shared php files in $lib/zplib, they will be autoloaded.
+//    put shared php files in /src/lib_php/, they will be autoloaded.
 # include_once("inc.demo.zpdemo.php");
 
 # slowing down the fetch to take a break and a coffee 
