@@ -1,7 +1,7 @@
 
 export const tinyid = (size = 21) => {
 	const arr = new Uint8Array(size);
-	window.crypto.getRandomValues(arr);
+	crypto.getRandomValues(arr);
 	let e = "";
 	for (let i = 0; i < size; i++) {
 		let n = 63 & arr[i];
