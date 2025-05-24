@@ -12,7 +12,6 @@
       */
 
      // ZeeltePHP imports
-     import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
      import { tinyid } from "$lib/zeelte/tiny.id.js";
      import { zp_page_route } from "$lib/zeelte/zp.tools.js";
      import { zp_fetch_api } from "$lib/zeelte/zp.fetch.api.js";
@@ -20,6 +19,8 @@
      import { ZP_EventDetails } from "../zeelte/class.zp.eventdetails.js";
      import Loader from "../zeelte/Loader.svelte";
      import VarDump from "../zeelte/VarDump.svelte";
+     import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
+     //const PUBLIC_ZEELTEPHP_BASE = import.meta.env.PUBLIC_ZEELTEPHP_BASE;
 
      // svelte imports
      import { base } from "$app/paths";
@@ -29,6 +30,7 @@
 
      // style import
      import "./zpdev.css";
+
 
      // Props from parent +page.js
      export let data;

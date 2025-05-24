@@ -2,9 +2,9 @@
 import { dev }  from "$app/environment";
 import { base } from "$app/paths";
 import { page } from '$app/state';
-import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 import { ZP_EventDetails } from "./class.zp.eventdetails.js";
 import { zp_page_route } from "./zp.tools.js";
+import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 
 /**
  * Api for communication between Svelte <-> ZeeltePHP.
@@ -41,7 +41,7 @@ export class ZP_ApiRouter
       // --- Fetch preparation ---
 
       /** @type {string} Base API URL */
-      base_url = PUBLIC_ZEELTEPHP_BASE;
+      base_url = PUBLIC_ZEELTEPHP_BASE; // import.meta.env.PUBLIC_ZEELTEPHP_BASE
       /** @type {string|null} Final fetch URL */
       fetch_url = null;
       /** @type {string|null} Query string for fetch */
