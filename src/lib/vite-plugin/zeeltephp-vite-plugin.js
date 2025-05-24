@@ -1,57 +1,239 @@
-import { zeeltephp_loadEnv } from './zp-loadEnv.js';
-import { zeeltephp_postbuild } from './zp-post-build.js';
+// zp-env-plugin.js
+import { loadEnv } from 'vite';                 // used at zeeltephp_loadEnvironment()
+import { exec_task } from './zp.vite.tools.js'; // used at process_tasks()
+import path from 'path'; // used at postinstall(), postbuild(), zp_info
+import fs from 'fs';     // used at postinstall(), postbuild()
 
-// postbuild - shared state to avoid double execution of of postinstall at svelte-package
-let adapterStaticRuntimes = 0;
 
-/**
- * ZeeltePHP Vite Plugin
- * ---------------------
- * Integrates ZeeltePHP into Vite/SvelteKit projects by:
- * 1. Loading/generating environment variables
- * 2. Handling post-build operations for PHP integration
- * 
- * Usage in vite.config.js:
- * plugins: [zeeltephp(mode)]
- *
- * @param {string} mode - Vite mode (development/production)
- * @returns {import('vite').Plugin} Vite plugin object
- */
-//replaces previous versions: @/postinstall, @/trustedDependencies, @/zeeltephp-post-install.sh
+/** Environment configuration settings and defaults */
+const zp_info = {
+     MODE: {
+          mode:        null,
+          isDevMode:   false,
+          isBuildMode: false,
+          closeBundleRuntimes: 0,
+          projectName: path.basename(process.cwd()),
+     },
+     ENV_LOADED:   {},
+     ENV_DEFAULTS: {
+          BUILD_DIR: 'build-x',
+          BASE: '/build-x',
+          PUBLIC_ZEELTEPHP_BASE: '/build-x/api/'
+     },
+     PATHS: {
+          API:    process.env.ZP_IS_SELFENV ? './static/api/' : './node_modules/zeeltephp/dist/api/',
+          LIB:    './src/lib_php/',
+          ROUTES: './src/routes/'
+     },
+     POSTBUILD_TASKS: [
+          { name: 'API',    todo: 'copy',  dst: '/api',                   },
+          { name: 'LIB',    todo: 'copy',  dst: '/api/zeeltephp/lib_php', },
+          { name: 'ROUTES', todo: 'copy',  dst: '/api/zeeltephp/routes',  filter: '.php' },
+          { name: 'LOG',    todo: 'mkdir', dst: '/api/zeeltephp/log'      },
+          { name: 'ENV',    todo: 'file',  dst: '/api/zeeltephp/.env'     }
+     ],
+     POSTINSTALL_TASKS: [
+          { todo: 'mkdir',  dst: './php_log'     },
+          { todo: 'mkdir',  dst: './src/lib_php' },
+          { todo: 'copy',   dst: './src/routes/+layout.js', src: './node_modules/zeeltephp/dist/templates/src/routes/+layout.js' },
+          { todo: 'copy',   dst: './static/api',            src: './node_modules/zeeltephp/dist/templates/static/api' }
+     ]
+};
+
+
+
 export function zeeltephp(mode) {
-     try {
-          // Phase: Load environment variables early in the build process
-          // load environment variables here! because configResolved not happens at build time
-          zeeltephp_loadEnv(mode);
+     //console.log('🐘 ZeeltePHP plugin 🚀',);
+     
+     // load Environment here on Top-Level -- see Info-2025.05.24 for details
+     zeeltephp_loadEnvironment('init', mode);
+     
+     return {
+          name: 'zeeltephp-vite-plugin',
 
-          return {
-               name: 'zeeltephp-vite-plugin',
-               
-               /**
-                * Vite config resolved hook (optional future use)
-                */
-               configResolved(resolvedConfig) {
-                    // Reserved for future configuration adjustments
-               },
+          config(config, { mode, command }) {
+               /*
+                    2025.05.24 - Info  - load the .env-file via 'mode' instead at Top-Level
+                    -- zeeltephp_loadRealEnv(mode);
+                    I want to load the .env configuration file from here, so its not required to pass 'mode' from vite.config.js. 
+                    Unfortunatally this is not possible (or could not find the solution). 
+                    As per design, config() and configResolved() is loaded after SvelteKit evaluated svelte.config.js and then vite.config.js. 
+                    For the time beeing - keep 'mode' passed untill we find another solution.
+               */
+               zp_info.MODE.mode        = mode;
+               zp_info.MODE.isDevMode   = command === 'serve';
+               zp_info.MODE.isBuildMode = command === 'build';
+               zeeltephp_loadEnvironment('config', mode);
 
-               /**
-                * Post-build handler for PHP integration
-                */
-               closeBundle: {
-                    sequential: true,
-                    order: 'post',
-                    async handler() {
-                         // Phase : Run post-build operations after final bundle
-                         if (++adapterStaticRuntimes === 2) {
-                              // Prevent duplicate execution in multi-build scenarios
-                              // (SvelteKit adapter-static typically calls closeBundle twice)
-                              zeeltephp_postbuild();
-                         }
+               // run the installer at runtime instead package.json/postinstall
+               //   - otherwise trustedDependencies, as for bun, is required.
+               if (!process.env.ZP_IS_SELFENV)
+                    zeeltephp_postinstall();
+          },
+          //configResolved(resolvedConfig) {
+               // not used yet, but I keep it for maybe in future
+          //},
+          closeBundle: {
+               sequential: true,
+               order: 'post',
+               async handler() {
+                    if (zp_info.MODE.isBuildMode && ++zp_info.MODE.closeBundleRuntimes === 2) {
+                         zeeltephp_postbuild();
                     }
                }
           }
+     };
+}
+
+function zeeltephp_loadEnvironment(state, mode) {
+     if (state == 'init') {
+
+          // Already loaded ?
+          if (process.env?.ZP_ENV_IS_SET) return;
+          process.env.ZP_ENV_IS_SET = true;
+
+          // Printer intro / header
+          console.log();
+          console.log('🐘 ZeeltePHP environment', mode || '');
+
+          // Load the .env config
+          if (mode == null && !process.env.ZP_ENV_LOADED) {
+               console.log(`   🚨  'mode' is missing or undefined`);
+               console.log(`       - if you want your .env config loaded, 'mode' needs to be passed from vite.config.js`);
+               console.log(`       - if you have your .env config loaded earlier, add 'ZP_ENV_LOADED=true' to avoid this message.`);
+               console.log();
+          }
+          else if (!process.env.ZP_ENV_LOADED) {
+               // -- debug -- console.log('🐘🚀🚨 mode should be zp:', mode);
+               // Load the correct .env file for the mode
+               zp_info.ENV_LOADED = loadEnv(mode, process.cwd(), '');
+               Object.assign(process.env, zp_info.ENV_LOADED); // Merge into process.env for universal access
+          }          
+     }
+
+     const projectName = path.basename(process.cwd());
+     const isDevMode   = zp_info.MODE.isDevMode;
+     const buildDir    = process.env.BUILD_DIR || zp_info.ENV_DEFAULTS.BUILD_DIR;
+     //console.log('🐘 ZeeltePHP environment', isDevMode, mode || '');
+
+     // Generate and set the defaults at both states init,config
+     zp_info.ENV_DEFAULTS = {
+          BUILD_DIR: isDevMode ? '' :  buildDir,
+          BASE:      isDevMode ? '' : `/${projectName}/${buildDir}`,
+          PUBLIC_ZEELTEPHP_BASE: isDevMode
+               ? `http://localhost/${projectName}/static/api/`
+               : `/${projectName}/${buildDir}/api/`
+     };
+
+     // Set defaults and print the .env vars (set if not already present from .env)
+     for (const [key, value] of Object.entries(zp_info.ENV_DEFAULTS)) {
+
+          // At init set the current defaults to process.env and if not already present.
+          //    - Just in case, so mode dev|build can proceed.
+          if (state == 'init' && !process.env[key]) {
+               process.env[key] = value;
+          }
+
+          // At config - log the present or generated variable to CLI and set to process.env
+          //   - if the variable have been loaded earlier, its present in both process.env,ENV_LOADED
+          if (state == 'config') {
+               if (process.env[key] && zp_info.ENV_LOADED[key]) {
+                    console.log(`      ${key} = ${process.env[key]}`);
+               }
+               else {
+                    console.log(`    * ${key} = ${value}`);
+                    process.env[key] = value;
+               }
+          }
+     }
+
+     // Print a empty line for nice CLI output after printing the .env vars
+     if (state == 'config') console.log();
+}
+
+function zeeltephp_postinstall() {
+     try {
+          // Prepare tasks
+          const tasksTodo = [];
+          for (const task of zp_info.POSTINSTALL_TASKS) {
+               const cpRoot = process.cwd();
+               let realDst  = path.join(cpRoot, task.dst);
+               if (!fs.existsSync(realDst))
+                    tasksTodo.push(task);
+          }
+
+          // Execute the prepared tasks
+          if (tasksTodo.length > 0) { 
+               console.log('🐘 ZeeltePHP - postinstall ');
+               process_tasks(tasksTodo, '');
+          }
+          
      } catch (error) {
-          console.error('🐘❌ ZeeltePHP Plugin Error: ', error);
+          console.error('🐘❌ postinstall error ')
+          throw error; // Ensure install fails on critical errors
+     }
+}
+
+function zeeltephp_postbuild() {
+     try {
+          console.log();
+          console.log(`🐘 ZeeltePHP - postbuild`);
+
+          // Set .env file content into task.src 
+          //   - hard-coded index from postbuild tasks ENV
+          //   - export all BASE, VITE_, PUBLIC_, ZP_, ZEELTEPHP_
+          const indexOfTaskEnv = 4;
+          zp_info.POSTBUILD_TASKS[ indexOfTaskEnv ].src = Object.entries(process.env)
+               .filter(([key]) => key.startsWith('BASE') || key.startsWith('PUBLIC_') || key.startsWith('ZEELTEPHP_'))
+               .map(([key, value]) => key === 'BASE' ? `PUBLIC_BASE=${value}` : `${key}=${value}`)
+               .join('\n');
+
+          // Remove first task when ZP_IS_SELFENV
+          //   - for the time beeing, let to fail - to check the CLI output for styling and that X works ;-)
+          // -- if (process.env.ZP_IS_SELFENV == true) 
+          // --     delete zp_info.POSTBUILD_TASKS[0];
+          // --     array_shift(zp_info.POSTBUILD_TASKS);
+
+          // Execute tasks
+          //   - the BUILD_DIR should be in process.env by now. Should be the same as in zp_info.ENV_CONFIG.BUILD_DIR
+          if (process_tasks(zp_info.POSTBUILD_TASKS, process.env.BUILD_DIR, true))
+               console.log('🚀 done');
+          else console.log('🚨 done with problems');
+          console.log();
+
+     } catch (error) {
+          console.error('🐘❌ postbuild error ')
           throw error; // Ensure build fails on critical errors
      }
+}
+
+function process_tasks(tasks, intoDir, verbose = false) {
+     let allSuccess = true;
+
+     // Execute tasks
+     for (const task of tasks) {
+
+          // Set src
+          if (zp_info.PATHS[task.name])
+               task.src = zp_info.PATHS[task.name];
+          else task.src = task.src || '';
+
+          // Set dst
+          task.dst = intoDir + task.dst;
+
+          // Execute
+          const result = exec_task(
+               task.title  || '   ',
+               task.dst,
+               task.todo,
+               task.src    || '',
+               task.dst,
+               task.filter || (() => true),
+               verbose
+          );
+
+          if (!result) 
+               allSuccess = false;
+     }
+     return allSuccess;
 }
