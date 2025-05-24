@@ -77,12 +77,11 @@ export function zeeltephp(mode) {
                sequential: true,
                order: 'post',
                async handler() {
+                    // Count the closeBundleRuntimes via process.env (string!)
+                    //   - while in ZP_IS_SELFENV zp_info is re-initialized at build
                     if (!process.env.ZP_CLOSE_BUNDLE_RUNTIMES)
                          process.env.ZP_CLOSE_BUNDLE_RUNTIMES = 0;
                     process.env.ZP_CLOSE_BUNDLE_RUNTIMES++;
-                    console.log();
-                    console.log('🐘 ZeeltePHP postbuild check 🚨', zp_info.MODE.isBuildMode, process.env.ZP_CLOSE_BUNDLE_RUNTIMES)
-                    console.log();
                     if (zp_info.MODE.isBuildMode && process.env.ZP_CLOSE_BUNDLE_RUNTIMES === '2') {
                          zeeltephp_postbuild();
                     }
