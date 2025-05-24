@@ -11,10 +11,10 @@ function zeeltephp_loadRunEnvironment() {
      if (is_file('.env')) {
           define('ZP_ENV',        'production');
           define('PATH_CPROOT',   str_replace('\\', '/', realpath(getcwd().'/../..')));
-          define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/php_log/');
-          define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/zproutes/');
-          define('PATH_ZPLOG',    PATH_CPROOT.'/api/zeeltephp/log/');
           define('PATH_ZPAPIPHP', PATH_CPROOT.'/api/');
+          define('PATH_ZPLOG',    PATH_CPROOT.'/api/zeeltephp/php_log/');
+          define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/lib_php/');
+          define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/zproutes/');
      }
      // Development Environment Setup 
      else {
@@ -26,10 +26,10 @@ function zeeltephp_loadRunEnvironment() {
           zp_log_debug('ZP_ENV:        '.ZP_ENV, true); // Reset log file
           zp_log_debug('PATH_INIT:     '.PATH_INIT); 
           zp_log_debug('PATH_CPROOT:   '.PATH_CPROOT);
+          zp_log_debug('PATH_ZPAPIPHP: '.PATH_ZPAPIPHP);
+          zp_log_debug('PATH_ZPLOG:    '.PATH_ZPLOG);
           zp_log_debug('PATH_ZPLIB:    '.PATH_ZPLIB);
           zp_log_debug('PATH_ZPROUTES: '.PATH_ZPROUTES);
-          zp_log_debug('PATH_ZPLOG:    '.PATH_ZPLOG);
-          zp_log_debug('PATH_ZPAPIPHP: '.PATH_ZPAPIPHP);
      }
 }
 
@@ -82,10 +82,10 @@ function zp_loadRunEnvironmentDev() {
      // Define Constants
      define('ZP_ENV',         $envType);
      define('PATH_CPROOT',    $consumerRoot.'/');
-     define('PATH_ZPLIB',    "$consumerRoot/src/lib/php_log/");
-     define('PATH_ZPROUTES', "$consumerRoot/src/routes/");
-     define('PATH_ZPLOG',    "$consumerRoot/php_log/");
      define('PATH_ZPAPIPHP', "$consumerRoot/$apiPath/");
+     define('PATH_ZPLOG',    "$consumerRoot/php_log/");
+     define('PATH_ZPLIB',    "$consumerRoot/src/lib_php/");
+     define('PATH_ZPROUTES', "$consumerRoot/src/routes/");
 
      // PHP Configuration
      ini_set('error_log', PATH_ZPLOG.'php_errors.log');

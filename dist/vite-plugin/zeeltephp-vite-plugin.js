@@ -11,13 +11,13 @@ const zp_info = {
           mode:        null,
           isDevMode:   false,
           isBuildMode: false,
-          closeBundleRuntimes: 0,
+          //closeBundleRuntimes: 0,
           projectName: path.basename(process.cwd()),
      },
      ENV_LOADED:   {},
      ENV_DEFAULTS: {
-          BUILD_DIR: 'build-x',
-          BASE: '/build-x',
+          BUILD_DIR:  'build-x',
+          BASE:      '/build-x',
           PUBLIC_ZEELTEPHP_BASE: '/build-x/api/'
      },
      PATHS: {
@@ -27,9 +27,9 @@ const zp_info = {
      },
      POSTBUILD_TASKS: [
           { name: 'API',    todo: 'copy',  dst: '/api',                   },
+          { name: 'LOG',    todo: 'mkdir', dst: '/api/zeeltephp/php_log'  },
           { name: 'LIB',    todo: 'copy',  dst: '/api/zeeltephp/lib_php', },
           { name: 'ROUTES', todo: 'copy',  dst: '/api/zeeltephp/routes',  filter: '.php' },
-          { name: 'LOG',    todo: 'mkdir', dst: '/api/zeeltephp/log'      },
           { name: 'ENV',    todo: 'file',  dst: '/api/zeeltephp/.env'     }
      ],
      POSTINSTALL_TASKS: [
@@ -77,7 +77,13 @@ export function zeeltephp(mode) {
                sequential: true,
                order: 'post',
                async handler() {
-                    if (zp_info.MODE.isBuildMode && ++zp_info.MODE.closeBundleRuntimes === 2) {
+                    if (!process.env.ZP_CLOSE_BUNDLE_RUNTIMES)
+                         process.env.ZP_CLOSE_BUNDLE_RUNTIMES = 0;
+                    process.env.ZP_CLOSE_BUNDLE_RUNTIMES++;
+                    console.log();
+                    console.log('🐘 ZeeltePHP postbuild check 🚨', zp_info.MODE.isBuildMode, process.env.ZP_CLOSE_BUNDLE_RUNTIMES)
+                    console.log();
+                    if (zp_info.MODE.isBuildMode && process.env.ZP_CLOSE_BUNDLE_RUNTIMES === '2') {
                          zeeltephp_postbuild();
                     }
                }
