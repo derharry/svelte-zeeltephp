@@ -16,8 +16,8 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
 
 [TOC]: # "## Table of Contents"
 ## Table of Contents
-- [Installation](#instalation)
-  - [Quick start](#instalation)
+- [Installation](#installation)
+  - [Quick start](#quick-start)
   - [Minimum Requirements](#minimum-requirements)
   - [Example Environments](#example-environments)
   - [Uninstall](#uninstall)
@@ -33,7 +33,10 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [.env Configuration](#env-configuration)
   - [Key Methods, Classes & Components](#key-methods-classes--components)
   - [Database Providers](#database-providers)
-  - [PHP and globals](#php-and-globals)
+  - [PHP](#php)
+    - [Globals](#globals)
+    - [Lib](#lib)
+    - [Database Provider](#database-provider)
 - [Release Notes & Roadmap](#release-notes--roadmap)
 
 ---
@@ -283,10 +286,12 @@ export async function load({ fetch, url }) {
 - Copy `/zpdemo` into your `/routes` and see if it works.
 - Start using `zp_fetch_api()`, `ZP_EventDetails(event)`, and `ZP_ApiRouter()`.
 
+
 ### ZeeltePHP Vite Plugin `zeeltephp(mode)`
 - Loads the `.env` file and generates missing variables.
 - Creates the required key-paths.
 - Finalizes the build/api/ with your PHP files after SvelteKit has finished the build.
+
 
 ### Key Paths
 - `/src/lib/lib_php/` → `/BUILD/api/lib_php`
@@ -297,6 +302,7 @@ export async function load({ fetch, url }) {
   <br> Entry point for ZeeltePHP API by zp_fetch_api().
 - `/php_lib`, `/BUILD/api/php_lib/`
   <br> PHP errors are logged here.
+
 
 ### .gitignore Example
 ```sh
@@ -375,21 +381,17 @@ PUBLIC_ZEELTEPHP_BASE=/myZPproject/myBuild/api
 #### PHP error log
 Errors are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` as long its allowed to be set via `ini_set('error_log')`.
 
+
 #### Globals
 These global variables are accessible from anywhere in your PHP code.
+
 - **$zpAR**: is class ZP_ApiRouter; 
 - **$env**:  The exported `.env` configuration. 
 - **$db**:   Database provider (if configured). Or use it for your custom shared DB-connection.
 
-## What Happens Behind the Scenes
-- ZeeltePHP executes your PHP files, handles routing, and sends the response as JSON.
-- For advanced usage, refer to the documentation in `zp.fetch.api.js` and the `ZP_Router` class.
-
----
-
-### Database Provider 
-*experimental!  in development!*
-<br>There are currently 2 classes for MySQL and WordPress available. 
+#### Database Provider 
+***experimental!  in development!***
+<br>There are currently 2 classes for MySQL and WordPress available at `/api/zeeltephp/lib/db`. 
 <br>They can be used for any custom query and contain some helper methods for like basic CRUD operations.
 <br>Any attribute or method that is available at `mysqli` or `wp-load` can be used (magic getter and method forwarding).
 <br>
@@ -458,6 +460,32 @@ ZEELTEPHP_DATABASE_URL=wordpress://path/to/your/wp-load.php
 
    }
 ```
+
+#### Lib
+At `/api/zeeltephp/lib/` you’ll find a collection of useful helper methods.
+<br>To use them you have to include them in your PHP code.
+<br>Currently:
+
+- **merge_key_value_list(array $src, array $insert): array** 
+  <br>`include_once('lib/inc/tools.php');`
+  <br>returns a merged key-value-list by copying the values from $insert matching the keys from $src.
+  <br>e.g.:  $list = merge_key_value_list( $toUpdate, $_POST );
+
+- **zp_scandir($path, $regExp = null): array** 
+  <br>`include_once('lib/io/io.dir.php');`
+  <br>returns a list of files and folders within the path. Use a RegExp like '.php$' for name mathing.
+
+- **zp_scandirRecursiveDown($path, $regExp = null, $maxDepth = 1): array** 
+  <br>`include_once('lib/io/io.dir.php');`
+  <br>returns a list of files and folders, recursive downwards, with relative paths starting from given path. 
+  <br>By default only 1 level down.
+  <br>Use a RegExp like '.php$' for name mathing.
+
+- **zp_scandirRecursiveUp($path, $regExp = null, $maxDepth = 1): array**  
+  <br>`include_once('lib/io/io.dir.php');`
+  <br>returns a list of files and folders, recursive upwards, with relative paths starting from given path. 
+  <br>By default only 1 level up, which is similar to zp_scandir('..'); but $maxDepth = 2 is '..' and '../..';
+  <br>Use a RegExp like '.php$' for name mathing.
 
 ---
 
