@@ -102,6 +102,9 @@ export function copyRecursiveSync(src, dest, filter = () => true) {
 }
 
 /*
+// icons
+// 🐘 ✅ ✔ ❌ 🚀 ⚠️ 🚨 📁 ⚙️ ✔️ ← →
+
      try {
      } catch (error) {
           console.error('🐘❌ ZeeltePHP Plugin Error: ', error);

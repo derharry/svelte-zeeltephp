@@ -79,7 +79,7 @@
           $json = zp_change_full_paths_to_zp_relative($json);
 
           // Log error
-          error_log($json . "\n", 3, PATH_ZPLOG.'/error.log');
+          error_log($json . "\n", 3, PATH_ZPLOG.'error.log');
 
           // Output error JSON
           echo $json;
@@ -94,7 +94,7 @@
           // if $content is not string - convert to json
           if (is_array($content) || is_object($content)) 
                $content = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES, 3);
-          error_log($content."\n", 3, PATH_ZPLOG.'log/log.log');
+          error_log($content."\n", 3, PATH_ZPLOG.'log.log');
      }
 
      /**
@@ -106,6 +106,7 @@
      function zp_log_debug($content, $restart = false) {
           if (defined('ZP_DEBUG') && ZP_DEBUG !== true) return;  // exit when dugging not activated
           $file = PATH_ZPLOG."zp_debug.log";  // set the file name
+          
           // Restart log if requested
           if ($restart && is_file($file)) {
                file_put_contents($file, date("Y-m-d H:i:s")."\n");
@@ -117,9 +118,11 @@
           } else if (!is_file($file)) {
                touch($file);   // create file
           }
+
           // if $content is not a string - convert to json (for now)
           if (is_array($content) || is_object($content)) 
                $content = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES, 3);
+
           error_log($content."\n", 3, $file);
      }
 

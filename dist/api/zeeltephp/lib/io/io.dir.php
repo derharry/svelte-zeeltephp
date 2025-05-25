@@ -47,6 +47,7 @@
             if (!is_dir($path)) return false;
             foreach (zp_scandir($path, $regExp) as $file) {
                   $files[] = $file;
+                  $fullPath = "$path/$file";
                   if (is_dir($fullPath) && ($maxDepth < 0 || $_depth < $maxDepth)) {
                         $subFiles = zp_scandirRecursiveDown($fullPath, $regExp, $maxDepth, $_depth + 1);
                         if (is_array($subFiles))

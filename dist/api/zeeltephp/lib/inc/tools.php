@@ -8,7 +8,7 @@
        * @param array $insert The array with replacement values
        * @return array        The merged array
        */
-      function merge_key_value_lists(array $src, array $insert): array {
+      function merge_key_value_list(array $src, array $insert): array {
             foreach ($src as $key => $val) {
                   if (array_key_exists($key, $insert)) {
                         $src[$key] = $insert[$key];

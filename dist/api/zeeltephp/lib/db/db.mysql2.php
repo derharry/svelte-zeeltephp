@@ -182,14 +182,17 @@ class ZeeltePHP_DB_MySQL2 {
                }
           }
 
-          public function select(string $table) {
+          /*
+          public function select(string $table, array $where, array $fields) {
                if ($this->connect()) {
                     $this->get_table_schema($table);
-                    $sql = "SELECT * FROM $table";
-                    return $this->query($sql);
+                    //$sql = "SELECT * FROM $table";
+                    //return $this->query($sql);
+                    return 'currently not implemented';
                }
                return false;
           }
+          */
                
           /**
            * Inserts a record into the specified table.
