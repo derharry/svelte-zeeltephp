@@ -173,6 +173,7 @@
       * @param e Event object
       */
      function handle_btnAction(e = null) {
+          e.preventDefault();
           init_ZPDev(e);
           promise_fetch = zp_fetch_api(fetch, zpAR_svelte)
                .then((dataX) => { data = dataX; })
