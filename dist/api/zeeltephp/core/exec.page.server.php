@@ -16,16 +16,17 @@
           // Include the +page.server.php from route
           include($zpAR->routeFile);
 
-          // Handle GET/POST requests without specific action
-          if (empty($zpAR->action)) {
-               if (!function_exists('load')) {
-                    throw new Error(801); // 801 no load() function
-               }
-               return $data = load();
-          }
+          // Normalize: treat string "null" as null
+          $action = $zpAR->action;
+          if ($action === "null")
+               $action = null;
+          if (is_string($action) && !str_starts_with($action, '?/'))
+               $action = null;
 
           // Handle actions
-          if ($zpAR->action) {
+          if (is_string($action) && str_starts_with($action, '?/')) {
+
+               zp_log($action.':'.gettype($action).':'.json_encode($action));
                
                // Remove action prefix ?/
                $action = str_replace('?/', '', $zpAR->action); // preg_replace('/^\\?\\//', '', $zpAR->action); 
@@ -45,6 +46,19 @@
                
                // No valid handler found
                throw new Error(802); // 802 = No action handler
+
+          }
+
+          // Handle GET/POST requests without specific action
+          else {
+
+               zp_log('load!'.':'.$action.':'.gettype($action).':'.json_encode($action));
+
+               if (!function_exists('load')) {
+                    throw new Error(801); // 801 no load() function
+               }
+
+               return $data = load();
 
           }
      }

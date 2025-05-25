@@ -130,6 +130,13 @@ class ZP_ApiRouter
           //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {}
           else
                $this->log('ZP unsuxxpported method :'.$_SERVER['REQUEST_METHOD']);
+
+          // Normalize: treat string "null" as null
+          if ($this->action === "null")
+               $this->action = null;
+          if (is_string($this->action) && !str_starts_with($this->action, '?/'))
+               $this->action = null;
+
           // Clean up route slashes
           $this->route = str_replace('//', '/', $this->route ?? '');
      }
