@@ -1,78 +1,63 @@
 <?php
 
-/**
- * execute the +page.server.php file
- * @param {any} $data    data from earlier +.php files in route till +page.server.php 
- */
-function zp_exec_pageserverphp() {
-     global $zpAR, $data;
-     // -- todo comeback of logging messages - zp_log_debug($zpAR->routeFile);
+     /**
+      * Executes the +page.server.php file and handles route actions.
+      * 
+      * @global ZP_ApiRouter $zpAR 
+      * @global mixed        $data Data from previous server +.php files in route
+      * 
+      * @return mixed Response data from executed action or load function
+      * @throws Error If no valid handler is found (801, 802, 501)
+      */
+     function zp_exec_pageServerPHP() {
+          global $zpAR, $data;
+          zp_log_debug('zp_exec_pageServerPHP()');
 
-     // # include +page.server.php
-     include($zpAR->routeFile);
+          // Include the +page.server.php from route
+          include($zpAR->routeFile);
 
-     // we use states :string for internal knowing what we are doing / where we are.
-     $state = 'init';
+          // Normalize: treat string "null" as null
+          $action = $zpAR->action;
+          if ($action === "null")
+               $action = null;
+          if (is_string($action) && !str_starts_with($action, '?/'))
+               $action = null;
 
-     // # execute load or actions
-     if (is_null($zpAR->action)) {
+          // Handle actions
+          if (is_string($action) && str_starts_with($action, '?/')) {
+               
+               // Remove action prefix ?/
+               $action = str_replace('?/', '', $zpAR->action); // preg_replace('/^\\?\\//', '', $zpAR->action); 
 
-          // if no zpAR->action defined -> exec load()
-          $state = 'load?';
-          if (function_exists('load')) {
-               $state = 'load()'; 
-               $data = load();
-          } else {
-               $state = 'no-load';
-               throw new Error(801);
+               // Try outside action handler first (action_FOO())
+               $outsideActionHandler = 'action_' . $action;
+               if (function_exists($outsideActionHandler)) {
+                    // exec action_ACTION
+                    return $data = $outsideActionHandler($zpAR->value);
+               }
+
+               // Fallback to general actions() handler
+               if (function_exists('actions')) {
+                    // exec actions($action, $value, $data)
+                    return actions($action, $zpAR->value, $zpAR->data);
+               }
+               
+               // No valid handler found
+               throw new Error(802); // 802 = No action handler
+
           }
-     }
-     else if ($zpAR->action) {
 
-          // we go for actions
-          $state = 'action?';
-
-          // # check for outside/custom action first
-          //      function action_ACTION()
-          //      so it has not to be in like actions() switch ($action) case 'ACTION';
-          $action_name_stripped = str_replace('?/', '', $zpAR->action);  // remove ?/ 
-          $action_function_name = 'action_'.$action_name_stripped;       // real function name
-
-          if (function_exists($action_function_name)) {
-               // exec action_ACTION
-               $state = 'action-outside '.$action_function_name;
-               $data = $action_function_name($zpAR->value);
-          } 
-          else if (function_exists('actions')) {
-               // exec actions($action, $value, $data)
-               $state = 'actions '.$zpAR->action;
-               $data = actions($action_name_stripped, $zpAR->value, $zpAR->data);
-          }
+          // Handle GET/POST requests without specific action
           else {
-               // uuiiii - no action found
-               //    return 'No response of load() or action(?/action) :'.$action_response;
-               throw new Error(802);
+
+               if (!function_exists('load')) {
+                    throw new Error(801); // 801 no load() function
+               }
+
+               return $data = load();
+
           }
      }
-     else {
-          throw new Error(501);
-     }
-
-     //return $state;
-     return $data;
-
-     /*
-     }
-     catch (Exception $exp) {
-          zp_log_debug(' !! '.$exp->getMessage());
-          zp_handle_error($exp);
-          return $exp->getMessage();
-     }
-     finally {
-          zp_log_debug('//'.$zpAR->routeFile);
-     }
-     */
-}
 
 
 ?>
