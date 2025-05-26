@@ -9,13 +9,9 @@ const config = {
 			pages: process.env.BUILD_DIR,
 			assets: process.env.BUILD_DIR,
 		}),
-		prerender: {
-			entries: ['*']
-		},
 		paths: {
 			base: process.env.BASE
 		}
-	},
-	trailingSlash: 'always'
+	}
 };
 export default config;

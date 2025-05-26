@@ -5,8 +5,8 @@ import { zeeltephp } from 'zeeltephp/vite-plugin';
 export default defineConfig(({ mode }) => {
       return {
             plugins: [
-                  sveltekit(), 
-                  zeeltephp(mode)
+                  zeeltephp(mode),
+                  sveltekit(),
             ]
       };
 });
