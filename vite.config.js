@@ -1,6 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-import { zeeltephp } from '$lib/vite-plugin/zeeltephp-vite-plugin.js';
+import { zeeltephp } from './src/lib/vite-plugin/zeeltephp-vite-plugin.js';
+
 
 export default defineConfig(({ mode }) => {
 
@@ -9,8 +10,8 @@ export default defineConfig(({ mode }) => {
 
 	return {
 		 plugins: [
-			  sveltekit(), 
-			  zeeltephp(mode)
+			  zeeltephp(mode),
+			  sveltekit()
 		 ],
 		 // The request url "C:\Users\harry\xCode\www\svelte-zeeltephp\dist\index.js" is outside of Vite serving allow list.
 		 server: {

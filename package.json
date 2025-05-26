@@ -1,7 +1,7 @@
 {
 	"name": "zeeltephp",
-	"version": "1.0.2",
-	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files, aka `+page.server.php`.",
+	"version": "1.0.3",
+	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files `+page.server.php`.",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
@@ -13,14 +13,14 @@
 		"prepack": "npm run zp-01-create-dist && npm run zp-02-copy-distApi && npm run zp-03-cleanup-dist",
 		"zp-01-create-dist": "svelte-kit sync && svelte-package && publint",
 		"zp-02-copy-distApi": "npx cpy-cli './static/api/**/*.{php,.htaccess}' ./dist/api",
-		"zp-03-cleanup-dist": "npx del-cli ./dist/zplib"
+		"zp-03-cleanup-dist": "npx del-cli ./dist/lib_php"
 	},
 	"files": [
 		"dist",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*",
-		"!dist/zplib",
-		"!src/lib/zplib"
+		"!dist/lib_php",
+		"!src/lib_php"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -55,7 +55,7 @@
 		"vite": "^6.3.5"
 	},
 	"keywords": [
-		"svelte php adapter-static"
+		"svelte sveltekit adapter-static php"
 	],
 	"dependencies": {
 		"@picocss/pico": "^2.1.1"
