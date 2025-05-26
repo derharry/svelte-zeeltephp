@@ -10,6 +10,7 @@ type VarDump = SvelteComponent<{
     maxDepth?: number;
     cssStyle?: string;
     dumpConsole?: boolean;
+    noBorder?: boolean;
 }, {
     [evt: string]: CustomEvent<any>;
 }, {}> & {
@@ -26,6 +27,7 @@ declare const VarDump: $$__sveltets_2_IsomorphicComponent<{
     maxDepth?: number;
     cssStyle?: string;
     dumpConsole?: boolean;
+    noBorder?: boolean;
 }, {
     [evt: string]: CustomEvent<any>;
 }, {}, {}, string>;

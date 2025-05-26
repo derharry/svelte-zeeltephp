@@ -1,180 +1,205 @@
 <?php
-// import ENV for PUBLIC_ZEELTEPHP_BASE
-// import ENV for BASE
-// import JSON via 
 
-
-
+/**
+ * ZP_ApiRouter for PHP environment.
+ * Parses requests from Svelte's ZP_ApiRouter and checks for +.php files.
+ */
 class ZP_ApiRouter
 {
 
-      // ZP_ApiRouter Svelte + PHP
-      public $route ;
-      public $action;
-      public $value ;
-      public $data  ;
+     //#region Svelte/SSR Routing Properties
 
-      // PHP SSR specific
-      public $environment = null; // 'dev | build'; 
-      public $method      = 'GET';
-      public $routeFileExist = false;
-      public $routeFile   = '/';
-      public $routePath   = '/';
-      public $routeBase   = '/';
-      public $routeBaseApi= '/';
-      public $headers     = null;
-      public $error       = null;
-      public $message     = null;
-      public $xxx         = null;
+          /** @var string|null Route string (e.g. /foo/bar/) */
+          public $route;
 
-      function Dump() {
-            var_dump($this);
-      }
+          /** @var string|null Action string (e.g. ?/ACTION) */
+          public $action;
 
-      /**
-       * read and parse ENVIRONMENT
-       * read and parse headers/method/content-type/..
-       *     GET, POST, PUT, ... json/formData/...
-       * get route, method, action, value, data
-       * @param ZP_ENV .env 
-       */
-      function __construct($env) {
-               // deparse the request @zeelte:api 
-               $this->parse_zprequest();
-               // set env
-               $this->environment  = ZP_ENV;        // from zeeltephp_loadEnv();
-               $this->routeBase    = PATH_ZPROUTES; // from zp-paths.php
-               $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
-               
-               // check route -and replace BASE !tmpfix-001
-               $this->check_route($env['PUBLIC_BASE']);
-            // collect routes for +page.server.php, +api.php, +server.php, ..
-            // routes found? yes or no
-            // exec_route
-            return;
-      }
+          /** @var mixed Action value */
+          public $value;
 
-      function check_route($replaceBaseRoute) {
-          // do we have a route?
-          if (!$this->route) {
-               $error   = true;
-               $message = "request route is missing."; 
-               return;
-          }
-          $phpFiles = [
-                '+page.server.php', //'+api.php', //'+server.php',
-          ];
-          // check environment
-          // check direct paths
-          // if no scandir and recheck
-          // done
-          // first check direct paths as presuming we are in production
+          /** @var mixed Additional data */
+          public $data;
 
-          // support /src/routes/**/+page.server.php only for now.
-          // !! tmpFix-001-v103-Routing-zp_route counterpart PHP - replace BASE zp_route. 
-          $this->route = str_replace($replaceBaseRoute, '', $this->route);  
-          
-          // v1.0.2 overhoul
-          $zp_route      = str_replace('//', '/', $this->route);
-          $zp_routeBase  = $this->routeBase;
-          $zp_routeBase  = str_replace('/api/', '/', $zp_routeBase);
-          $routeFile     = $zp_routeBase . $zp_route . '+page.server.php';
-          $this->routeFile = $routeFile;
-          $this->routeFileExist = is_file($this->routeFile);
-          if (!$this->routeFileExist) {
-               // route not found? is it in a (sub)/structure?
-               // currently 1-level is supported 
-               $paths = zp_scandir($zp_routeBase);
-               foreach ($paths as $_) {
-                    //echo "$_\n";
-                    if (
-                         str_contains($_, '/+page.server.php')
-                         && str_starts_with($_, '(')
-                         && str_contains($_, $zp_route)
-                    ) {
-                         $routeFile = $zp_routeBase .'/'. $_;
-                         $this->routeFile = $routeFile;
-                         $this->routeFileExist = is_file($this->routeFile);
-                         if (is_file($routeFile)) break; // skip when found
-                    }
+     //#endregion
+
+     //#region PHP SSR specific
+
+          /** @var string Environment name ('development', 'library', 'self-development') */
+          public $environment = ZP_ENV;
+
+          /** @var string HTTP request method */
+          public $method = 'GET';
+
+          /** @var string|null used content-type */
+          public $contentType = null;
+
+          /** @var bool Whether a +page.server.php file exists for the route */
+          public $routeFileExist = false;
+
+          /** @var string Path to the matched +page.server.php file */
+          public $routeFile = '/';
+
+          /** @var string Base path for routes */
+          public $routeBase = PATH_ZPROUTES;
+
+          /** @var string Base API path */
+          public $routeBaseApi = '/';
+
+          /** @var array|null HTTP headers */
+          public $headers = null;
+
+          /** @var string|null deprecated. Last error message */
+          public $error = null;
+
+          /** @var string|null Last debug message */
+          public $last_message = null;
+
+          /** @var array List of matched +.php files in the route */
+          public $routeFiles = [];
+
+          /** @var bool activate dbg_msgs to get all messages */
+          public $debug = false;
+
+          /** @var array Debug messages */
+          public $dbg_msgs = [];
+
+     //#endregion
+
+     /**
+      * Debug dump of the current object state.
+      */
+     function Dump() {
+          var_dump($this);
+     }
+
+     /**
+      * Adds message to $dbg_msgs when $debug is active.
+      */
+     function log($msg, $value = null) {
+          $this->last_message = $msg;
+          if ($this->debug) 
+               $dbg_msgs[] = $msg;
+          if (ZP_DEBUG) 
+               zp_log_debug($msg);
+     }
+
+     /**
+      * Constructor: Initializes the router, parses the request, and collects +.php files.
+      * @param array $env    Environment variables from .env or auto-generated.
+      * @param bool  $debug  active debug to get all messages in $dbg_msgs;
+      */
+     function __construct($env, $debug = false) {
+          $this->debug = $debug;
+          $this->log('ZP_ApiRouter()');
+
+          $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
+          $this->contentType  = $_SERVER['CONTENT_TYPE'] ?? null;
+
+          $this->parse_zpRequest();
+          $this->collect_plusPHPfilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
+
+          /*
+          $this->log('  -- final outcome :');
+          foreach ($this as $k=>$v) {
+               try {
+                    // lets make sure $v can always be in a String to error_log();
+                    $v = "$v";
+               } catch (Throwable $e) {
+                    // convert any to JSON-String.
+                    $v = json_encode($v);
+               } finally {
+                    // error_log the String.
+                    $this->log("    $k = $v");
                }
           }
-      }
+          $this->log('//ZP_ApiRouter()');
+          */
+     }
 
-      function parse_zprequest() {
-          // by method
+     /**
+      * Parses the incoming request and sets route, action, value, and data.
+      */
+     function parse_zpRequest() {
+          $this->log('  parse_zpRequest()');
           if ($_SERVER['REQUEST_METHOD'] == 'GET')
                $this->parse_request_GET();
-          else if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+          elseif (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'OPTIONS']))
                $this->parse_request_POST();
           //else if ($_SERVER['REQUEST_METHOD'] == 'PUT') {}
           //else if ($_SERVER['REQUEST_METHOD'] == 'PATCH') {} 
           //else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE') {}
           //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {}
           else
-               $this->error = 'ZP unsupported method :'.$_SERVER['REQUEST_METHOD'];
-      }
+               $this->log('ZP unsuxxpported method :'.$_SERVER['REQUEST_METHOD']);
 
+          // Normalize: treat string "null" as null
+          if ($this->action === "null")
+               $this->action = null;
+          if (is_string($this->action) && !str_starts_with($this->action, '?/'))
+               $this->action = null;
+
+          // Clean up route slashes
+          $this->route = str_replace('//', '/', $this->route ?? '');
+     }
+
+     /**
+      * Parses GET requests for routing.
+      * Schema GET ?zp_route[&zp_action][&...params-is-zp_data]
+      *   for exec load():     ?/route/&...
+      *   for exec action():   ?/route/&?/action&...
+      */
      function parse_request_GET() {
-          zp_log_debug('  >> Request_Method = GET');
-          $this->message = 'parse_method_zp_routing(GET)';
+          $this->log('  -- request-method GET');
           $idx = -1;
           foreach ($_GET as $key => $value) {
                $idx++;
                if ($key == null) continue;
-               zp_log_debug('   > parse:'.$key);
                if ( $idx == 0 && str_starts_with($key, '/') && str_ends_with($key, '/') ) {
-                         //route can only be on index 0 
-                         zp_log_debug('   route:'.$key);
-                         $this->route = $key;
-                         //unset($_GET[$key], $_REQUEST[$key]);
+                    // route can only be on index 0 
+                    $this->route = $key;
+                    $this->log('     route = '.$key);
+                    unset($_GET[$key], $_REQUEST[$key]);
                }
                else if ( ($idx == 0 || $idx == 1) && str_starts_with($key,'?/') ) {
-                         //action can be on index 0 or 1
-                         //$this->message = 'action:'.$key;
-                         zp_log_debug('   action:'.$key);
-                         $this->action = $key;
-                         $this->value  = $value;
-                         //unset($_GET[$key], $_REQUEST[$key]);
+                    // action can only be on index 0 or 1
+                    $this->action = $key;
+                    $this->value  = $value;
+                    $this->log('     action = '.$key);
+                    unset($_GET[$key], $_REQUEST[$key]);
                }
-               else {
-                         //$this->message = 'param:'.$key;
-                         zp_log_debug('   param:'.$key);
-                         if (!is_array($this->data)) $this->data = [];
-                         $this->data[$key] = $value;
-                         //$this->params[][$key] = $value;
-               }
-               //$this->data = $_GET;
           }
+          $this->data = $_GET;
      }
 
+     /**
+      * Parses POST (or OPTIONS) requests for routing.
+      * Schema POST (formData and JSON)
+      *   zp_route  for route
+      *   zp_action for action
+      *   zp_value  is  value of action
+      *   zp_data   is  data or just $_POST
+      */
      function parse_request_POST() {
-          $this->message = 'parse_method_zp_routing(POST || OPTIONS)';  
-          zp_log_debug('  >> Request_Method = POST || OPTIONS');
+          $this->log('  -- Request_Method = POST');
           $this->method = 'POST';
-          //$contentType  = $_SERVER['CONTENT_TYPE'];
 
           if (isset($_POST['zp_route'])) {
-               $this->message = 'parse_method_zp_routing(POST)';  
-               // normal PHP POST request  
-               // contentType = 'multipart/form-data, application/x-www-form-urlencoded';
+               // Standard PHP POST
+               // contentType = 'multipart/form-data, application/x-www-form-urlencoded', etc;
                // nothing to do :-)
           } else {
-               // no default PHP post
-               // check for JSON and push into $_POST and $_REQUEST
-               $this->message = 'parse_method_zp_routing(JSON)';  
-               $rawInput = file_get_contents('php://input');
-               $json     = json_decode($rawInput, true);
-               $_POST    = $json;
-               //$_REQUEST = $json;
-               // json should be destructed as normal $_POST now.
+               // JSON POST
+               $this->log('  -- Request_Method = JSON');
+               $json  = json_decode( file_get_contents('php://input') , true);
+               if (is_array($json))
+               $_POST = $json; // set JSON into $_POST so we can parse it like PHP-POST
+               $this->method = 'JSON';
           }
           if (isset($_POST['zp_route'])) { 
-               $this->message = 'parse_method_zp_routing( finals )';  
-               if (isset($_POST['zp_route']))  $this->route  = $_POST['zp_route'];
-               if (isset($_POST['zp_action'])) $this->action = $_POST['zp_action'];
-               if (isset($_POST['zp_value']))  $this->value  = $_POST['zp_value'];
-               // remove zp_ from $_POST
+               $this->route  = $_POST['zp_route']  ?? $this->route;
+               $this->action = $_POST['zp_action'] ?? $this->action;
+               $this->value  = $_POST['zp_value']  ?? $this->value;
                unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
                unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
                unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
@@ -186,15 +211,80 @@ class ZP_ApiRouter
           }
      }
 
+     /**
+      * Collects all +.php files in the current route path (upwards).
+      * @param string $replaceBaseRoute Path prefix to remove from route.
+      */
+     function collect_plusPHPfilesInRoute($replaceBaseRoute) {
+          $this->log('  -- collect_plusPHPfilesInRoute()');
+          if (!$this->route) {
+               $this->log(" ! route is missing, i need a route to collect +.php files"); 
+               return;
+          }
 
+          // Remove base route prefix if present (tmpFix-001)
+          $this->route = str_replace($replaceBaseRoute, '', $this->route);
 
-      function collect_routes() {
+          // v1.0.3 overhaul
+          //    from current route - collect +.php files
+          //    check route in case for upwards +.php files that needs to be pre-executed
+          //   
+          $route = $this->route;
+          $route_path       = str_replace('//', '/', $this->routeBase."/$route");
+          $route_path_depth = ($route === '//' || $route === '/') ? 0 : max(0, count(array_filter(explode('/', $route))) - 2);
+          $route_path_depth = count(explode('/', $route)) -2; // -2 because of / at start and end
+          $this->log("     route depth: $route_path_depth");
+          $this->log("     route path:  $route_path");
 
-      }
+          // Collect all +.php files upwards from the route path
+          // -- $phpFiles = ['+page.server.php', '+server.php', '+api.php'];
+          $this->routeFiles = zp_scandirRecursiveUp($route_path, '^\+.*\.php$', $route_path_depth);
+          if ($this->routeFiles) {
+               // For now, only support +page.server.php
+               $this->routeFile      = $route_path.'+page.server.php';
+               $this->routeFileExist = is_file($this->routeFile);
+               $this->log('     route file found');
+          }
+          else {
+               $this->log('     ! route not found. check for grouped paths');
+               $this->routeFiles = $this->scandir_withGroupedRoutes() ?? [];
 
-      function exec_route() {
+          }
+          //$this->log("     ".count($this->routeFiles)." +.php file matches");
+          // -- why did we replace /api/ with / again?
+          // -- $zp_routeBase  = str_replace('/api/', '/', $$this->routeBase);
+     }
 
-      } 
+     /**
+      * Scan for SvelteKits Grouped-Routes. e.g. (admin)/**
+      */
+     function scandir_withGroupedRoutes() {
+          // currently 1-level is supported
+          $this->log('  -- scandir_withGroupedRoutes()');
+          $grouped_paths = zp_scandir($this->routeBase, '^\(.*\)$');
+          foreach ($grouped_paths as $_) {
+               $route_path = $this->routeBase . $_ . $this->route;
+               if (is_dir($route_path)) {
+                    $real_route = $_ . $this->route;
+                    $this->log("     route match $real_route");
+                    $this->log("     route path  $route_path");
+                    $this->routeFiles = zp_scandir($route_path, '^\+.*\.php$');
+                    if ($this->routeFiles) {
+                         // For now, only support +page.server.php
+                         $this->routeFile      = $route_path.'+page.server.php';
+                         $this->routeFileExist = is_file($this->routeFile);
+                         $this->log('     +page.server.php found in grouped route');
+                    }
+                    else {
+                         $this->log('     ! no +.php files found in grouped route');
+                    }
+                    break;
+               }
+          }
+     }
+
+     function exec_route() {}
+
 }
 
 ?>
