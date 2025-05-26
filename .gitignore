@@ -30,4 +30,4 @@ vite.config.ts.timestamp-*
 *.lock
 
 # ZeeltePHP
-*.log
+/php_log
