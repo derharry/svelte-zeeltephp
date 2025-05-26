@@ -1,90 +1,99 @@
-import { ZP_ApiRouter } from "./class.zp.apirouter.js" // -> import { ZP_ApiRouter } from "zeeltephp"
-import { zp_page_route } from "./inc.zp.tools.js";
-import { tinyid } from './tiny.id.js';
+import { ZP_ApiRouter } from "./class.zp.apirouter.js"
+import { zp_page_route } from "../zeeltephp/zp.tools.js";
 
-// function get_form_event_action_details(event) {
+/**
+ * returns object of ZP_EventDetails()
+ * @param {Event} event - The DOM event (e.g., form submit, button click)
+ * @returns {ZP_EventDetails} Parsed event details
+ */
 export function get_event_action_details(event) {
-      return new ZP_EventDetails(event);
+    return new ZP_EventDetails(event);
 }
 
 /**
- * Destructs details of most EventTypes to have all in 1 Zeelte structure :-)/**
+ * Extracts and normalizes routing, action, value, and data from various event types
+ * (form submissions, buttons, keyboard/mouse events, URLSearchParams, etc.)
+ * for use with ZeeltePHP's API router. 
  */
-export class ZP_EventDetails 
-{
-      message     = ""; // deprecated to use log and debug_msgs // state/debug
-      route       // current route of page
-      event       // source of event
+export class ZP_EventDetails {
 
-      name        // name of source e.g. button
-      action      // formaction
-      value       // value of formaction
-      data        // data - formData, null, 
+      /** @type {string} Current route (from page or event) */
+      route;
+      /** @type {Event} The original event */
+      event;
 
-      // event src is Button
-      button
-      srcElement
+      /** @type {string} Name of the source element (e.g., button name) */
+      name;
+      /** @type {string} SvelteKit-Action (formaction ?/action) */
+      action;
+      /** @type {any} Value associated with the action */
+      value;
+      /** @type {any} Detected data payload from Event (formData, object, etc.) */
+      data;
 
-      // event src is HTMLForm
-      form
-      dataIsFormData = null
-      encoding
-      enctype
+      // Event source references
+
+      //** @type {any} Event target (for future use) */
+      // -- target;
       
+      /** @type {HTMLElement} Source element (generic) */
+      srcElement;
+      /** @type {HTMLElement} Button element (if source is a button) */
+      button;
+      /** @type {HTMLFormElement} Form element (if source is a form) */
+      form;
+      /** @type {boolean|null} True if data is FormData */
+      dataIsFormData = null;
+      /** @type {string} detected Form encoding */
+      encoding;
+      /** @type {string} detected Form enctype */
+      enctype;
 
-      //wherefor used?
-      target
+      /** @type {string} last internal message */
+      last_message = "";
 
-      // internal
-      runtimeID  = '';
+      // --- Internal/debug ---
       debug      = false;
       debug_msgs = [];
+
+      /**
+       * Add a debug message (if debug mode is enabled).
+       * @param {string} msg
+       * @param {any} value
+       */
       log(msg, value = '') {
+            this.last_message = msg;
             if (this.debug) {
                   this.debug_msgs.push({msg, value});
                   console.log('  ', msg, value);
             }
       }
 
-    /**
-     * 
-     * @param { app-page | URLSearchParams | SubmitEvent | PointerEvent | ZP_ApiRouter} event 
-     * @param { bool } debug 
-     * @returns 
-     */
+      /**
+       * Constructs a ZP_EventDetails object from various event types.
+       * @param {any}     event - Event, URLSearchParams, ZP_ApiRouter, SubmitEvent, PointerEvent, .. etc.
+       * @param {boolean} debug - Enable debug logging
+       * @returns {ZP_EventDetails|false}
+       */
       constructor(event, debug = false) {
             try {
-                  // exit first
-                  //   if is_nullish( event ) - exit false
-                  //   if typeof( event) == myself - return myself
-                  if (!event || event == null || event == undefined) return false;
-                  if (event instanceof ZP_EventDetails) return event;
+                  if (!event) return false
+                  if (event instanceof ZP_EventDetails) return event
+                  this.debug = debug
+                  this.log('-- ZP EventDetails ')
 
-                  // debugging?
-                  this.debug = debug; // for now because @debug is no param
-                  if (debug) console.log('-- ZP EventDetails ');
-
-                  // main()
-                  if (debug) this.runtimeID = tinyid(); // avoid overhead, only dev mode
-                  if (debug) this.log('rtid', this.runtimeID);
-
-                  // add current page.routing to event details (also for zp_route)
+                  // Set current route from from Svelte page (default)
                   this.route = zp_page_route();
-                  this.log('route', this.route);
+                  this.log('route', this.route)
                   
-                  //# set defaults
-                  this.event = event  // set src
-                  //this.target = event?.target || undefined 
-                  //this.srcElement = event.srcElement || undefined
-
-                  //# ready
-                  this.log('state', 'init')
+                  this.event = event;
+                  this.log('state', 'init');
 
                   // parse anyway?
                   // -- this.parse_keyboard();
                   // -- this.parse_mouse();
 
-                  // parse EventTypes
+                  // Parse event based on type
                   if (event instanceof SubmitEvent) 
                         this.parse_SubmitEvent()
                   else if (event instanceof KeyboardEvent) 
@@ -106,77 +115,85 @@ export class ZP_EventDetails
                   else
                         this.log('unknown event-type', typeof event, event);
 
-                  // all ok by now
-                  // but to we have all data?
-                  // this.log('<<-->> finally')
-
-                  this.log(this);
-                  if (debug) console.log('// ZP EventDetails ');
+                  // ready
+                  //this.log(this);
+                  this.log('// ZP EventDetails ');
             } catch (error) {
                   this.log(' ! ERROR ', error);
-            } finally {
             }
       }
 
+      /**
+       * Dumps the current state to the console (for debugging).
+       * @param {any} [subdata] - Optional sub-object to dump
+       * @param {boolean} [sub] - Internal flag for recursion
+       */
       dump(subdata = null, sub = false) {
             if (!sub) console.log('---DUMP ZP_EventDetails-----------------------------');
             Object.entries(this).forEach(([variable, value]) => {
-            if (value !== undefined && value !== null) 
-                  // if (typeof value == 'object' && Object.entries(value).length > 0)
-                  //      this.dump(value, true)
-                  //else 
-                        console.log(variable, value);
+                  if (value !== undefined && value !== null) {
+                  console.log(variable, value);
+                  }
             });
             if (!sub) console.log('---END DUMP ZP_EventDetails-----------------------------');
       }
 
+      /**
+       * Parses a SubmitEvent (form submission).
+       */
       parse_SubmitEvent() {
-            // event is typeof HTMLElementForm | FormSubmit?
             this.log('parse_SubmitEvent');
-            this.parse_form(this.event.target)
-            // Display the key/value pairs
-            // for (var pair of this.data.entries()) { console.log(pair[0]+ ', ' + pair[1]); }
-            this.parse_button(this.event.submitter)
-      }
-
-      parse_URL() {
-            this.log('parse_URL !');
-            this.parse_URLSearchParams();
-            //const url  = this.event
-            //this.route = url?.pathname
-            //this.parse_URLSearchParams(url.searchParams)
+            this.parse_form(this.event.target);
+            this.parse_button(this.event.submitter);
       }
 
       /**
-       * mostly used for +page.js to resolve the current route!! ;-)
-       * otherwise a bahavoiur like 1 route behind occurs
+       * Parses a URL object.
+       */
+      parse_URL() {
+            this.log('parse_URL !');
+            this.parse_URLSearchParams();
+      }
+
+      /**
+       * Parses URLSearchParams for route, action, value, and data.
+       * This is mostly used for +page.js to resolve the current route. +page.js does not have
+       * $page to read from, which can lead to having the route from previous page (1 route behind). 
        */
       parse_URLSearchParams() {
             this.log('parse_URLSearchParams');
-            const url  = this.event            
-            //console.log(url)
-            this.route = url.pathname;
-            //this.search  = this.event.search
-            const params = url.searchParams
+            const url    = this.event;
+            this.route   = url.pathname;
+            const params = url.searchParams;
             if (params && params.size > 0) {
-                  //parse for ?/action, the rest is data
                   for (const [key, value] of params) {
-                        if (key.startsWith('?/')) {
+                  if (key.startsWith('?/')) {
                         this.action = key;
-                        this.value  = value;
-                        params.delete(key); // remove from params
+                        this.value = value;
+                        params.delete(key);
                         break;
-                  }}
-                  this.data = Object.fromEntries(params)
+                  }
+                  }
+                  this.data = Object.fromEntries(params);
             }
       }
 
-
+      /**
+       * Parses a KeyboardEvent.
+       */
       parse_KeyBoardEvent() {
             this.log('parse_KeyBoardEvent');
-            const keyEvent = this.event;
-            this.keyId = keyEvent.keyCode;
-            //this.parse_keyboard()
+            this.keyCode = this.event.keyCode || this.keyCode; // || this.event.submitter?.keyCode
+            this.keyName = this.event.key     || this.keyName; // || this.event.submitter?.keyName
+      }
+
+      /**
+       * Parses a PointerEvent (e.g., mouse click).
+       */
+      parse_PointerEvent() {
+            this.log('parse_PointerEvent');
+            // this.form = this.event;
+            // this.parse_button(this.event.srcElement);
       }
 
       parse_PointerEvent() {
@@ -189,17 +206,10 @@ export class ZP_EventDetails
             this.form    = this.event
       }
 
-      
-      parse_keyboard() {
-            this.log('parse_keyboard');
-            this.keyId   = this.event?.keyId   || this.event?.submitter?.keyId || undefined
-            this.keyName = this.event?.keyName || this.event?.submitter?.keyId || undefined
-      }
-      parse_mouse(e) {
-            this.log('parse_mouse');
-
-      }
-
+      /**
+       * Parses a form element for data and encoding information.
+       * @param {HTMLFormElement} form
+       */
       parse_form(form) {
             this.log('parse_form');
             this.form       = form
@@ -208,18 +218,21 @@ export class ZP_EventDetails
             this.dataIsFormData = true
             this.encoding   = form?.encoding || this.encoding // 'application/x-www-form-urlencoded'
             this.enctype    = form?.enctype  || this.enctype  //'application/x-www-form-urlencoded'
-            //console.log('FORM', form)
       }
 
+      /**
+       * Parses a button element for action, name, and value.
+       * @param {HTMLButtonElement} button
+       */
       parse_button(button) {
             this.log('parse_button');
-            this.button = button
-            this.title      = button?.title
-            this.name       = button?.name
-            this.value      = button?.value
-            this.action     = button?.formAction && button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined
-            this.encoding   = button?.encoding || this.encoding
-            this.enctype    = button?.enctype  || this.enctype
+            this.button   = button
+            this.title    = button?.title
+            this.name     = button?.name
+            this.value    = button?.value
+            this.action   = button?.formAction && button.hasAttribute('formaction') ? button.getAttribute('formaction') : undefined
+            this.encoding = button?.encoding || this.encoding
+            this.enctype  = button?.enctype  || this.enctype
             //console.log('BUTTON', button)
       }
 }
