@@ -15,7 +15,7 @@
       */
      // ZeeltePHP imports
      import { tinyid } from "$lib/zeelte/tiny.id.js";
-     import { zp_page_route } from "$lib/zeelte/zp.tools.js";
+     import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
      import { zp_fetch_api } from "$lib/zeelte/zp.fetch.api.js";
      import { ZP_ApiRouter } from "$lib/zeelte/class.zp.apirouter.js";
      import { ZP_EventDetails } from "$lib/zeelte/class.zp.eventdetails.js";
