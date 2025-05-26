@@ -1,0 +1,33 @@
+# Roadmap / ideas
+- more documentation and examples
+- support other +.php like +server,api,hooks (17.05 prepared for)
+- support more event types at ZP_EventDetails to handle more use-cases.
+- PHP 
+  - use namespaces
+  - LIB return/add more lib methods/classes
+- Ideas:
+  - Live public Demo
+  - Install via Github-Releases or as NPM-package
+  - load response data from zp_fetch_api() directly into $page.data or $page.form to use export let data and form;
+  - make PUBLIC_ZEELTEPHP_BASE optional and use just BASE. If set - its to let /api/zeeltephp work at different name or location.
+
+### Done
+- (25-04-15)
+  - add post-build via vite-plugin (full port from .sh) 
+- (25-05-01) 
+  - Installation via `bun add github` in readme.md 
+  - Support for DB-MySQL -> api/lib/db/db.mysql2.php
+  - Run as Vite/Svelte Plugin for development, static at /BUILD
+  - Postinstall to copy +layout.js, /static/api/index.php
+  - auto-generate .env variables + cli-output
+- (25-05-02)
+  - Install with demo/example 
+  - post-install with trustedDependencies
+- (25-05-06)
+  - ZP_DEMO should be /src/routes/** as complete example, documentation and Live-app (Demo.svelte) within consumer project
+  - Live Demo and Debugger - use Demo.svelte to load Documentation and Debugger in consumer project.
+  - Integrate PostInstall to zeeltephp_loadEnd(), so trustedDependencies is not required anymore.
+- (25-05-07) 
+  - add a debug-Component to use in lib and consumer project to see if all is up and running. -> ZPDev.svelte
+- (25-05-10) 
+  - put PHP error logging default to /static/api/log  ! -> is changed to /.zp-log
