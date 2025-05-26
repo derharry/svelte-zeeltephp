@@ -1,11 +1,15 @@
 <?php
-/* 
-/zpdemo/+page.server.php
-*/
+#
+# /zpdemo/+page.server.php
+#
+# ...
+#
+#
+
 // inc.demo.zpdemo.php 
 //    phpfiles inside same route - include manually.
-//    put shared php files in $lib/zplib, they will be autoloaded.
-include_once("inc.demo.zpdemo.php");
+//    put shared php files in /src/lib_php/, they will be autoloaded.
+# include_once("inc.demo.zpdemo.php");
 
 # slowing down the fetch to take a break and a coffee 
 # sleep(2);
@@ -89,7 +93,7 @@ function action_foo($value) {
       return [
             'message'   => 'action_FOO '.$value,
             '$_REQUEST' => $_REQUEST,
-            'zpAR'      => $zpAR,
+            'zpAR'      => $zpAR
       ];
 }
 
@@ -101,21 +105,50 @@ function action_submit_Form($value) {
       return [
             'message' => 'PHP received POST: ',
             '$_POST'  => $_POST,
-            'zpAR'    => $zpAR,
+            'zpAR'    => $zpAR
       ];
 }
 
 /**
  * check DB connecter via ZP_DEV
  */
-function action_checkDB($value) {
-      global $zpAR;
+function action_DB_get() {
+      global $zpAR, $db;
       return [
-            'message' => 'hello from action_checkDB',
-            'zpAR'    => $zpAR,
-            'zpAR'    => $zpAR,
-            //'zpDB' => $db,
-            //'zpEnv' => $end
+            '$db'  => $db,
+            'zpAR' => $zpAR
+      ];
+}
+
+/**
+ * check DB connecter via ZP_DEV
+ */
+function action_DB_execSQL() {
+      global $zpAR, $db;
+      $result = $db->query($_POST['sqlstatement']);
+      return [
+            'result'  => $result,
+            '$db'     => $db,
+            'zpAR'    => $zpAR       
+      ];
+}
+
+/**
+ * check DB connecter via ZP_DEV
+ */
+function action_ENV_get() {
+      global $zpAR, $env;
+      return [
+            '$env'    => $env,
+            'PATHS'   => [
+                  'ZP_ENV' => ZP_ENV,
+                  'PATH_INIT' => PATH_INIT,
+                  'PATH_ZPLIB' => PATH_ZPLIB,
+                  'PATH_ZPROUTES' => PATH_ZPROUTES,
+                  'PATH_ZPLOG' => PATH_ZPLOG,
+                  'PATH_ZPAPIPHP' => PATH_ZPAPIPHP
+            ],
+            'zpAR'    => $zpAR       
       ];
 }
 

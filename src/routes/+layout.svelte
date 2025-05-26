@@ -2,7 +2,7 @@
      import '@picocss/pico'
      import '../app.css'
      import { base } from "$app/paths";
-     import { zp_page_route } from "$lib/zeelte/inc.zp.tools.js";
+     import { zp_page_route } from "$lib/zeelte/zp.tools.js";
 </script>
 
 <div class="layoutApp">
