@@ -1,42 +1,80 @@
+**v1.0.3 (rc1)**   2025-05-26
+- **Installation & Key Path Changes**
+  - Previous installations should continue to work, but two manual changes are required:
+    - In `vite.config.js`, set `zeeltephp(mode)` before `sveltekit()`.
+    - Renaming of 2 Key Paths:
+      - /src/lib/zplib: is now /src/lib_php - move your php files and remove /zplib.
+      - /zp-log: is now /php_log - remove /zp-log.
+- **General Improvements**
+  - Improved source code documentation (JS & PHP).
+  - Refactored some logic in preparation for new features.
+- **README** 
+  - Updated for v1.0.3 with improved styling.
+- **Vite-Plugin**
+  - Completely overhauled for readability, documentation, and future extensibility.
+-  **ZP Demo / ZP Dev**
+  - Improved styling and added documentation in src.
+  - Added new tabs:
+    - DB - debug/test database connections.
+    - ENV- view .env configuration
+- **PHP api**
+  - **/core**
+    - Prepared to support additional +.php files in future releases.
+    - Introduced new startup and processing logic.
+  - **/lib**
+    - Removed unused PHP files to focus on core functionality and documentation.
+    - **/db/db.mysql2.php** completely rewritten.
+    - **/io/dir.php**
+      - `zp_scandir()` now supports RegExp for name matching.
+      - Added `zp_scandirRecursiveDown()` and `zp_scandirRecursiveUp()`.
+- **env.ZEELTEPHP_DATABASEURL**
+  - For security, a default DatabaseURL is no longer auto-generated.
+  - To use a DB provider, set `ZEELTEPHP_DATABASEURL` in .env.
+
+---
+
 **v1.0.2 (rc1)**   2025-05-14
-- New Installation steps
-  - previous installation should remain working. If not follow "reinstall" steps to reinstall ZeeltePHP.
-- README, meets v1.0.0 - 1.0.2 (rc1). 
-- v102 core
-  - code cleanup, code documentation, improvements, removed code repeating (e.g. spoc), 
-  - cleaner cli-log output, internal variable renamings, vite-plugin, ZP_ApiRouter, ZP_EventDetails, zp_fetch_api(), and PHP-@/api/core
-- ZP_Demo        
-  - can be used as template, skeleton and debugger for your project.
-  - copy&paste /zpdemo into your /routes, run npm run dev, open in browser.
-  - Green lights ? yeah, minimal installation is done and ZeeltePHP environment is running (finds current route and .page.server.php).
-  - Other lights ? well... minimal installation is correct? .. Well, check your svelte,php code. Is there a +.php file? ;-) 
-- ZP_Dev         
-  - works directly on ZP_Demo.
-  - debug your route /route/--/+page.svelte by placing <ZPDev />
-  - moved /src/routes/send-data and basics into ZPDev + ZP_Demo
-  - ZPDev can be used as a full live demo or as initial helper/debugger to find the root-cause.
-  - Works directly on ZP_Demo.
-  - Added action name,value editor to use ZPDev in any route to test php-code.
-- /src/routes/
-   - parts of /src/routes/ as documentation moved into ZPDev as 'debugger-feature'.
-- ZP_ApiRouter-PHP    
-  - added support of Grouped-Routes /routes/(any)/..
-- zeeltephp_loadEnv()
-  - changed auto loaded db-provider to wordpess (instead mysql) and the path: 'wordpress://../wordpress/' to 'wordpress://../../../wordpress/wp-load.php'
+- **New Installation steps**
+  - Previous installations should continue to work. If not, please remove and re-install ZeeltePHP.
+- **README**
+  - updated for 1.0.2 (rc1). 
+- **Core**
+  - Code cleanup, improved documentation, various enhancements, removal of duplicated code, cleaner CLI log output, internal variable renaming, updates to vite-plugin, `ZP_ApiRouter`, `ZP_EventDetails`, `zp_fetch_api()`, and PHP-@/api/core.
+- **/zp_demo/**         
+  - Can now be used as template, skeleton and debugger for your project.
+  - To use: Copy `/zpdemo` into your `/routes`, run `npm run dev`, and open in your browser.
+  - *Green lights?* Great! The minimal installation is complete and ZeeltePHP is running (route and `.page.server.php` are detected).
+  - *Other lights?* Check your installation and ensure your Svelte and PHP code is present (`+.php`).
+- **ZPDev**         
+  - Full live demo of use-cases; also serves as an initial helper/debugger to verify setup or identify issues.
+  - Debug any route by adding `<ZPDev />` in your `*.svelte`.
+  - Works directly with `/zpdemo`.
+  - Includes an action name/value editor for testing PHP code in any route.
+- **/src/routes/**
+  - Documentation and live demo parts moved into ZPDev as a "debugger feature".
+  - `/src/routes/send-data` and basic examples moved into ZPDev + /zpdemo.
+- **ZP_ApiRouter/PHP**    
+  - Added support for grouped routes e.g. /(admin)/admin
+- **zeeltephp_loadEnv()**
+  - Changed default DB provider to WordPress (was MySQL).
+  - Updated default path to 'wordpress://../../../wordpress/wp-load.php'
+
+-----
 
 **v1.0.1 (rc1)** 2025-05-07
-- README
-  - re-written to meet v1.0.0 and v1.0.1 requirements, examples, installation-steps, code-cleanup, etc. 
-  - added new README.relaease-notes, -.project.project.env (renamed), -.project.pack-exposing
-- ZPDev         
-  - A Component helping debugging on +page.server.php files. 
-- Installation
-  - trustedDependencies and postinstall is not required anymore. Postinstall is now done via zeeltephp_loadEnv() at npm run;
-- Internal 
-  - post-build; added 'sameLine' for console.log
-  - zeelte-init.php; moved code to zp-bootstrap.php and zp-paths for cleanup and readability.
+- **README**
+  - Rewritten to meet v1.0.0 and v1.0.1 requirements, with updated examples, installation steps, .. 
+  - Added `README.release-notes`.
+- **ZPDev**         
+  - A component to help debug `+page.server.php` files.
+- **trustedDependencies and postinstall**
+  - No longer required; postinstall is now handled via `zeeltephp_loadEnv()` during `npm run`.
+- **Internal** 
+  - post-build; Added 'sameLine' for console.log.
+  - zeelte-init.php; Moved code to `zp-bootstrap.php` and `zp-paths` for better organization and readability.
   - import from 'zeeltephp';
 
-**v1.0.1 (rc1)** 2025-05-03
-- Initial v1.0.0, based on un-released v0
-- upcoming: documentation, stabilizing, and on roadmap-ideas if required.
+---
+
+**v1.0.0 (rc1)** 2025-05-03
+- Initial v1.0.0(rc1) release (public)
