@@ -24,7 +24,8 @@
      }
 
      /**
-      * 
+      * Collects information about the error including zp_errorMessageTranslation()
+      * Converts full file-system paths to relative for readability.
       */
      function zp_errorDetails($e, $message = null, $code = null) {
           // Extract error details
@@ -95,6 +96,11 @@
           echo $json;
      }
 
+     /**
+      * Write a log entry to /php_log/error.log.
+      *
+      * @param mixed $content String or data to log.
+      */
      function zp_log_error($e, $message = null, $code = null) {
           // Prepare Error
           $json = zp_errorDetails($e, $message, $code);
