@@ -10,6 +10,7 @@
            <ul>
                  <li><a href="{base}/">Home</a></li>
                  <li><a href="{base}/zpdemo">ZpDemo</a></li>
+                 <li><a href="{base}/zp_db">ZP_DB</a></li>
                  <li><a href="{base}/xxx">xXx</a></li>
            </ul>
      </nav>
