@@ -79,8 +79,10 @@ export function zeeltephp(mode) {
                     For the time beeing - keep 'mode' passed untill we find another solution.
                */
                zp_info.MODE.mode        = mode;
-               zp_info.MODE.isDevMode   = command === 'serve';
-               zp_info.MODE.isBuildMode = command === 'build';
+               // 2025-05-30 - in rare cases the run dev|build generated wrong base-paths in consumer project
+               //    this part moved to loadEnvironment() via process.env.NODE_ENV.
+               // -- zp_info.MODE.isDevMode   = command === 'serve';
+               // -- zp_info.MODE.isBuildMode = command === 'build';
                zeeltephp_loadEnvironment('config', mode);
 
                // run the installer at runtime instead package.json/postinstall
@@ -89,7 +91,6 @@ export function zeeltephp(mode) {
                     zeeltephp_postinstall();
           },
           //configResolved(resolvedConfig) {
-               // not used yet, but I keep it for maybe in future
           //},
           closeBundle: {
                sequential: true,
@@ -141,6 +142,10 @@ function zeeltephp_loadEnvironment(state, mode) {
                Object.assign(process.env, zp_info.ENV_LOADED); // Merge into process.env for universal access
           }          
      }
+
+     // 2025-05-30 - process.env.NODE_ENV we know if dev|build  (serve|build)
+     zp_info.MODE.isDevMode   = process.env.NODE_ENV === 'development';
+     zp_info.MODE.isBuildMode = process.env.NODE_ENV === 'production';
 
      const projectName = path.basename(process.cwd());
      const isDevMode   = zp_info.MODE.isDevMode;
