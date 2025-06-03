@@ -1,10 +1,10 @@
-# ZeeltePHP (v1.0.3 rc1)
+# ZeeltePHP (v1.0.3.1 rc1)
 
 A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`).
 
 **Combine the best of Svelte and PHP in your project.**
 - Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`.
-- Develop almost as if you’re using SvelteKit natively, including hot-reloading.
+- Develop as if you’re using SvelteKit natively, including hot-reloading.
 - Easily port existing PHP projects into the SvelteKit project structure, or move SvelteKit-native projects to a PHP backend.
 
 ---
@@ -38,7 +38,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
     - [Globals](#globals)
     - [Lib](#lib)
     - [Database Provider](#database-provider)
-- [Troubleshooting](#troubeshooting)
+- [Troubleshooting](#troubleshooting)
 - [Release Notes & Roadmap](#release-notes--roadmap)
 - [Reporting Bugs or Feature Requests](#reporting-bugs-or-feature-requests)
 ---
@@ -77,7 +77,7 @@ Follow the installation steps 1 - 5.
    });
    ```
    <ins>Note:</ins> the vite-plugin creates, if not exist, following paths in your project:
-   ```
+   ```sh
    /src/lib_php            # Shared PHP library for your +.php files
    /src/routes/+layout.js  # Required by adapter-static
    /static/api/index.php   # PHP api entry point
@@ -89,11 +89,11 @@ Follow the installation steps 1 - 5.
    npm run dev
    ```
    Open `http://localhost:5173/myZPproject` to check if your app is working.
-   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP and ensure the required paths hve been created.
+   <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP and ensure the required paths have been created.
 
 5. **Demo & Debug (Optional)**  
    Copy `/zpdemo/` into `/src/routes/` and verify it runs in development mode.
-   <br>Green lights and receiving responses? Have fun `SveltePHP'ing`.
+   <br>Green icons and receiving responses? Have fun `SveltePHP'ing`.
 
 6. **Configure for Build**  
    Update `svelte.config.js` to use `.env` variables:
@@ -328,7 +328,7 @@ See troubleshooting for more details.
 ### Key Methods, Classes & Components
 
 #### `zp_fetch_api(fetch, router, [, data, method, headers])` (Svelte)
-  Handles most use cases for fetching data from the PHP API.
+  Handles most use cases for fetching data from the PHP api.
   <br> Uses Svelte's fetch which needs to be passed as parameter and ZP_ApiRouter for the routing details.
   <br> This method has overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.
 
@@ -489,29 +489,29 @@ At `/api/zeeltephp/lib/` you’ll find a collection of useful helper methods.
 
 - **zp_scandir($path, $regExp = null): array** 
   <br>`include_once('lib/io/io.dir.php');`
-  <br>returns a list of files and folders within the path. Use a RegExp like '.php$' for name mathing.
+  <br>returns a list of files and folders within the path. Use a RegExp like '.php$' for name matching.
 
 - **zp_scandirRecursiveDown($path, $regExp = null, $maxDepth = 1): array** 
   <br>`include_once('lib/io/io.dir.php');`
   <br>returns a list of files and folders, recursive downwards, with relative paths starting from given path. 
   <br>By default only 1 level down.
-  <br>Use a RegExp like '.php$' for name mathing.
+  <br>Use a RegExp like '.php$' for name matching.
 
 - **zp_scandirRecursiveUp($path, $regExp = null, $maxDepth = 1): array**  
   <br>`include_once('lib/io/io.dir.php');`
   <br>returns a list of files and folders, recursive upwards, with relative paths starting from given path. 
   <br>By default only 1 level up, which is similar to zp_scandir('..'); but $maxDepth = 2 is '..' and '../..';
-  <br>Use a RegExp like '.php$' for name mathing.
+  <br>Use a RegExp like '.php$' for name matching.
 
 ---
 
-## Troubeshooting
-If you encounter issues with your route, load(), or actions, you can debug your setup by including `<ZPDev />` in your `+page.svelte`.
+## Troubleshooting
+If you encounter issues with your route, load(), or actions(), you can debug your setup by including `<ZPDev />` in your `+page.svelte`.
 <br>This enables you to use the `+page.server.php` file to execute load(), edit action names/values, and send test data as either FormData or JSON.
-<br>Make sure that the global variables $zpAR, $env, and $db are accessible and exposed.
+<br>Make sure the global variables $zpAR, $env, and $db are accessible and exposed.
 <br>
 <br>**<ins>Attention!</ins>** 
-<br>Don't forget to remove `<ZPDev />` and exposted globals before deploying to production to avoid exposing debug tools and sensitive data.
+<br>Don't forget to remove `<ZPDev />` and exposed globals before deploying to production to avoid exposing debug tools and sensitive data.
 <br>
 
 **`+page.svelte` or in a Component.**

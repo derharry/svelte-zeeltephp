@@ -1,3 +1,17 @@
+**v1.0.3.1 (rc1)**   2025-06-03
+- **Vite Plugin**
+  - Change of detection on development/build modes using process.env.NODE_ENV.
+- **PHP api/lib**
+  - **Database (lib/db/)**:
+    - Refactored and unified ZP_DB, MySQL, and WPDB adapters for insert, update, delete, and helper methods.
+    - WPDB: Added support for switching databases via .env
+      Example: ZEELTEPHP_DATABASEURL=wordpress://wp-load.php@databaseName
+  - **Mail (lib/mail/)**:
+    - Introduced helper functions for sending mail (mail.php).
+  - **Helpers (lib/inc/)**:
+    - Added utilities for key-value lists (keyValueListHelper.php).
+
+
 **v1.0.3 (rc1)**   2025-05-26
 - **Installation & Key Path Changes**
   - Previous installations should continue to work, but two manual changes are required:
