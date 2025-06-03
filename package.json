@@ -1,6 +1,6 @@
 {
 	"name": "zeeltephp",
-	"version": "1.0.3",
+	"version": "1.0.3.1",
 	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files `+page.server.php`.",
 	"license": "MIT",
 	"scripts": {
