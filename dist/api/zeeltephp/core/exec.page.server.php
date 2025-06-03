@@ -48,15 +48,11 @@
           }
 
           // Handle GET/POST requests without specific action
-          else {
-
-               if (!function_exists('load')) {
-                    throw new Error(801); // 801 no load() function
-               }
-
+          else if (function_exists('load')) {
                return $data = load();
-
+               //throw new Error(801); // 801 no load() function
           }
+
      }
 
 
