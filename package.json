@@ -1,6 +1,6 @@
 {
 	"name": "zeeltephp",
-	"version": "1.0.3.1",
+	"version": "1.0.4",
 	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files `+page.server.php`.",
 	"license": "MIT",
 	"scripts": {
@@ -52,7 +52,8 @@
 		"svelte": "^5.28.6",
 		"svelte-switch-case": "^2.0.0",
 		"typescript": "^5.8.3",
-		"vite": "^6.3.5"
+		"vite": "^6.3.5",
+		"zeelte": "link:zeelte"
 	},
 	"keywords": [
 		"svelte sveltekit adapter-static php"

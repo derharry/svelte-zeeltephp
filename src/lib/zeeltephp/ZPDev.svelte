@@ -163,7 +163,7 @@
           console.clear();
           setVariablesToInit();
           zpED_svelte = new ZP_EventDetails(e);
-          zpAR_svelte = new ZP_ApiRouter(e);
+          zpAR_svelte = new ZP_ApiRouter(zpED_svelte);
      }
 
      /**
@@ -203,7 +203,9 @@
       */
      function handle_sendFormAsJson(e) {
           init_ZPDev(e);
-          promise_fetch = zp_fetch_api(fetch, zpAR_svelte, zp_data, "POST")
+          zpAR_svelte.data = zp_data
+          zpAR_svelte.prepare()
+          promise_fetch = zp_fetch_api(fetch, zpAR_svelte)
                .then((dataX) => { data = dataX; })
                .catch((error) => {
                     zpAR_php = error;

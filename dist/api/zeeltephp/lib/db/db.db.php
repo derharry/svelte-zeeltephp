@@ -129,7 +129,8 @@ class ZP_DB {
                               $this->hostname,
                               $this->username,
                               $this->password,
-                              $this->database
+                              $this->database,
+                              $this->port
                          );
                          return $this->dbsrc;
                     } else {
@@ -224,8 +225,19 @@ class ZP_DB {
 
      //#region Query, CRUD
 
+          public function select(string $table, string $fields, array $where) : array {
+               if ($this->connect()) {
+                    // Prepare SQL-statement
+                    $sql = sprintf("SELECT %s FROM %s WHERE %s",
+                         $fields, 
+                         $this->real_escape_string($table),
+                         $this->build_where_clause($where)
+                    );
+                    return $this->query($sql);
+               }
+          }
 
-          public function insert(string $table, array $data) : int|false {
+          public function insert(string $table, array $data, bool $ifNotExist = false) : int|false {
                if ($this->connect()) {
                     $insert_data = $this->get_empty_dataset_from($table);
                     $insert_data = $this->prepare_copy_data($insert_data, $data);
@@ -233,8 +245,8 @@ class ZP_DB {
                     unset($insert_data['id']);   // prevent inserting ID (safety, auto_inremenet)
 
                     // Prepare SQL-statement
-                    $sql = sprintf("INSERT INTO %s SET %s",
-                         //$this->prepare_value($table),
+                    $sql = sprintf("INSERT %s INTO %s SET %s",
+                         $ifNotExist ? 'IGNORE' : '',
                          $this->real_escape_string($table),
                          $this->build_set_clause($insert_data)
                     );

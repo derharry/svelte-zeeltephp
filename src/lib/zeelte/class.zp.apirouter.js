@@ -36,7 +36,7 @@ export class ZP_ApiRouter
       /** @type {string} Environment flag ('dev' or 'prod') */
       environment = 'dev | build';
       /** @type {string} HTTP method ('GET', 'POST', etc.) */
-      method = 'GET';
+      method = 'POST';
 
       // --- Fetch preparation ---
 
@@ -47,7 +47,7 @@ export class ZP_ApiRouter
       /** @type {string|null} Query string for fetch */
       fetch_query = null;
       /** @type {object|null} Fetch options (method, headers, body, etc.) */
-      fetch_options = null;
+      fetch_options = {};
       /** @type {string} Default content type */
       fetch_enctype = 'application/json';
       /** @type {boolean} True if data is FormData */
@@ -141,13 +141,14 @@ export class ZP_ApiRouter
        */
       parse_routerFromString(router) {
             this.log('parse_routerFromString()', router);
+            this.route = router
             // new feature preparation (+.api.php)
             // -- if (router.startsWith('+')) {
             // --      this.log('ZP_ApiRouter-api/**');
             // --      this.route = router;
             // -- } else {
                   // decode the string - assumed to be a GET-URL string to deparse
-                  this.parse_routerFromString(router);
+            //this.parse_routerFromString(router);
             // --}
       }
 
@@ -276,35 +277,34 @@ export class ZP_ApiRouter
       prepare_POST() {
             this.log('prepare_POST');
             let data = null;
+            const headers = {}
 
             if (this.data instanceof FormData) {
                   // inject route, action, value into data. 
-                  // PHP destructs: $_POST[ zp_route, zp_action, zp_value, ...data ];
+                  // PHP destructs: $_POST[ ...data, zp_route, zp_action, zp_value ];
                   data = this.data;
-                  data.append('zp_route', this.route);
+                  data.append('zp_route',  this.route);
                   data.append('zp_action', this.action);
-                  data.append('zp_value', this.value);
-                  this.log = 'prepared: POST/FormData';
+                  data.append('zp_value',  this.value);
+                  this.log('prepared: POST/FormData')
             } else {
                   // create $_POST[ zp_route, zp_action, zp_value, zp_data ]
                   // PHP destructs: $_POST[ zp_route, zp_action, zp_value, zp_data ];
                   data = JSON.stringify({
-                        'zp_route': this.route,
+                        'zp_route':  this.route,
                         'zp_action': this.action,
-                        'zp_value': this.value,
-                        'zp_data': this.data
+                        'zp_value':  this.value,
+                        'zp_data':   this.data
                   });
-                  this.log = 'prepared: POST/JSON';
+                  headers['Content-Type'] = 'application/json';
+                  this.log('prepared: POST/JSON');
             }
 
             // set baseUrl + zp_route/&
             this.fetch_url     = this.base_url;
             this.fetch_options = {
                   method:     this.method,
-                  headers:    {
-                        // --info-- don't set 'content-type' here, let it browsers default. 
-                        // -- this.fetch_options.headers['Content-Type'] = 'multipart/form-data'; www-urlencoded, ...
-                  },
+                  headers:    headers,
                   body: data // data
             }
       }

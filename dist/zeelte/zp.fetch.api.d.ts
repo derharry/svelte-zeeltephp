@@ -41,6 +41,6 @@ export function fetch_api(fetch: Function, dataOrEvent: any): void;
  * @param {object} [headers] - Optional, additional headers for the request
  * @returns {Promise<any>} Resolves the backend response or the response object on error
  */
-export function zp_fetch_api(fetch: Function, router: ZP_ApiRouter | ZP_EventDetails | Event | URL | URLParams | string, data?: any, method?: string, headers?: object): Promise<any>;
+export function zp_fetch_api(fetch: Function, router: ZP_ApiRouter | ZP_EventDetails | Event | URL | URLParams | string, data?: any, method?: string, headers?: object, debug?: boolean): Promise<any>;
 import { ZP_EventDetails } from "./class.zp.eventdetails.js";
 import { ZP_ApiRouter } from "./class.zp.apirouter.js";

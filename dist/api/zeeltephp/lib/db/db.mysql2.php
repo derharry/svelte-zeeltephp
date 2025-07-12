@@ -110,7 +110,8 @@ class ZeeltePHP_DB_MySQL2 extends ZP_DB implements IZP_DB {
                          $this->hostname,
                          $this->username,
                          $this->password,
-                         $this->database
+                         $this->database,
+                         $this->port
                     );
 
                     if ($this->isConnected()) {

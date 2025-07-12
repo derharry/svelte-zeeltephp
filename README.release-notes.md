@@ -1,3 +1,21 @@
+**v1.0.3.1 (rc1)**   2025-07-12
+- **ApiRouter**
+  - Param `router` can now be a string to define a direct route path.
+  - Api changed to default POST.
+  - Fixed request deparser on POST/JSON.
+-  **ZP Demo / ZP Dev**
+  - fix for action send-json via POST request.
+- **zp_fetch_api**
+  - Param `router` can now be a string to define a direct route path.
+  - added param-option debug.
+  - 
+- **PHP api/lib**
+  - **Database (lib/db/)**:
+    - added $select()
+    - added support for mysql port parameter
+
+---
+
 **v1.0.3.1 (rc1)**   2025-06-03
 - **Vite Plugin**
   - Change of detection on development/build modes using process.env.NODE_ENV.
@@ -11,6 +29,7 @@
   - **Helpers (lib/inc/)**:
     - Added utilities for key-value lists (keyValueListHelper.php).
 
+---
 
 **v1.0.3 (rc1)**   2025-05-26
 - **Installation & Key Path Changes**
