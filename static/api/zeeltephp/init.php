@@ -9,6 +9,14 @@
 #  - Starts the main ZeeltePHP application
 #
 
+// preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
+    header('Access-Control-Allow-Headers: X-ZPC-Api, Content-Type');
+    exit(0);
+}
+
 // Set default response type to JSON
 header('Content-Type: application/json');
 
@@ -22,7 +30,11 @@ require_once('core/main.php');
 require_once('core/zp.environment.php');
 require_once('core/zp.error.php');
 require_once('core/zp.inc.php');
+require_once('lib/time/class.timediff.php');
 require_once('lib/io/io.dir.php');
+
+$zpTime = new ZP_TimeDiff();
+$zpTime->start('init()');
 
 //// Set up default error handling
 // Start output buffering to capture fatal errors
@@ -40,12 +52,21 @@ register_shutdown_function(function() {
 });
 
 // Enable ZeeltePHP debugging (set to false in production)
-define('ZP_DEBUG', false);
+define('ZP_DEBUG', true);
+
+// #####################################
+// ## main()
+// #####################################
+// zp_log_debug() restart happens at zeeltephp_loadEnvironmnet() because const PATH_* are required first
 
 // Set up the current running environment
 zeeltephp_loadRunEnvironment();
 
 // All setup complete – start ZeeltePHP
 zeeltephp_main();
+
+zp_log_debug($zpTime->endN('init()'));
+zp_log_debug(date('Y-m-d H:i:s'));
+
 
 ?>
