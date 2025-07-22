@@ -28,22 +28,28 @@ class ZP_ApiRouter
           /** @var string Environment name ('development', 'library', 'self-development') */
           public $environment = ZP_ENV;
 
+          /** @var string page | api */
+          public $context = 'page';
+
           /** @var string HTTP request method */
           public $method = 'GET';
 
           /** @var string|null used content-type */
           public $contentType = null;
 
-          /** @var bool Whether a +page.server.php file exists for the route */
+          /** deprecated @var bool Whether a +page.server.php file exists for the route */
           public $routeFileExist = false;
 
-          /** @var string Path to the matched +page.server.php file */
+          /** deprecated @var string Path to the matched +page.server.php file */
           public $routeFile = '/';
 
           /** @var string Base path for routes */
           public $routeBase = PATH_ZPROUTES;
 
-          /** @var string Base API path */
+          /** @var string  is the real-path of route with (group-routes) */
+          public $routePath = '/';
+
+          /** deprecated @var string Base API path */
           public $routeBaseApi = '/';
 
           /** @var array|null HTTP headers */
@@ -89,32 +95,27 @@ class ZP_ApiRouter
       * @param array $env    Environment variables from .env or auto-generated.
       * @param bool  $debug  active debug to get all messages in $dbg_msgs;
       */
-     function __construct($env, $debug = false) {
+     function __construct($env, $debug = true) {
+          global $zpTime;
+          $zpTime->start('ZP_ApiRouter()');
           $this->debug = $debug;
           $this->log('ZP_ApiRouter()');
 
           $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
           $this->contentType  = $_SERVER['CONTENT_TYPE'] ?? null;
 
+          // get context
+          $headers = getallheaders();
+          if (  !empty($headers['X-ZPC-Api']) || 
+              ( !empty($headers['Access-Control-Request-Headers']) && str_contains($headers['Access-Control-Request-Headers'], 'x-zpc-api') )
+          ) {
+               $this->context = 'api';
+          }
+          $this->log('  -- context: '.$this->context);
+
           $this->parse_zpRequest();
           $this->collect_plusPHPfilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
-
-          /*
-          $this->log('  -- final outcome :');
-          foreach ($this as $k=>$v) {
-               try {
-                    // lets make sure $v can always be in a String to error_log();
-                    $v = "$v";
-               } catch (Throwable $e) {
-                    // convert any to JSON-String.
-                    $v = json_encode($v);
-               } finally {
-                    // error_log the String.
-                    $this->log("    $k = $v");
-               }
-          }
-          $this->log('//ZP_ApiRouter()');
-          */
+          zp_log_debug($zpTime->endN('ZP_ApiRouter()'));
      }
 
      /**
@@ -126,14 +127,18 @@ class ZP_ApiRouter
                $this->parse_request_GET();
           elseif (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'OPTIONS']))
                $this->parse_request_POST();
-          //else if ($_SERVER['REQUEST_METHOD'] == 'PUT') {}
-          //else if ($_SERVER['REQUEST_METHOD'] == 'PATCH') {} 
-          //else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE') {}
-          //else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {}
+          else if ($_SERVER['REQUEST_METHOD'] == 'PUT') 
+               $this->parse_request_POST();
+          else if ($_SERVER['REQUEST_METHOD'] == 'PATCH') 
+               $this->parse_request_POST();
+          else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE')
+               $this->parse_request_POST();
+          else if ($_SERVER['REQUEST_METHOD'] == 'DELETE')
+               $this->parse_request_POST();
           else
-               $this->log('ZP unsuxxpported method :'.$_SERVER['REQUEST_METHOD']);
+               $this->log('ZP unsupported method :'.$_SERVER['REQUEST_METHOD']);
 
-          // Normalize: treat string "null" as null
+          // Normalize: threat string "null" as null
           if ($this->action === "null")
                $this->action = null;
           if (is_string($this->action) && !str_starts_with($this->action, '?/'))
@@ -182,7 +187,7 @@ class ZP_ApiRouter
       */
      function parse_request_POST() {
           $this->log('  -- Request_Method = POST');
-          $this->method = 'POST';
+          $this->method = $_SERVER['REQUEST_METHOD'];
 
           if (isset($_POST['zp_route'])) {
                // Standard PHP POST
@@ -194,7 +199,7 @@ class ZP_ApiRouter
                $json  = json_decode( file_get_contents('php://input') , true);
                if (is_array($json))
                $_POST = $json; // set JSON into $_POST so we can parse it like PHP-POST
-               $this->method = 'JSON';
+               //$this->method = 'JSON';
           }
           if (isset($_POST['zp_route'])) { 
                $this->route  = $_POST['zp_route']  ?? $this->route;
@@ -217,6 +222,7 @@ class ZP_ApiRouter
       */
      function collect_plusPHPfilesInRoute($replaceBaseRoute) {
           $this->log('  -- collect_plusPHPfilesInRoute()');
+          $this->log('     @ replaceBaseRoute : '.$replaceBaseRoute);
           if (!$this->route) {
                $this->log(" ! route is missing, i need a route to collect +.php files"); 
                return;
@@ -225,34 +231,40 @@ class ZP_ApiRouter
           // Remove base route prefix if present (tmpFix-001)
           $this->route = str_replace($replaceBaseRoute, '', $this->route);
 
-          // v1.0.3 overhaul
-          //    from current route - collect +.php files
-          //    check route in case for upwards +.php files that needs to be pre-executed
-          //   
-          $route = $this->route;
-          $route_path       = str_replace('//', '/', $this->routeBase."/$route");
-          $route_path_depth = ($route === '//' || $route === '/') ? 0 : max(0, count(array_filter(explode('/', $route))) - 2);
-          $route_path_depth = count(explode('/', $route)) -2; // -2 because of / at start and end
-          $this->log("     route depth: $route_path_depth");
-          $this->log("     route path:  $route_path");
-
-          // Collect all +.php files upwards from the route path
-          // -- $phpFiles = ['+page.server.php', '+server.php', '+api.php'];
-          $this->routeFiles = zp_scandirRecursiveUp($route_path, '^\+.*\.php$', $route_path_depth);
-          if ($this->routeFiles) {
-               // For now, only support +page.server.php
-               $this->routeFile      = $route_path.'+page.server.php';
-               $this->routeFileExist = is_file($this->routeFile);
-               $this->log('     route file found');
+          // v1.0.4 - supporting more +.php files
+          $routePath = $this->route;
+          $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+          // context here?
+          if ($this->context == 'api') {
+               if (is_file($routePath."/+server.php")) {
+                    $this->routeFiles[] = '+server.php';
+               }
           }
           else {
-               $this->log('     ! route not found. check for grouped paths');
-               $this->routeFiles = $this->scandir_withGroupedRoutes() ?? [];
-
+               // 'page'
+               if (!is_dir($routeBase)) {
+                    $routePath = $this->scandir_withGroupedRoutes();
+                    $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+               }
+               if (!is_dir($routeBase)) {
+                    $this->log('  No route-path found! '.$routeBase);
+                    return;
+               }
+               $this->routePath = $routePath;
+               $this->routeBase = $routeBase;
+               
+               $route_path_depth = ($routePath === '//' || $routePath === '/') ? 0 : max(0, count(array_filter(explode('/', $routePath))));
+               //$route_path_depth = count(explode('/', $route_path_depth)); // -2; // -2 because of / at start and end
+               $routeFilesRP = zp_scandirRecursiveUp($routeBase, '#\+layout\.server\.#', $route_path_depth);
+               $routeFilesTP = zp_scandir($routeBase, '#\+page\.server\.#', $route_path_depth);
+               $routeFiles   = [];
+               if (is_array($routeFilesRP) && sizeof($routeFilesRP) > 0)
+                    $routeFiles = array_merge($routeFiles, $routeFilesRP);
+               if (is_array($routeFilesTP) && sizeof($routeFilesTP) > 0)
+                    $routeFiles = array_merge($routeFiles, $routeFilesTP);
+               $this->routeFiles = $routeFiles;
           }
-          //$this->log("     ".count($this->routeFiles)." +.php file matches");
-          // -- why did we replace /api/ with / again?
-          // -- $zp_routeBase  = str_replace('/api/', '/', $$this->routeBase);
+          return;
      }
 
      /**
@@ -261,29 +273,15 @@ class ZP_ApiRouter
      function scandir_withGroupedRoutes() {
           // currently 1-level is supported
           $this->log('  -- scandir_withGroupedRoutes()');
-          $grouped_paths = zp_scandir($this->routeBase, '^\(.*\)$');
+          $grouped_paths = zp_scandir($this->routeBase, '#^\(.*\)$#');
           foreach ($grouped_paths as $_) {
                $route_path = $this->routeBase . $_ . $this->route;
                if (is_dir($route_path)) {
                     $real_route = $_ . $this->route;
-                    $this->log("     route match $real_route");
-                    $this->log("     route path  $route_path");
-                    $this->routeFiles = zp_scandir($route_path, '^\+.*\.php$');
-                    if ($this->routeFiles) {
-                         // For now, only support +page.server.php
-                         $this->routeFile      = $route_path.'+page.server.php';
-                         $this->routeFileExist = is_file($this->routeFile);
-                         $this->log('     +page.server.php found in grouped route');
-                    }
-                    else {
-                         $this->log('     ! no +.php files found in grouped route');
-                    }
-                    break;
+                    return $real_route;
                }
           }
      }
-
-     function exec_route() {}
 
 }
 

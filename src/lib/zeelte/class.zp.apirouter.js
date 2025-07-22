@@ -35,8 +35,10 @@ export class ZP_ApiRouter
 
       /** @type {string} Environment flag ('dev' or 'prod') */
       environment = 'dev | build';
-      /** @type {string} HTTP method ('GET', 'POST', etc.) */
+      /** @type {string} HTTP method ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD') */
       method = 'POST';
+      /** @type {string} page | api */
+      context = 'page';
 
       // --- Fetch preparation ---
 
@@ -48,8 +50,6 @@ export class ZP_ApiRouter
       fetch_query = null;
       /** @type {object|null} Fetch options (method, headers, body, etc.) */
       fetch_options = {};
-      /** @type {string} Default content type */
-      fetch_enctype = 'application/json';
       /** @type {boolean} True if data is FormData */
       dataIsFormData = false;
       /** @type {string} Debugging last_message */
@@ -89,14 +89,18 @@ export class ZP_ApiRouter
                   this.environment = dev ? 'dev' : 'prod';
                   this.log('env', this.environment);
 
-                  // Set current route from from Svelte page (default)
-                  this.route = zp_page_route();
-
                   // Handle overloading: string, event, any..
-                  if (typeof router === 'string')
-                        this.parse_routerFromString(router);
-                  else {
-                        let checked = false; // flag to know if we have a deparsed case
+                  if (typeof router === 'string') {
+                        //this.parse_routerFromString(router);
+                        this.context = 'api';
+                        this.route   = router
+                        this.log('context', this.context);
+                  } else {
+                        this.context = 'page';
+                        this.log('context', this.context);
+                        
+                        // Set current route from from Svelte page (default)
+                        this.route  = zp_page_route();
 
                         // Try parsing event details
                         // ZP_EventDetails knows most use-cases e.g. SubmitEvent, PointerEvent, etc
@@ -166,7 +170,6 @@ export class ZP_ApiRouter
                   this.value  = zpED.value  || this.value;
                   this.set_data(zpED.data);
                   this.fetch_query = page.url.search || this.fetch_query;
-                  // -- ??? this.fetch_enctype = zpED.encoding || this.fetch_enctype
                   return zpED;
             }
             return false;
@@ -229,8 +232,11 @@ export class ZP_ApiRouter
             
             // -info- keep set_best_method() at __construct; do not set fetch_url here; -> otherwise manuall (override) settings are overwriten.
             if      (this.method == 'GET')  this.prepare_GET()
-            else if (this.method == 'POST') this.prepare_POST();
-            else     this.log(' - unsupported RequestType');
+            else {
+                  // anything else is POST, PUT, PATCH, DELETE, PUT, HEAD
+                  this.prepare_POST();
+            }
+            //else this.log(' - unsupported RequestType');
       }
 
       /**
@@ -266,9 +272,18 @@ export class ZP_ApiRouter
             zpURLPush(this.data)
             // --info-- params is already pushed to data! and ignored from now on  -- zpURLPush(this.params);
 
+            const headers = {}
+            if (this.context === "api") {
+                  headers['X-ZPC-API'] = 1;
+            } else {
+                  headers['X-ZPC-PAGE'] = 1;
+            }
             // set baseUrl + zp_route/&
             this.fetch_url = this.base_url +'?'+ zpURL.join('&');
-            this.fetch_options = {}
+            this.fetch_options = {
+                  method:     this.method,
+                  headers:    headers
+            }
       }
 
       /**
@@ -278,18 +293,24 @@ export class ZP_ApiRouter
             this.log('prepare_POST');
             let data = null;
             const headers = {}
+            if (this.context === "api") {
+                  headers['X-ZPC-API'] = 1;
+            } else {
+                  headers['X-ZPC-PAGE'] = 1;
+            }
 
             if (this.data instanceof FormData) {
                   // inject route, action, value into data. 
-                  // PHP destructs: $_POST[ ...data, zp_route, zp_action, zp_value ];
+                  // [ ...data, zp_route, zp_action, zp_value ];
+                  // headers['Content-Type'] =  browser-default
                   data = this.data;
                   data.append('zp_route',  this.route);
                   data.append('zp_action', this.action);
                   data.append('zp_value',  this.value);
                   this.log('prepared: POST/FormData')
             } else {
-                  // create $_POST[ zp_route, zp_action, zp_value, zp_data ]
-                  // PHP destructs: $_POST[ zp_route, zp_action, zp_value, zp_data ];
+                  // create POST/json [ zp_route, zp_action, zp_value, zp_data ]
+                  // [ zp_route, zp_action, zp_value, zp_data ];
                   data = JSON.stringify({
                         'zp_route':  this.route,
                         'zp_action': this.action,
@@ -297,7 +318,7 @@ export class ZP_ApiRouter
                         'zp_data':   this.data
                   });
                   headers['Content-Type'] = 'application/json';
-                  this.log('prepared: POST/JSON');
+                  this.log('prepared: POST/json');
             }
 
             // set baseUrl + zp_route/&
