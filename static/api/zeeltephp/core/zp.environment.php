@@ -15,21 +15,24 @@ function zeeltephp_loadRunEnvironment() {
           define('PATH_ZPLOG',    PATH_CPROOT.'/api/zeeltephp/php_log/');
           define('PATH_ZPLIB',    PATH_CPROOT.'/api/zeeltephp/lib_php/');
           define('PATH_ZPROUTES', PATH_CPROOT.'/api/zeeltephp/routes/');
+          define('PATH_ZPTMP',    PATH_CPROOT.'/api/zeeltephp/tmp/');
      }
      // Development Environment Setup 
      else {
           zp_loadRunEnvironmentDev();
           zp_allow_cors(); // Enable cross-origin requests
      }
+     if (!is_dir(PATH_ZPTMP)) mkdir(PATH_ZPTMP);
      // Debug Output
      if (ZP_DEBUG) {
-          zp_log_debug('ZP_ENV:        '.ZP_ENV, true); // Reset log file
+          zp_log_debug('ZP_ENV:        '.ZP_ENV, 0, true); // Reset log file
           zp_log_debug('PATH_INIT:     '.PATH_INIT); 
           zp_log_debug('PATH_CPROOT:   '.PATH_CPROOT);
           zp_log_debug('PATH_ZPAPIPHP: '.PATH_ZPAPIPHP);
           zp_log_debug('PATH_ZPLOG:    '.PATH_ZPLOG);
           zp_log_debug('PATH_ZPLIB:    '.PATH_ZPLIB);
           zp_log_debug('PATH_ZPROUTES: '.PATH_ZPROUTES);
+          zp_log_debug('PATH_ZPTMP:    '.PATH_ZPTMP);
      }
 }
 
@@ -86,6 +89,7 @@ function zp_loadRunEnvironmentDev() {
      define('PATH_ZPLOG',    "$consumerRoot/php_log/");
      define('PATH_ZPLIB',    "$consumerRoot/src/lib_php/");
      define('PATH_ZPROUTES', "$consumerRoot/src/routes/");
+     define('PATH_ZPTMP',    "$consumerRoot/$apiPath/tmp/");
 
      // PHP Configuration
      ini_set('error_log', PATH_ZPLOG.'php_errors.log');
