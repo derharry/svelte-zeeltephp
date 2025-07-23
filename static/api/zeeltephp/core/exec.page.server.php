@@ -9,14 +9,15 @@
       * @return mixed Response data from executed action or load function
       * @throws Error If no valid handler is found (801, 802, 501)
       */
-     function zp_exec_pageServerPHP() {
+     function zp_exec_PlusPageServerPHPFile($fqdn) {
           global $zpAR, $data;
           zp_log_debug('zp_exec_pageServerPHP()');
 
           // Include the +page.server.php from route
-          include($zpAR->routeFile);
+          //include($zpAR->routeFile);
+          //include($consumerFile);
 
-          // Normalize: treat string "null" as null
+          // Normalize: threat string "null" as null
           $action = $zpAR->action;
           if ($action === "null")
                $action = null;
@@ -30,29 +31,31 @@
                $action = str_replace('?/', '', $zpAR->action); // preg_replace('/^\\?\\//', '', $zpAR->action); 
 
                // Try outside action handler first (action_FOO())
-               $outsideActionHandler = 'action_' . $action;
+               $outsideActionHandler = $fqdn . '\\action_' . $action;
                if (function_exists($outsideActionHandler)) {
-                    // exec action_ACTION
                     return $data = $outsideActionHandler($zpAR->value);
                }
 
                // Fallback to general actions() handler
-               if (function_exists('actions')) {
+               $actionHandler = $fqdn . '\\actions';
+               if (function_exists($actionHandler)) {
                     // exec actions($action, $value, $data)
-                    return actions($action, $zpAR->value, $zpAR->data);
+                    return $actionHandler($action, $zpAR->value, $zpAR->data);
                }
                
                // No valid handler found
                throw new Error(802); // 802 = No action handler
 
           }
+          else {
+               // Handle GET/POST requests without specific action
+               $load = $fqdn .'\\load';
 
-          // Handle GET/POST requests without specific action
-          else if (function_exists('load')) {
-               return $data = load();
-               //throw new Error(801); // 801 no load() function
+               if (function_exists($load)) {
+                    return $load();                    
+               }
+               throw new Error(801); // 801 no load() function
           }
-
      }
 
 
