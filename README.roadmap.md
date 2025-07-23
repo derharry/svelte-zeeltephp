@@ -1,15 +1,17 @@
 # Roadmap / ideas
 - more documentation and examples
-- support other +.php like +server,api,hooks (17.05 prepared for)
+- support other +.php like +server,+layout,+hooks (17.05 prepared for) (23.07 added +layout.server.php, +server.php)
 - support more event types at ZP_EventDetails to handle more use-cases.
 - PHP 
   - use namespaces
-  - LIB return/add more lib methods/classes
+  - LIB return of/add more lib methods/classes
+  - Session and Auth
 - Ideas:
   - Live public Demo
   - Install via Github-Releases or as NPM-package
   - load response data from zp_fetch_api() directly into $page.data or $page.form to use export let data and form;
   - make PUBLIC_ZEELTEPHP_BASE optional and use just BASE. If set - its to let /api/zeeltephp work at different name or location.
+  - Buils for run as Plugin in Wordpress, Drupal, CraftCMS, .. any other PHP-CMS.
 
 ### Done
 - (25-04-15)
@@ -31,3 +33,6 @@
   - add a debug-Component to use in lib and consumer project to see if all is up and running. -> ZPDev.svelte
 - (25-05-10) 
   - put PHP error logging default to /static/api/log  ! -> is changed to /.zp-log
+- (25-07-23)
+  - added ssupport for +layout.server and +server.php
+  - +hooks.server.php (prepared for)

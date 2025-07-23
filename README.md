@@ -1,6 +1,6 @@
-# ZeeltePHP (v1.0.3.1 rc1)
+# ZeeltePHP (v1.0.4 rc1)
 
-A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`).
+A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`, `+layout.server.php`, `+server.php`).
 
 **Combine the best of Svelte and PHP in your project.**
 - Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`.
@@ -23,8 +23,10 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [Uninstall](#uninstall)
 - [Usage Examples](#usage-examples)
   - [+page.server.php](#php-pageserverphp)
+  - [+layout.server.php](#php-layoutserverphp)
   - [+page.svelte.js](#svelte-pagejs)
-  - [+page.svelte](#svelte-pagejs)
+  - [+page.svelte](#svelte-pagesvelte)
+  - [+server.php](#php-serverphp)
 - [Description](#description)
   - [ZeeltePHP Vite Plugin](#database-providers)
   - [Key Paths](#database-providers)
@@ -149,7 +151,6 @@ Follow the installation steps 1 - 5.
 - Svelte 5
 - SvelteKit 2
 - SvelteKit Adapter Static 3
-- PHP 8
 - HTTPd server (Apache, Nginx, etc.) with PHP 8.
 
 ---
@@ -160,8 +161,8 @@ Follow the installation steps 1 - 5.
 - Linux, Apache 2.4, PHP 8.3, MariaDB
 
 **Development** `http://localhost/<my-project>/<my-build>` 
-- bun, npm, or others.
-- XAMPP-ApacheFriends with PHP 8.0 + 8.2, MariaDB
+- bun, npm, or others at default port 5173
+- XAMPP-ApacheFriends with PHP 8.0 + 8.2, MariaDB at default port 80/443
 
 ---
 
@@ -172,6 +173,7 @@ Follow the installation steps 1 - 5.
 <?php
 
       function load() {
+            global $data;
 
             return 'Hello PHP';
 
@@ -183,7 +185,7 @@ Follow the installation steps 1 - 5.
       }
 
       function actions($action, $value) {
-            global $db;
+            global $db, $data;
 
             // e.g. ?/myAction from SvelteKit.
 
@@ -216,6 +218,25 @@ Follow the installation steps 1 - 5.
 
 ?>
 ```
+
+### PHP: `+layout.server.php`
+```php
+<?php
+
+      function load() {
+            global $data;
+
+            return 'Hello Layout-PHP';
+
+            // or
+
+            return [
+                  'message' => 'Hello from Layout-PHP',
+            ];
+      }
+?>
+```
+
 
 ### Svelte: `+page.js`
 ```js
@@ -280,6 +301,30 @@ export async function load({ fetch, url }) {
 </form>
 ```
 
+### PHP: `+server.php`
+```php
+<?php
+
+      // same for POST, PUT, PATCH, DELETE, HEAD
+      function GET() {
+            global $data;
+            return [
+                  'message' => 'Hello from +server.php-GET',
+            ];
+      }
+      
+      // fallback if none of the others exist 
+      function fallback() {
+            global $data;
+            return [
+                  'message' => 'Hello from +server.php-fallbacck',
+            ];
+      }
+?>
+```
+
+
+
 ---
 
 ## Description 
@@ -333,6 +378,7 @@ See troubleshooting for more details.
   <br> This method has overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.
 
   ```js
+  zp_fetch_api(fetch, string, [, ..])          // use directly +server.php in given route
   zp_fetch_api(fetch, Event [, ..])            // AnyEventType; will be parsed by ZP_EventDetails 
   zp_fetch_api(fetch, URL|URLParams, [, ..])   // Will be parsed by ZP_EventDetails
   zp_fetch_api(fetch, ZP_ApiRouter [, ..])     // If you created (or modified) ZP_ApiRouter earlier.

@@ -1,17 +1,21 @@
-**v1.0.3.1 (rc1)**   2025-07-12
-- **ApiRouter**
-  - Param `router` can now be a string to define a direct route path.
-  - Api changed to default POST.
-  - Fixed request deparser on POST/JSON.
--  **ZP Demo / ZP Dev**
-  - fix for action send-json via POST request.
+**v1.0.4 (rc1)**   2025-07-12
+(...tbd...)
+- ** in general **
+  - ZeeltePHP now supports +layout.server.php and +server.php
 - **zp_fetch_api**
-  - Param `router` can now be a string to define a direct route path.
+  - Param `router` as string is now direct API +server.php access
   - added param-option debug.
-  - 
+- **ApiRouter**
+  - Default API request routing/data is now POST by default (instead of GET)
+  - Param `router` as string is now direct API +server.php access
+  - Fixed request deparser on POST/JSON.
+  - Added 'context' to distinguish for page or api route request
+- **ZP Demo / ZP Dev**
+  - fix for action send-json via POST request.
 - **PHP api/lib**
+ - new class /time/class.timediff.php
   - **Database (lib/db/)**:
-    - added $select()
+    - added select()
     - added support for mysql port parameter
 
 ---
