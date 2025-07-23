@@ -48,7 +48,7 @@ export class ZP_ApiRouter
       fetch_url = null;
       /** @type {string|null} Query string for fetch */
       fetch_query = null;
-      /** @type {object|null} Fetch options (method, headers, body, etc.) */
+      /** @type {object|null} Fetch options (method, headers, body) */
       fetch_options = {};
       /** @type {boolean} True if data is FormData */
       dataIsFormData = false;
@@ -102,6 +102,8 @@ export class ZP_ApiRouter
                         // Set current route from from Svelte page (default)
                         this.route  = zp_page_route();
 
+                        // get info from router
+                        let checked = false
                         // Try parsing event details
                         // ZP_EventDetails knows most use-cases e.g. SubmitEvent, PointerEvent, etc
                         if (!checked)
