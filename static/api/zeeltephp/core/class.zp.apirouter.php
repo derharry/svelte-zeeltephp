@@ -95,7 +95,7 @@ class ZP_ApiRouter
       * @param array $env    Environment variables from .env or auto-generated.
       * @param bool  $debug  active debug to get all messages in $dbg_msgs;
       */
-     function __construct($env, $debug = true) {
+     function __construct($env, $debug = false) {
           global $zpTime;
           $zpTime->start('ZP_ApiRouter()');
           $this->debug = $debug;
@@ -106,8 +106,8 @@ class ZP_ApiRouter
 
           // get context
           $headers = getallheaders();
-          if (  !empty($headers['X-ZPC-Api']) || 
-              ( !empty($headers['Access-Control-Request-Headers']) && str_contains($headers['Access-Control-Request-Headers'], 'x-zpc-api') )
+          if (  !empty($headers['X-ZPC-API']) || 
+              ( !empty($headers['Access-Control-Request-Headers']) && str_contains($headers['Access-Control-Request-Headers'], 'X-ZPC-API') )
           ) {
                $this->context = 'api';
           }
@@ -115,6 +115,7 @@ class ZP_ApiRouter
 
           $this->parse_zpRequest();
           $this->collect_plusPHPfilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
+          zp_log_debug($this->dbg_msgs);
           zp_log_debug($zpTime->endN('ZP_ApiRouter()'));
      }
 
@@ -125,18 +126,11 @@ class ZP_ApiRouter
           $this->log('  parse_zpRequest()');
           if ($_SERVER['REQUEST_METHOD'] == 'GET')
                $this->parse_request_GET();
-          elseif (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'OPTIONS']))
+          else {
+               // POST, PUT, PATH, UPDATE, DELETE, HEAD
                $this->parse_request_POST();
-          else if ($_SERVER['REQUEST_METHOD'] == 'PUT') 
-               $this->parse_request_POST();
-          else if ($_SERVER['REQUEST_METHOD'] == 'PATCH') 
-               $this->parse_request_POST();
-          else if ($_SERVER['REQUEST_METHOD'] == 'UPDATE')
-               $this->parse_request_POST();
-          else if ($_SERVER['REQUEST_METHOD'] == 'DELETE')
-               $this->parse_request_POST();
-          else
-               $this->log('ZP unsupported method :'.$_SERVER['REQUEST_METHOD']);
+          }
+          //else $this->log('ZP unsupported method :'.$_SERVER['REQUEST_METHOD']);
 
           // Normalize: threat string "null" as null
           if ($this->action === "null")
@@ -234,15 +228,21 @@ class ZP_ApiRouter
           // v1.0.4 - supporting more +.php files
           $routePath = $this->route;
           $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+
           // context here?
           if ($this->context == 'api') {
-               if (is_file($routePath."/+server.php")) {
+               if (is_file($routeBase."/+server.php")) {
+                    // api-route will not have grouped routes
+                    $this->routePath = $routePath; 
+                    $this->routeBase = $routeBase;
+                    zp_log_debug($routeBase."/+server.php");
                     $this->routeFiles[] = '+server.php';
-               }
+               }    zp_log_debug($this->routeFiles);
           }
           else {
                // 'page'
                if (!is_dir($routeBase)) {
+                    // page-route could have grouped routes
                     $routePath = $this->scandir_withGroupedRoutes();
                     $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
                }
