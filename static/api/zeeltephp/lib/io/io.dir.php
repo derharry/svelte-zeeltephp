@@ -1,5 +1,15 @@
 <?php
 
+
+      function zp_cleanUpDirFrom($path, $regExp, $reqursive = false) {
+      }
+
+      function zp_emptyDir($pathOrFileList, $reqursive = false) {
+            if (is_array($pathOrFileList)) {
+            } else if (is_string($pathOrFileList)) {
+            }
+      }
+
       /**
        * Scan a directory for files matching a pattern (non-recursive).
        *
@@ -8,6 +18,9 @@
        * @return array|false            List of matching filenames (not paths). False if invalid path.
        */
       function zp_scandir($path, $regExp = null) {
+            if (!preg_match('/^([\/#]).*\1$/s', $regExp)) {
+                  $regExp = '/'.trim($regExp, '/#').'/';
+            }
             $path = rtrim(str_replace('//', '/', $path), '/');
             $files = [];
             if (!is_dir($path)) {
@@ -18,12 +31,12 @@
                   if ($file === '.' || $file === '..') continue;
                   $fullPath = "$path/$file";
                   if (is_dir($fullPath)) {
-                        if ($regExp === null || preg_match("/$regExp/", $file)) {
+                        if ($regExp === null || preg_match($regExp, $file)) {
                               $files[] = $file;
                         }
                   }
                   if (is_file($fullPath)) {
-                        if ($regExp === null || preg_match("/$regExp/", $file)) {
+                        if ($regExp === null || preg_match($regExp, $file)) {
                               $files[] = $file;
                         }
                   }
