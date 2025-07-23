@@ -9,9 +9,17 @@
       */
      function zp_allow_cors(): void {
           header("Access-Control-Allow-Origin: *");
-          header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+          header('Access-Control-Allow-Headers: X-ZPC-PAGE, X-ZPC-API, Content-Type');
           header("Access-Control-Allow-Headers: Content-Type");
+          header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE, HEAD");
           header('Access-Control-Max-Age: 3600');
+
+          if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
+               file_put_contents(PATH_ZPTMP."xxx.log", getallheaders());
+               //exit(0);
+               //exit(1);
+          }
+
      }
 
      /**
@@ -21,7 +29,7 @@
       */
      function zp_load_lib_files(string $path): void {
           zp_log_debug("zp_load_lib_files($path)");
-          $phpFiles = zp_scandir($path, '.php$'); //'/\.php$/');
+          $phpFiles = zp_scandir($path, '#\.php$#'); //'/\.php$/');
           foreach ($phpFiles as $file) {
                if ($file !== '.' && $file !== '..') {
                     $fullPath = PATH_ZPLIB . $file;
