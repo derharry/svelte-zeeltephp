@@ -53,6 +53,7 @@
 
           // Prepare error response
           $errorJsonRespone = [
+               'time'     => date("Y-m-d H:i:s"),
                'ok'       => false,
                'error'    => $e_type,
                'code'     => $e_code,
@@ -70,7 +71,8 @@
            // Encode to JSON and clean up full paths
           $json = json_encode($errorJsonRespone);
           $json = zp_change_full_paths_to_zp_relative($json);
-
+          
+          return json_decode($json);
           return $json;
      }
 
@@ -87,13 +89,21 @@
           global $zpAR;
 
           // Prepare Error
-          $json = zp_errorDetails($e, $message, $code);
+          $ed = zp_errorDetails($e, $message, $code);
           
           // Log error
-          error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
+          //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
+          error_log( sprintf('%s %s %s %s:%s %s',
+               $ed->time,
+               $ed->code,
+               $ed->error,
+               $ed->file,
+               $ed->line,
+               $ed->message
+          )."\n", 3, PATH_ZPLOG.'error_zp.log');
           
           // Output error JSON
-          echo $json;
+          echo json_encode($ed);
      }
 
      /**
@@ -102,10 +112,25 @@
       * @param mixed $content String or data to log.
       */
      function zp_log_error($e, $message = null, $code = null) {
-          // Prepare Error
-          $json = zp_errorDetails($e, $message, $code);
+          if (is_string($e)) {
+               $content = $e;
+          } 
+          else {
+               // Prepare Error
+               $ed = zp_errorDetails($e, $message, $code);
+               $content = sprintf('%s %s %s %s:%s %s',
+                    $ed->time,
+                    $ed->code,
+                    $ed->error,
+                    $ed->file,
+                    $ed->line,
+                    $ed->message
+               );
+          }
+          
           // Log error
-          error_log($json . "\n", 3, PATH_ZPLOG.'error.log');
+          //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
+          error_log($content."\n", 3, PATH_ZPLOG.'error.log');
      }
 
      /**
@@ -126,18 +151,14 @@
       * @param mixed $content  String or data to log.
       * @param bool  $restart  If true, restart (truncate) the log file.
       */
-     function zp_log_debug($content, $restart = false) {
-          if (defined('ZP_DEBUG') && ZP_DEBUG !== true) return;  // exit when dugging not activated
+     function zp_log_debug($content, $indent = 0, $restart = false) {
+          if (ZP_DEBUG !== true) return;  // exit when dugging not activated
           $file = PATH_ZPLOG."zp_debug.log";  // set the file name
           
           // Restart log if requested
           if ($restart && is_file($file)) {
+               // truncate file - instead unlink() and touch() -> io-speeds. ;-)
                file_put_contents($file, date("Y-m-d H:i:s")."\n");
-               // -- unlink($file);  // delete file
-               // -- usleep(500000); // 500ms to avoid race conditions
-               // -- sleep(1);     // almost no 'permission-denied' at race requests but 1sec is too slow for UI.
-               // -- touch($file);   // create file
-               // -- error_log(date("Y-m-d H:i:s")."\n", 3, $file);
           } else if (!is_file($file)) {
                touch($file);   // create file
           }
@@ -146,7 +167,10 @@
           if (is_array($content) || is_object($content)) 
                $content = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES, 3);
 
-          error_log($content."\n", 3, $file);
+          // fallback [int]$indent 
+          $indent = is_int($indent) ? $indent : 0;
+
+          error_log( str_repeat(' ', $indent).$content."\n", 3, $file);
      }
 
 
