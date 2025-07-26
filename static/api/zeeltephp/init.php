@@ -1,21 +1,13 @@
 <?php
 #
-#  ZeeltePHP – Initialization Loader for /api/
+#  ZeeltePHP – init
+#    - prepare environment
+#      - set defaults (response-header -code, PATH_ vars, out)
+#      - set working directory
+#      - load core depedencies
+#      - set default error_handler
+#    - start ZeeltePHP
 #
-#  This script bootstraps the ZeeltePHP environment.
-#  - Sets up the working directory
-#  - Loads core dependencies
-#  - Configures error handling
-#  - Starts the main ZeeltePHP application
-#
-
-// preflight
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
-    header('Access-Control-Allow-Headers: X-ZPC-PAGE, X-ZPC-API, Content-Type');
-    exit(0);
-}
 
 // Set default response type to JSON
 header('Content-Type: application/json');
@@ -25,13 +17,13 @@ define('PATH_INIT', str_replace('\\', '/', getcwd()));
 chdir(__DIR__); // Set ZeeltePHP working directory
 
 // Include core and dependencies
-require_once('core/class.zp.apirouter.php');
-require_once('core/main.php');
-require_once('core/zp.environment.php');
-require_once('core/zp.error.php');
-require_once('core/zp.inc.php');
 require_once('lib/time/class.timediff.php');
 require_once('lib/io/io.dir.php');
+require_once('core/zp.inc.php');
+require_once('core/zp.error.php');
+require_once('core/zp.environment.php');
+require_once('core/class.zp.apirouter.php');
+require_once('core/main.php');
 
 $zpTime = new ZP_TimeDiff();
 $zpTime->start('init()');
