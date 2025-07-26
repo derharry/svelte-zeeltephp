@@ -11,6 +11,13 @@
      <div>
           <button 
                on:click={ async (e) => {
+                    data_load = await zp_fetch_api(fetch, 'api/apidemoNONE/', undefined, 'GET')
+               }}
+          >
+               None
+          </button>
+          <button 
+               on:click={ async (e) => {
                     data_load = await zp_fetch_api(fetch, 'api/apidemo/', undefined, 'GET')
                }}
           >

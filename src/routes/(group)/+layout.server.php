@@ -1,7 +1,7 @@
 <?php
 
      function load() {
-          return 'fwfwelöflwefwfek';
+          return 'load from parent/+layout.server.php';
      }
 
 ?>
