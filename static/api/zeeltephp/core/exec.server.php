@@ -7,6 +7,8 @@
      function zp_exec_PlusServerPHPFile($fqdn) {
           global $zpAR, $data;
           zp_log_debug('zp_exec_ServerPHP()');
+          zp_log_debug('  @@ REQUEST_METHOD '.$_SERVER['REQUEST_METHOD']);
+          zp_log_debug('  @@ $zpAR->method  '.$zpAR->method);
 
           $method = $zpAR->method;
 
@@ -25,6 +27,7 @@
           }
 
           zp_log_debug("No METHOD $method or fallback() found.");
+          zp_log_debug('//zp_exec_ServerPHP()');
      }
 
 ?>
