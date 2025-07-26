@@ -324,7 +324,8 @@ export class ZP_ApiRouter
             }
 
             // set baseUrl + zp_route/&
-            this.fetch_url     = this.base_url;
+            // 1.0.4 -> Middleware / Proxy / Intercept ApiPHP request add this.route
+            this.fetch_url     = this.base_url + `?${this.route}`
             this.fetch_options = {
                   method:     this.method,
                   headers:    headers,
