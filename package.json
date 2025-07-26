@@ -3,6 +3,21 @@
 	"version": "1.0.4",
 	"description": "A SvelteKit-adapter-static 'PHP' plugin for projects using PHP-backend and use PHP like SvelteKit-files `+page.server.php`.",
 	"license": "MIT",
+	"author": "Harald <derharry@me.com>",
+	"homepage": "https://github.com/derharry/svelte-zeeltephp#readme",
+	"keywords": [
+		"svelte sveltekit adapter-static php"
+	],
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/derharry/svelte-zeeltephp"
+	},
+	"bugs": {
+		"url": "https://github.com/derharry/svelte-zeeltephp/issues"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -55,9 +70,6 @@
 		"vite": "^6.3.5",
 		"zeelte": "link:zeelte"
 	},
-	"keywords": [
-		"svelte sveltekit adapter-static php"
-	],
 	"dependencies": {
 		"@picocss/pico": "^2.1.1"
 	}
