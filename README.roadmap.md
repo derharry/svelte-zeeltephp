@@ -1,17 +1,18 @@
 # Roadmap / ideas
 - more documentation and examples
-- support other +.php like +server,+layout,+hooks (17.05 prepared for) (23.07 added +layout.server.php, +server.php)
+- support other +.php like +server,+layout,+hooks (17.05 prepared for) (23.07 in development/testing)
 - support more event types at ZP_EventDetails to handle more use-cases.
 - PHP 
-  - use namespaces
+  - use namespaces (24.07 in preparation)
   - LIB return of/add more lib methods/classes
   - Session and Auth
 - Ideas:
   - Live public Demo
-  - Install via Github-Releases or as NPM-package
+  - Install via Github-Releases or as NPM-package (27.07 in preparation)
   - load response data from zp_fetch_api() directly into $page.data or $page.form to use export let data and form;
   - make PUBLIC_ZEELTEPHP_BASE optional and use just BASE. If set - its to let /api/zeeltephp work at different name or location.
   - Buils for run as Plugin in Wordpress, Drupal, CraftCMS, .. any other PHP-CMS.
+  - Run from PHP.EXE without requiredment for an installed localhost-env (26.07 in development/testing)
 
 ### Done
 - (25-04-15)
