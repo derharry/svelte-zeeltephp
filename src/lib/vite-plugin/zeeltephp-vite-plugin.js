@@ -4,6 +4,9 @@ import { exec_task } from './zp.vite.tools.js'; // used at process_tasks()
 import path from 'path'; // used at postinstall(), postbuild(), zp_info
 import fs from 'fs';     // used at postinstall(), postbuild()
 
+// 1.0.4 -> Middleware / Proxy / Intercept ApiPHP request
+import http from 'http';
+import { execFile } from 'child_process';
 
 /** Environment configuration settings and defaults */
 const zp_info = {
@@ -105,6 +108,10 @@ export function zeeltephp(mode) {
                          zeeltephp_postbuild();
                     }
                }
+          },
+          configureServer(server) {
+               // 1.0.4 -> Middleware / Proxy / Intercept ApiPHP request
+               zeeltephp_phpMiddleWare(server)
           }
      };
 }
@@ -140,7 +147,7 @@ function zeeltephp_loadEnvironment(state, mode) {
                // Load the correct .env file for the mode
                zp_info.ENV_LOADED = loadEnv(mode, process.cwd(), '');
                Object.assign(process.env, zp_info.ENV_LOADED); // Merge into process.env for universal access
-          }          
+          }
      }
 
      // 2025-05-30 - process.env.NODE_ENV we know if dev|build  (serve|build)
@@ -157,7 +164,8 @@ function zeeltephp_loadEnvironment(state, mode) {
           BUILD_DIR: isDevMode ? '' :  buildDir,
           BASE:      isDevMode ? '' : `/${projectName}/${buildDir}`,
           PUBLIC_ZEELTEPHP_BASE: isDevMode
-               ? `http://localhost/${projectName}/static/api/`
+               // 1.0.4 - now default to just /api/
+               ? `/api/` // ? `http://localhost/${projectName}/static/api/`
                : `/${projectName}/${buildDir}/api/`
      };
 
@@ -293,4 +301,99 @@ function process_tasks(tasks, intoDir, verbose = false) {
                allSuccess = false;
      }
      return allSuccess;
+}
+
+
+/**
+ * 1.0.4 -> Middleware / Proxy / Intercept ApiPHP request
+ * @param {*} server 
+ */
+function zeeltephp_phpMiddleWare(server) {
+     const phpExe      = process.env.ZEELTEPHP_EXE || null
+     server.middlewares.use('/api', (req, res, next) => {
+          if (phpExe && phpExe.trim()) {
+                    console.log(`[${new Date().toISOString()}] php.exe ${req.method} ${req.url}`);
+                    if (!fs.existsSync(phpExe)) {
+                         console.log('ERROR: .env.ZEELTEPHP_EXE is not found!')
+                         console.log('      '+phpExe)
+                    } 
+                    else {
+                         //console.log('OK   : .env.ZEELTEPHP_EXE is found ')
+                         
+                         // build env vars
+                         const env = { ...process.env };
+
+                         // map headers — transform header names to uppercase, replace '-' with '_'
+                         for (const [name, val] of Object.entries(req.headers)) {
+                              const envName = 'HTTP_' + name.toUpperCase().replace(/-/g, '_');
+                              env[envName]  = val;
+                         }
+
+                         // set important vars
+                         env.REQUEST_METHOD = req.method;
+                         env.CONTENT_TYPE   = req.headers['content-type']   || '';
+                         env.CONTENT_LENGTH = req.headers['content-length'] || '0';
+
+                         // parse query string
+                         // -- const urlParts  = req.url.split('?');
+                         // -- env.REQUEST_URI = urlParts[1] || '';
+                         env.REQUEST_URI = req.url // --[1] || '';
+
+
+                         // 2. Map URL to the PHP file path
+                         const phpScript  = path.join(process.cwd(), 'static/api/index.php');
+                         //console.log(phpExe +' '+ phpScript)
+
+                         // 3. Execute PHP (send request) 
+                         const phpProcess = execFile(phpExe, [phpScript], { env, cwd: path.dirname(phpScript) });
+                         req.pipe(phpProcess.stdin);
+                         req.on('end', () => phpProcess.stdin.end());
+
+                         let output = '';
+                         let errorOut = '';
+
+                         phpProcess.stdout.on('data', (chunk) => {
+                              output += chunk.toString();
+                         });
+                         phpProcess.stderr.on('data', (chunk) => {
+                              errorOut += chunk.toString();
+                         });
+
+                         phpProcess.on('close', (code) => {
+                              if (code !== 0) {
+                                   res.statusCode = 500;
+                                   res.end(errorOut || `PHP process exited with code ${code}`);
+                                   //console.log(errorOut || `PHP process exited with code ${code}`)
+                              } else {
+                                   res.setHeader('Content-Type', 'application/json'); // adjust as needed for content type
+                                   res.end(output);
+                                   //console.log('OK   :phpProcess.on.close() ')
+                              }
+                         });
+                    } 
+          } else {
+                    // Proxy to default backend "FALLBACK"
+                    console.log(`[${new Date().toISOString()}] localhost ${req.method} ${req.url}`);
+                    const projectName  = path.basename(process.cwd());
+                    const localhostUrl = `http://localhost/${projectName}/static/api` + req.url.replace(/^\/api\//, '/')
+                    //console.log(localhostUrl)
+
+                    // Prepare http.request( URL , { METHOD, HEADERS }, proxyRes => {} )
+                    const proxyReq = http.request( localhostUrl, {
+                              method: req.method,
+                              headers: req.headers
+                         },
+                         proxyRes => {
+                              res.writeHead(proxyRes.statusCode, proxyRes.headers);
+                              //console.log('res.writeHead()')
+                              proxyRes.pipe(res, { end: true });
+                              //console.log('proxyRes.pipe()')
+                         }
+                    );
+                    req.pipe(proxyReq, { end: true });
+                    //console.log('req.pipe(proxyReq)')
+               }
+     });
+
+
 }
