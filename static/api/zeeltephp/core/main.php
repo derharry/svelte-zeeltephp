@@ -20,7 +20,6 @@ function zeeltephp_main() {
           // 2025-07-17 1.0.4 support for context page/api
           // changing to routeFiles[] instead routeFileExist + routeFile
           if (sizeof($zpAR->routeFiles) > 0) {
-
                //zp_log_debug("  route files:");
                //zp_log_debug($zpAR->routeFiles);
 
@@ -34,21 +33,28 @@ function zeeltephp_main() {
                }
 
                // 2025-07-16 1.0.4 support for +hooks.server.php
-               // maybe - hooks/handle also needs to be in a UniqFile-NameSpace
-               $hooksData;
+               // -- $hooksData;
                if (is_file(PATH_ZPROUTES."+hooks.server.php")) {
-                    $zpTime->start('+hooks.server.php');
-                    include(PATH_ZPROUTES."+hooks.server.php");
                     zp_log_debug('+hooks.server.php found.');
-                    if (function_exists('handle')) {
-                         zp_log_debug('executing handle()');
-                         $hooksData = handle();
-                    } else zp_log_debug('No METHOD handle() found.');
-                    zp_log_debug($zpTime->endN('+hooks.server.php'));
+                    /*
+                    -- can    +hooks.server.php be added to routeFiles to be executed from zp.executor?
+                    -- needs  +hooks.server.php to be a FQDNfile?
+                              array_unshift($zpAR->routeFiles, '+hooks.server.php');
+
+                    -- can    +hooks.server.php be standalone? diff DEV and PROD (but lives in PATH_ZPROUTES);
+                              $zpTime->start('+hooks.server.php');
+                              include(PATH_ZPROUTES."+hooks.server.php");
+                              zp_log_debug('+hooks.server.php found.');
+                              if (function_exists('handle')) {
+                                   zp_log_debug('executing handle()');
+                                   $hooksData = handle();
+                              } else zp_log_debug('No METHOD handle() found.');
+                              zp_log_debug($zpTime->endN('+hooks.server.php'));
+                    */
                }
                
-               // init response of +.php files
-               $data = 'x';
+               // init response of +server files
+               $data = null;
                
                // parse the route
                include_once('core/zp.executor.php');
@@ -59,6 +65,9 @@ function zeeltephp_main() {
                }
 
                // return data as JSON response, and let zp_fetch_api() do the rest :-)
+               echo json_encode($data);
+               /*
+               from 1.0.4 only return only the data - no overhead anymore.
                echo json_encode([
                     'ok'   => true,
                     'code' => 200,
@@ -66,24 +75,12 @@ function zeeltephp_main() {
                     //'zpDB' => $db
                     // -- ...$data // pitfall - do not because of send-data-JSON of any data  
                ]);
-
-          } else {
-               // error handling .. no +php-files to exec found
-               // wel - lets notifiy what is missing
-               if (!$zpAR->route) {
-                    // nothing to do - just no route is given
-                    throw new Error('400');
-               }
-               else if (!$zpAR->routeFileExist) {
-                    // no .php file found in route
-                    throw new Error('404');
-               }
-               else {
-                    // # last resort return an unsupported error
-                    zp_log('?? unknown error');
-                    zp_log_debug('?? unknown error');
-                    throw new Error(501);
-               }
+               */
+          } 
+          else {
+               // no +server files found in route
+               // previous 1.0.4 we returned an error, from now just send an default empty-JSON response
+               echo json_encode((object)null);
           }
           zp_log_debug('//zeeltephp_main()');
           zp_log_debug($zpTime->endN('main()'));
