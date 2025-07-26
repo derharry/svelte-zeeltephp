@@ -1,5 +1,21 @@
 <?php
 
+// .env.ZEELTEPHP_EXE - Polyfill getallheaders()
+if (!function_exists('getallheaders')) {
+     function getallheaders() {
+          $headers = [];
+          foreach ($_SERVER as $name => $value) {
+               #if (is_string($value)) zp_log_debug("$name = $value");
+               if (substr($name, 0, 5) == 'HTTP_') {
+                    // Convert HTTP_HEADER_NAME to Header-Name
+                    $headerName = str_replace(' ', '-', str_replace('_', ' ', substr($name, 5)));
+                    $headers[$headerName] = $value;
+          }}
+          return $headers;
+     }
+}
+
+
 /**
  * Sets up ZeeltePHP runtime environment paths and configurations.
  * 
