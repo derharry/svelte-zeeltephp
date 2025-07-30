@@ -67,7 +67,7 @@ function zeeltephp_main() {
                // return data as JSON response, and let zp_fetch_api() do the rest :-)
                echo json_encode($data);
                /*
-               from 1.0.4 only return only the data - no overhead anymore.
+               from 1.0.4 only return only the data and use response-codes - no overhead-layer anymore.
                echo json_encode([
                     'ok'   => true,
                     'code' => 200,
