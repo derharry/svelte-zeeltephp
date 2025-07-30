@@ -1,4 +1,4 @@
-<?php
+<?php namespace zp1753838398; $zpns=__NAMESPACE__;
 
      function fallback() {
           return 'hi from fallback()';

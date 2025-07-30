@@ -1,4 +1,4 @@
-<?php
+<?php namespace zp1753838029; $zpns=__NAMESPACE__;
 #
 # /zpdemo/+page.server.php
 #

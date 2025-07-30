@@ -53,14 +53,50 @@ function zeeltephp_main() {
                     */
                }
                
-               // init response of +server files
+               // the response of the +server files is passed the route downwards
                $data = null;
                
                // parse the route
-               include_once('core/zp.executor.php');
                foreach ($zpAR->routeFiles as $plusPhpFile) {
                     $zpTime->start($plusPhpFile);
-                    $data = zp_executor($zpAR->routeBase, $plusPhpFile, $data);
+                    zp_log_debug("+server:    $plusPhpFile", 2);
+                    zp_log_debug(str_starts_with($plusPhpFile, '+page.server.') ? 'yes':'no', 14);
+
+                    $zpns = '';
+                    include("$zpAR->routeBase/$plusPhpFile");
+                    if ($zpns !== '') {
+                         zp_log_debug("  has namespace");
+
+                         if ($zpAR->context == 'api') {
+                              zp_log_debug("  is context == 'api'");
+                              include_once('core/exec.server.php');
+                              $data = zp_exec_PlusServerPHPFile($zpns);
+                         }
+                         else { 
+                              zp_log_debug("  is context == 'page'");
+                              
+                              if (str_starts_with($plusPhpFile, '+layout.server.')) {
+                                   zp_log_debug("  loaded +layout.server");
+                                   include_once('core/exec.layout.server.php');
+                                   $data = zp_exec_PlusLayoutServerPHPFile($zpns);
+                              }
+                              else if (str_starts_with($plusPhpFile, '+page.server.')) {
+                                   zp_log_debug("  loaded +page.server");
+                                   include_once('core/exec.page.server.php');
+                                   $data = zp_exec_PlusPageServerPHPFile($zpns);
+                              }
+                              else {
+                                   zp_log_debug("  no +server file match for $zpAR->routeBase/$plusPhpFile");
+                              }
+                         }
+
+                    } else {
+                         # log error at current route and exit loop (root cause) 
+                         $data = null; # just to be sure to not expose from parent data
+                         zp_log_debug("  missing namespace for $zpAR->routeBase/$plusPhpFile");
+                         break;
+                    }
+
                     zp_log_debug($zpTime->endN($plusPhpFile));
                }
 
