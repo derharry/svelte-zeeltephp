@@ -9,6 +9,9 @@
 #    - start ZeeltePHP
 #
 
+// Enable ZeeltePHP debugging (set to false in production)
+define('ZP_DEBUG', false);
+
 // Set default response type to JSON
 header('Content-Type: application/json');
 
@@ -42,9 +45,6 @@ register_shutdown_function(function() {
         zp_handle_error($error, 'Fatal Error', 500);
     }
 });
-
-// Enable ZeeltePHP debugging (set to false in production)
-define('ZP_DEBUG', false);
 
 // #####################################
 // ## main()
