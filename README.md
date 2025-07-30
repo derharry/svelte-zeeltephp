@@ -28,7 +28,8 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [+page.svelte](#svelte-pagesvelte)
   - [+server.php](#php-serverphp)
 - [Description](#description)
-  - [ZeeltePHP Vite Plugin](#zeeltephp-vite-plugin-zeeltephp-mode)
+  - [ZeeltePHP Vite Plugin](#zeeltephp-vite-plugin-zeeltephpmode)
+    - [PHP.exe](#php-exe)
   - [Key Paths](#key-paths)
   - [.ignore example](#gitignore-example)
   - [ZP Demo](#zp-demo)
@@ -38,6 +39,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [PHP](#php)
     - [Globals](#globals)
     - [Lib](#lib)
+    - [PHP.exe](#phpexe)
     - [Database Provider](#database-provider)
 - [Troubleshooting](#troubleshooting)
 - [Release Notes & Roadmap](#release-notes--roadmap)
@@ -53,13 +55,15 @@ Follow the installation steps 1 - 5.
    ```
    npx sv create myZPproject
    ```
-   Be sure to use `adapter-static` and place your project in your local `DOCUMENT_ROOT` directory. e.g. `/htdocs`. 
+   - Be sure to use `adapter-static`
+   - You have 2 options where to save your project:
+     1. in your local httpd `DOCUMENT_ROOT` `/htdocs` directory. (default)
+     2. or anywhere and use `php.exe` directly if configured.
 
 2. **Install ZeeltePHP**  
    ```
-   npm add github:derharry/svelte-zeeltephp
+   npm add zeeltephp
    ```
-   Or use a `.tgz` file.
 
 3. **Add Vite Plugin**  
    Update your `vite.config.js`:
@@ -151,32 +155,40 @@ Follow the installation steps 1 - 5.
 - SvelteKit 2
 - SvelteKit Adapter Static 3
 
-- 1.0.4 tbd - 
-  - A /path/to/php.exe (without static environment (for dev only)) (See .env.ZEELTEPHP_EXE)
-  OR
-  - a local HTTPd server (Apache, Nginx, etc.) with PHP 8.
+- Local Httpd (Apache, Nginx, etc.) configured with PHP 8 
+  or PHP only /path/to/php.exe without httpd. See [PHP.exe](#phpexe) for details.
 
 ---
 
 ### Example Environments
 
-**Production**  `https://www.example.com/<my-build>` 
+**Production**  `https://www.example.com/<my-build>`
 - Linux, Apache 2.4, PHP 8.3, MariaDB
 
 **Development** `http://localhost/<my-project>/<my-build>` 
-- bun, npm, or others at default port 5173
-- 1.0.4 tbd - 
-  - A /path/to/php.exe (without static environment (for dev only)) (See .env.ZEELTEPHP_EXE)
-  OR
-  - XAMPP-ApacheFriends with PHP 8.0 + 8.2, MariaDB at default port 80/443
+- bun, npm, or others
+- XAMPP with PHP ^8.0, MariaDB (like XAMPP-ApacheFriends)
+  or using /path/to/php.exe directly without a httpd
 
 ---
 
 ## Usage Examples
 
+### /routes/+server .php files
+All +server PHP files requires to be in a uniq namepace the variable $zpns.
+This way SveltePHP can load your /routes/+server PHP files und use the same methods like load()
+Something like 
+```php
+      <?php 
+            namespace uniqNameSpace; 
+            $zpns = __NAMESPACE__;
+      ...
+```
+
+
 ### PHP: `+page.server.php`
 ```php
-<?php 
+<?php namespace zp111; $zpns=__NAMESPACE__;
 
       function load() {
             global $data;
@@ -227,7 +239,7 @@ Follow the installation steps 1 - 5.
 
 ### PHP: `+layout.server.php`
 ```php
-<?php
+<?php namespace zp222; $zpns=__NAMESPACE__;
 
       function load() {
             global $data;
@@ -309,7 +321,7 @@ export async function load({ fetch, url }) {
 
 ### PHP: `+server.php`
 ```php
-<?php
+<?php namespace zp333; $zpns=__NAMESPACE__;
 
       // same for POST, PUT, PATCH, DELETE, HEAD
       function GET() {
@@ -451,8 +463,7 @@ PUBLIC_ZEELTEPHP_BASE=/myZPproject/myBuild/api
 
 ZEELTEPHP_EXE=/path/to/php.exe
      # development:    1.0.4 tbd - if set - ZeeltePHP uses CLI/php.exe instead of localhost.
-     #                                      Project can be saved anywhere (not in DOCUMENT_ROOT)
-     # build:          to let the build run with CLI/php.exe
+     #                                      Your Project can be saved anywhere (no DOCUMENT_ROOT requirement)
 ```
 
 ---
@@ -460,13 +471,12 @@ ZEELTEPHP_EXE=/path/to/php.exe
 ### PHP
 
 #### PHP error log
-- Errors are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` as long its allowed to be set via `ini_set('error_log')`.
-- At error output (log, responses) 
-  - the path `/api/zeeltephp` is shortened to `/api` for readability.
-  - full system paths are changed to relative paths.
-- For saving custom log-files you can use `PATH_ZPLOG`.
-  - e.g. `file_put_contents(PATH_ZPLOG."mylog.txt")`.
-  - **zp_log( $content )** writes the content to `log.log`.
+- Errors are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` when `ini_set('error_log')` is allowed.
+- At error output or response  thhe paths are changed for readability 
+  - the path `/api/zeeltephp` is shortened to `/api`.
+  - and full system paths are changed to relative paths.
+- For saving custom log-files you can use `PATH_ZPLOG` $path = PATH_ZPLOG . "mylog.txt"
+  - the method **zp_log( $content )** writes the content into `log.log`.
 
 
 #### Globals
@@ -475,10 +485,10 @@ These global variables are accessible from anywhere in your PHP code.
 - **$env**:  `.env` configuration. 
 - **$db**:   Shared DB-Connection. 
 
+
 #### PHP.exe
 ZeeltePHP runs on CLI/php.exe when the .env.ZEELTEPHP_EXE=/path/to/php.exe variable is set. 
-A static-localhost-environment is then not required (Apache, Nginx, ..).
-See [.env Configuration](#env-configuration) for details.
+A httpd is then not required. See [.env Configuration](#env-configuration) for details.
 
 
 #### Database Provider 
@@ -495,6 +505,7 @@ ZEELTEPHP_DATABASE_URL=wordpress://path/to/your/wp-load.php
 ```
 
 ```php
+<?php 
 
    function example_db_usage() {
       global $db;
@@ -551,6 +562,7 @@ ZEELTEPHP_DATABASE_URL=wordpress://path/to/your/wp-load.php
       $db->close();
 
    }
+?>
 ```
 
 #### Lib
