@@ -1,10 +1,11 @@
 **v1.0.4 (rc1)**   2025-07-12
 (...tbd...)
 - ** in general **
-  - ZeeltePHP now supports +layout.server.php and +server.php
+  - Support for +layout.server.php and +server.php files. Namespaces have to used. 
+  - *tbd* The JSON-response from ZeeltePHP is now empty when the route is not properly 
 - **zp_fetch_api**
-  - Param `router` as string is now direct API +server.php access
-  - added param-option debug.
+  - Param `router` as string is for API +server.php access.
+  - Added param-option debug.
 - **ApiRouter**
   - Default API request routing/data is now POST by default (instead of GET)
   - Param `router` as string is now direct API +server.php access
@@ -17,6 +18,9 @@
   - **Database (lib/db/)**:
     - added select()
     - added support for mysql port parameter
+- **PHP.exe**
+  - ZeeltePHP can also run from php.exe - instead of using a full static-hosting environment.
+  - Set ZEELTEPHP_EXE=/path/to/php.exe
 
 ---
 
