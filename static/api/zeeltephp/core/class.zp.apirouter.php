@@ -296,18 +296,21 @@ class ZP_ApiRouter
           $this->route = str_replace($replaceBaseRoute, '', $this->route);
 
           // v1.0.4 - supporting more +.php files
+          $routeFiles   = [];
+          $routeFilesTP = [];
           $routePath = $this->route;
           $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
 
           // context here?
           if ($this->context == 'api') {
-               if (is_file($routeBase."/+server.php")) {
+               $this->routePath = $routePath;          
+               $this->routeBase = $routeBase;
+               $routeFilesTP = zp_scandirRecursiveUp($routeBase, '#\+server\.#');
+               #if (is_file($routeBase."/+server.php")) {
                     //$this->log('     @ +server.php '.$routeBase);
                     // api-route will not have grouped routes
-                    $this->routePath = $routePath;          
-                    $this->routeBase = $routeBase;
-                    $this->routeFiles[] = '+server.php';
-          }}
+               #     $this->routeFiles[] = '+server.php'; #]
+          }
           else {
                // 'page'
                $this->log('     @ +page.server.php '.$routeBase);
@@ -315,11 +318,10 @@ class ZP_ApiRouter
                     // page-route could have grouped routes
                     $routePath = $this->scandir_withGroupedRoutes();
                     $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
-               }
-               if (!is_dir($routeBase)) {
-                    $this->log('  No route-path found! '.$routeBase);
-                    return;
-               }
+                    if (!is_dir($routeBase)) {
+                         $this->log('  No route-path found! '.$routeBase);
+                         return;
+               }}
                $this->routePath = $routePath;
                $this->routeBase = $routeBase;
                
@@ -327,13 +329,12 @@ class ZP_ApiRouter
                //$route_path_depth = count(explode('/', $route_path_depth)); // -2; // -2 because of / at start and end
                $routeFilesRP = zp_scandirRecursiveUp($routeBase, '#\+layout\.server\.#', $route_path_depth);
                $routeFilesTP = zp_scandir($routeBase, '#\+page\.server\.#', $route_path_depth);
-               $routeFiles   = [];
                if (is_array($routeFilesRP) && sizeof($routeFilesRP) > 0)
                     $routeFiles = array_merge($routeFiles, $routeFilesRP);
-               if (is_array($routeFilesTP) && sizeof($routeFilesTP) > 0)
-                    $routeFiles = array_merge($routeFiles, $routeFilesTP);
-               $this->routeFiles = $routeFiles;
           }
+          if (is_array($routeFilesTP) && sizeof($routeFilesTP) > 0)
+               $routeFiles = array_merge($routeFiles, $routeFilesTP);
+          $this->routeFiles = $routeFiles;
           $this->log('  //collect_plusPHPfilesInRoute()');
           return;
      }

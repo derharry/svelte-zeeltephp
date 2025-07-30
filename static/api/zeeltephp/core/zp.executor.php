@@ -1,13 +1,10 @@
 <?php
 
 /**
- * Voert de 'load()' functie van een routebestand uit binnen een dynamisch gegenereerde namespace
- * en beheert de data-overdracht.
+ * loads the exec file for the given routeType
  *
- * @param string $routeFile Het absolute pad naar het +layout.server.php of +page.server.php bestand.
- * @param array|null $parentData De data die van de parent layout komt.
- * @return array De data die deze layout/pagina genereert.
- * @throws Exception Als het bestand niet bestaat of de load-functie niet kan worden aangeroepen.
+ * @param string $routeBase       path to the file
+ * @param string $routeFile       filename
  */
 function zp_executor(string $routeBase, string $routeFile)
 {
@@ -48,7 +45,7 @@ function zp_executor(string $routeBase, string $routeFile)
 
     zp_log_debug($zpTime->endN('zp_executor()'), 1);
     zp_log_debug("/zp_executor()");
-    return $data; // Zorg ervoor dat het altijd een array is
+    return $data;
 }
 
 
@@ -64,7 +61,7 @@ function zp_executor_GetFQDNfile($routeBase, $routeFile) {
         zp_log_debug("    @ routeFile " . $routeFile);
         
         // in prod receive the FQDNfile from ZP_ApiRouter/collectRouteFiles
-        if (preg_match('#(\+.*server)\.(0-9]+)\.php$#i', $routeFile, $matches)) {
+        if (preg_match('#(\+.*server)\.([0-9]+)\.php$#i', $routeFile, $matches)) {
             zp_log_debug("    -- match prod $routeFile");
             $routeType = $matches[1] ?? null;
             $fqdnFile  = "$routeBase/$routeFile";
@@ -94,8 +91,8 @@ function zp_executor_GetFQDNfile($routeBase, $routeFile) {
             $orgFile  = "$routeBase/$routeType.php";
             zp_log_debug("    -- FQDN prod orgFile $orgFile");
             if (is_file($orgFile)) {
-                [$fqdnFile, $fqdn] = zp_executor_CreateFQDNfile($routeBaseFQDN, $routeType, $orgFile);
-                if ($fqdnFile && is_file($oldFile)) unlink($oldFile);
+                [$fqdnFile, $fqdn] = zp_executor_CreateFQDNfile($routeBase, $routeType, $orgFile);
+                if ($fqdnFile && is_file($fqdnFile)) unlink($orgFile);
             };
         }
         // in dev we only have the "OriginalFile/DevelopmentFile"
@@ -136,7 +133,7 @@ function zp_executor_GetFQDNfile($routeBase, $routeFile) {
                 zp_log_debug("     @ fqdnFile  $fqdnFile");
                 zp_log_debug("     @ oldFile   $oldFile");
                 // delete OldFQDNfile
-                if ($fqdnFile && is_file($oldFile)) unlink($oldFile);
+                if ($fqdnFile && $oldFile && is_file($oldFile)) unlink($oldFile);
             }
         }
     } 
@@ -154,15 +151,13 @@ function zp_executor_CreateFQDNfile($toRouteBase, $routeType, $fromOrgFile) {
     $fqdnFile = '';
     $fqdn     = '';
     try {
-        #### still lost /(group)/test incase!
         zp_log_debug("CreateFQDNfile()", 2);
         zp_log_debug("    @ toRouteBase " . $toRouteBase);
         zp_log_debug("    @ routeType   " . $routeType);
         zp_log_debug("    @ fromOrgFile " . $fromOrgFile);
 
         // check if toRouteBase including zpAR->route path exist
-        if (!is_dir($toRouteBase)) 
-            mkdir($toRouteBase, 0777, true);
+        if (!is_dir($toRouteBase)) mkdir($toRouteBase, 0777, true);
 
         // prepare fqdnFile-name and source fqdnSource
         $fqdn     = filemtime($fromOrgFile);                         # is new FQDN-id
@@ -170,10 +165,10 @@ function zp_executor_CreateFQDNfile($toRouteBase, $routeType, $fromOrgFile) {
         $fqdnFile = "$toRouteBase/$routeType.$fqdn.php";             # is fqdnFile with path
         $source   = file_get_contents($fromOrgFile);                 # is orgSource
         $source   = trim(str_replace(['<?php', '?>'], '', $source)); # is orgSource cleaned
-        $source   = "namespace " . $fqns . ";\n" . $source;          # is fqdnSource
-        
+        $source   = "namespace " . $fqns . ";\n" . $source;            # is fqdnSource
+
         // write new FQDNfile
-        file_put_contents($fqdnFile, "<?php\n$source\n?>");  # fqdnFile
+        file_put_contents($fqdnFile, "<?php $source\n?>");  # fqdnFile
         zp_log_debug("    @ fqdn      " . $fqdn);
         zp_log_debug("    @ fqnFile   " . $fqdnFile);
     } 
