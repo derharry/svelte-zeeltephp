@@ -9,9 +9,10 @@
      <nav>
            <ul>
                  <li><a href="{base}/">Home</a></li>
-                 <li><a href="{base}/zpdemo">ZpDemo</a></li>
+                 <li><a href="{base}/zp_fetch_API">Usage Examples</a></li>
+                 <li><a href="{base}/zpdev">ZPDev</a></li>
                  <li><a href="{base}/apidemo">API-Demo</a></li>
-                 <li><a href="{base}/test">Grouped</a></li>
+                 <!--<li><a href="{base}/documentation">Documentation</a></li>-->
            </ul>
      </nav>
      <div class="routeBar">{zp_page_route()}</div>

@@ -7,7 +7,7 @@ export async function load({ params, fetch, url }) {
             console.log(zpAR_pageJS);
             const res_pageServerPHP  = await zp_fetch_api(fetch, zpAR_pageJS);
             return {
-                  '+page.js': '/load( zpdemo )',
+                  '+page.js': '/load( zpdev )',
                   // return results from php 
                   //'+page.server.php': res_php,
                   // for ZPDev we need zpAR at least exposed to the root.

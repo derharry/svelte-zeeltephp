@@ -1,16 +1,16 @@
 <?php namespace zp1752176751; $zpns=__NAMESPACE__;
 
 #
-# /zpdemo/+page.server.php
+# /zpdev/+page.server.php
 #
 # ...
 #
 #
 
-// inc.demo.zpdemo.php 
+// inc.demo.zpdev.php 
 //    phpfiles inside same route - include manually.
 //    put shared php files in /src/lib_php/, they will be autoloaded.
-# include_once("inc.demo.zpdemo.php");
+# include_once("inc.demo.zpdev.php");
 
 # slowing down the fetch to take a break and a coffee 
 # sleep(2);
@@ -29,10 +29,10 @@ function load() {
       // $_REQUEST, $_GET, $_POST contains projects real data ($zpAR->data) 
       //
       return [
-            '+page.server.php'   => '/load( zpdemo ) ',
+            '+page.server.php'   => '/load( zpdev ) ',
             //'demo_lip_example()' => demo_lip_example(),
             '$_REQUEST'   => $_POST,
-            'zpAR' => $zpAR,
+            '$_zpAR' => $zpAR,
             //'zpDB' => $db,
             //'zpEnv' => $end
       ];
