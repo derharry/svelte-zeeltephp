@@ -1,4 +1,5 @@
-<?php
+<?php namespace ZeeltePHP\Lib\List\KeyValue;
+
 
       /**
        * Merges two associative arrays, replacing values in $src with those 
@@ -8,7 +9,7 @@
        * @param array $insert The array with replacement values
        * @return array        The merged array
        */
-      function keyValueListMerge(array $src, array $insert): array {
+      function merge_key_value_list(array $src, array $insert): array {
             foreach ($src as $key => $val) {
                   if (array_key_exists($key, $insert)) {
                         $src[$key] = $insert[$key];
@@ -17,11 +18,18 @@
             return $src;
       }
 
-      
+      /**
+       * deprecated - move to keyValueListHelper/keyValueListMerge()
+       */
+      function keyValueListMerge(array $src, array $insert): array {
+            return merge_key_value_list($src, $insert);
+      }
+
+
      /**
       * 
       */
-     function keyValueListToTextTableFormat($keyValueDataList) {
+     function key_value_list_to_text_table_format($keyValueDataList) {
           // collect longest key-length
           $maxLenght = 0;
           foreach ($keyValueDataList as $key => $value) 

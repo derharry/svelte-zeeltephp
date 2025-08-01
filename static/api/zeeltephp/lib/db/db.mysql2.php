@@ -1,4 +1,4 @@
-<?php
+<?php namespace ZeeltePHP\Lib\DB;
 
 require_once('db.db.php');
 
@@ -130,7 +130,7 @@ class ZeeltePHP_DB_MySQL2 extends ZP_DB implements IZP_DB {
                          //     throw new RuntimeException("Connection failed: " . $this->dbconn->connect_error);
                          //}
                     }
-               } catch (Throwable $e) {
+               } catch (\Throwable $e) {
                     $this->last_message = $e->getMessage();
                }
                return false;
@@ -160,14 +160,14 @@ class ZeeltePHP_DB_MySQL2 extends ZP_DB implements IZP_DB {
           public function query($sqlStatement) {
                $this->last_query = $sqlStatement;
                if (!$this->connect()) {
-                    throw new RuntimeException("Database connection failed. ".$this->last_error());
+                    throw new \RuntimeException("Database connection failed. ".$this->last_error());
                }
                if ($this->connect()) {
                     $result = $this->dbc->query($sqlStatement);
                     if ($result === false) {
-                         throw new RuntimeException("Query failed: " . $this->last_error());
+                         throw new \RuntimeException("Query failed: " . $this->last_error());
                     }
-                    if ($result instanceof mysqli_result) {
+                    if ($result instanceof \mysqli_result) {
                          return $result->fetch_all(MYSQLI_ASSOC);
                     }
                     return $result;

@@ -1,4 +1,6 @@
-<?php
+<?php namespace ZeeltePHP\Core\Exec;
+
+use function ZeeltePHP\Error\log_debug;
 
      /**
       * Executes the +page.server.php file and handles route actions.
@@ -9,9 +11,9 @@
       * @return mixed Response data from executed action or load function
       * @throws Error If no valid handler is found (801, 802, 501)
       */
-     function zp_exec_PlusPageServerPHPFile($fqdn) {
+     function exec_PlusPageServer($fqdn) {
           global $zpAR, $data;
-          zp_log_debug('zp_exec_pageServerPHP()');
+          log_debug('zp_exec_pageServerPHP()');
 
           // Include the +page.server.php from route
           //include($zpAR->routeFile);
@@ -44,7 +46,7 @@
                }
                
                // No valid handler found
-               throw new Error(802); // 802 = No action handler
+                throw new \Error(802); // 802 = No action handler
 
           }
           else {
@@ -54,7 +56,7 @@
                if (function_exists($load)) {
                     return $load();                    
                }
-               throw new Error(801); // 801 no load() function
+               throw new \Error(801); // 801 no load() function
           }
      }
 

@@ -1,4 +1,6 @@
-<?php
+<?php namespace ZeeltePHP\Error;
+
+use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
 
      /**
       * Translates error codes to human-readable messages and related info.
@@ -6,7 +8,7 @@
       * @param int|string $code Error code or message.
       * @return array [code, message, filename, errorTypeName] or [null, null, null] if not found.
       */
-     function zp_errorMessageTranslation($code) {
+     function error_message_translation($code) {
           global $zpAR;
           // code [ message , filename ]
           // -- todo : add also custom errorTypeNames
@@ -24,32 +26,37 @@
      }
 
      /**
-      * Collects information about the error including zp_errorMessageTranslation()
+      * Collects information about the error including error_message_translation()
       * Converts full file-system paths to relative for readability.
       */
-     function zp_errorDetails($e, $message = null, $code = null) {
-          // Extract error details
+     function get_event_details($e, $message = null, $code = null) {
+          [ $e_type, $e_code, $e_message, $e_short, $e_file, $e_line, $e_previous ] = null;
+
+          // Extract error details from Error or json-fallback
           $e_type     = is_object($e) ? get_class($e) : '';
-          $e_message  = $e->getMessage();
-          $e_previous = $e->getPrevious();
-          $e_code     = $e->getCode();
-          $e_file     = $e->getFile();
-          $e_line     = $e->getLine();
-          // ! Do not expose 'trace' (security) => $e->getTrace(),
-          // ! Trace as string is ugly anyway   => $e->getTraceAsString()
+          if ($e instanceof \Throwable) {
+                 $e_code     = $e->getCode();
+                 $e_file     = $e->getFile();
+                 $e_line     = $e->getLine();
+                 $e_message  = $e->getMessage();
+                 $e_previous = $e->getPrevious();
+                 // uncomment if required :
+                 //$e_trace = $e->getTrace()
+                 //$e_traceString => $e->getTraceAsString()
+          } else $e_message  = json_encode($e);
 
           // Translate error codes/messages
-          [$zp_code, $zp_msg, $zp_file] = zp_errorMessageTranslation($e_message);
-          [$cc_code, $cc_msg, $cc_file] = zp_errorMessageTranslation($code);
+          [$zp_code, $zp_msg, $zp_file] = error_message_translation($e_message);
+          [$cc_code, $cc_msg, $cc_file] = error_message_translation($code);
           
           // Determine final values, preferring provided arguments, then translations, then defaults
           $e_code    = $code    ?? $zp_code ?? $cc_code ?? ($e_code ?: 500);
           $e_message = $message ?? $zp_msg  ?? $cc_msg  ?? $e_message;
           $e_file    = $zp_file ?? $cc_file ?? $e_file;
           
-          // Short filename:line for quick reference
-          $short = basename($e_file);
-          if ($e_line) $short .= ":$e_line";
+          // e_short filename:line for quick reference
+          $e_short = $e_file && basename($e_file);
+          if ($e_line) $e_short .= ":$e_line";
 
           // Prepare error response
           $errorJsonRespone = [
@@ -58,7 +65,7 @@
                'error'    => $e_type,
                'code'     => $e_code,
                'message'  => $e_message,
-               'short'    => $short,
+               'short'    => $e_short,
                'file'     => $e_file,
                'line'     => $e_line,
                'previous' => $e_previous,
@@ -70,7 +77,7 @@
 
            // Encode to JSON and clean up full paths
           $json = json_encode($errorJsonRespone);
-          $json = zp_change_full_paths_to_zp_relative($json);
+          $json = change_full_paths_to_zp_relative($json);
           
           return json_decode($json);
           return $json;
@@ -85,22 +92,25 @@
       * @param string|null     $message Optional custom error message.
       * @param int|null        $code    Optional custom error code.
       */
-     function zp_handle_error($e, $message = null, $code = null) {
+     function handle_error($e, $message = null, $code = null) {
           global $zpAR;
 
           // Prepare Error
-          $ed = zp_errorDetails($e, $message, $code);
+          $ed = get_event_details($e, $message, $code);
           
           // Log error
-          //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
-          error_log( sprintf('%s %s %s %s:%s %s',
-               $ed->time,
-               $ed->code,
-               $ed->error,
-               $ed->file,
-               $ed->line,
-               $ed->message
-          )."\n", 3, PATH_ZPLOG.'error_zp.log');
+          if (is_object($ed)) {
+               //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
+               error_log( sprintf('%s %s %s %s:%s %s',
+                    $ed->time,
+                    $ed->code,
+                    $ed->error,
+                    $ed->file,
+                    $ed->line,
+                    $ed->message
+               )."\n", 3, PATH_ZPLOG.'error.log');
+          }
+          else 
           
           // Output error JSON
           echo json_encode($ed);
@@ -111,13 +121,13 @@
       *
       * @param mixed $content String or data to log.
       */
-     function zp_log_error($e, $message = null, $code = null) {
+     function log_error($e, $message = null, $code = null) {
           if (is_string($e)) {
                $content = $e;
           } 
           else {
                // Prepare Error
-               $ed = zp_errorDetails($e, $message, $code);
+               $ed = get_event_details($e, $message, $code);
                $content = sprintf('%s %s %s %s:%s %s',
                     $ed->time,
                     $ed->code,
@@ -138,7 +148,7 @@
       *
       * @param mixed $content String or data to log.
       */
-     function zp_log($content) {
+     function log($content) {
           // if $content is not string - convert to json
           if (is_array($content) || is_object($content)) 
                $content = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES, 3);
@@ -151,7 +161,7 @@
       * @param mixed $content  String or data to log.
       * @param bool  $restart  If true, restart (truncate) the log file.
       */
-     function zp_log_debug($content, $indent = 0, $restart = false) {
+     function log_debug($content, $indent = 0, $restart = false) {
           if (ZP_DEBUG !== true) return;  // exit when dugging not activated
           $file = PATH_ZPLOG."zp_debug.log";  // set the file name
           

@@ -1,4 +1,4 @@
-<?php
+<?php namespace ZeeltePHP\Lib\Mail;
 
      require_once('lib/inc/keyValueListHelper.php');
 
@@ -6,7 +6,7 @@
       * 
       */
      function sendmail_prepareTextMessageFromKeyValueList($keyValueDataList) {
-          return keyValueListToTextTableFormat($keyValueDataList);
+          return key_value_list_to_text_table_format($keyValueDataList);
      }
 
 

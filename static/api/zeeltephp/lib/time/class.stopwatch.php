@@ -1,6 +1,7 @@
-<?php
+<?php namespace ZeeltePHP\Lib\Time;
 
-class ZP_TimeDiff {
+
+class StopWatch {
 
      public $timediff_register = [];
 

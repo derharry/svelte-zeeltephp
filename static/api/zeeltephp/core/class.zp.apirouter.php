@@ -1,4 +1,8 @@
-<?php
+<?php namespace ZeeltePHP\Core;
+
+use function ZeeltePHP\Error\log_debug;
+use function ZeeltePHP\Lib\IO\scan_dir;
+use function ZeeltePHP\Lib\IO\scan_dir_recursive_up;
 
 /**
  * ZP_ApiRouter for PHP environment.
@@ -87,7 +91,7 @@ class ZP_ApiRouter
           if ($this->debug) 
                $dbg_msgs[] = $msg;
           if (ZP_DEBUG) 
-               zp_log_debug($msg);
+               log_debug($msg);
      }
 
 
@@ -102,7 +106,7 @@ class ZP_ApiRouter
           $this->debug = $debug;
           $this->log('ZP_ApiRouter()');
 
-          $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
+          $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ?? '/'; //--? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
           $this->contentType  = $_SERVER['CONTENT_TYPE'] ?? null;
 
           // get context
@@ -123,8 +127,8 @@ class ZP_ApiRouter
           $this->parse_zpRequest();
           $this->collect_plusPHPfilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
           
-          zp_log_debug($this->dbg_msgs);
-          zp_log_debug($zpTime->endN('ZP_ApiRouter()'));
+          log_debug($this->dbg_msgs);
+          log_debug($zpTime->endN('ZP_ApiRouter()'));
           $this->log('//ZP_ApiRouter()');
 
      }
@@ -142,13 +146,13 @@ class ZP_ApiRouter
           if ($_GET && is_array($_GET) && sizeof($_GET) > 0) {
                // default PHP GET 
                // deparse_GET()
-               zp_log_debug('deparsed $_GET');
+               log_debug('deparsed $_GET');
           }
           elseif ($_POST && is_array($_POST) && sizeof($_POST) > 0 && isset($_['zp_route'])) {
                // default PHP POST
                // contentType = 'multipart/form-data, application/x-www-form-urlencoded', etc;
                // nothing to do :-)
-               zp_log_debug('deparsed $_POST');
+               log_debug('deparsed $_POST');
           }
           else {
                // no $_GET or $_POST ? -> fallback read STDIN INPUT
@@ -167,25 +171,25 @@ class ZP_ApiRouter
                     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
                     $json = null;
                     if (stripos($contentType, 'application/json')) {
-                         zp_log_debug('rawInput JSON');
+                         log_debug('rawInput JSON');
                          $json = json_decode($rawInput, true);
                          if (is_array($json)) {
-                              zp_log_debug('rawInput JSON YES');
+                              log_debug('rawInput JSON YES');
                               $_POST    = $json;
                               $_REQUEST = $_POST;
                          } else 
-                              zp_log_debug('rawInput JSON NO !!!!!!!!!!!!!!!');
+                              log_debug('rawInput JSON NO');
                     }
                     else {
                          // default browser - 'application/x-www-form-urlencoded'
-                         zp_log_debug('  -- rawInput default/browser');
+                         log_debug('  -- rawInput default/browser');
                          $trimmed = trim($rawInput);
 
                          if (str_starts_with($trimmed, '{') && str_ends_with($trimmed, '}')) {
-                              zp_log_debug('    -- JSON');
+                              log_debug('    -- JSON');
                               $json = json_decode($rawInput, true);
                               if (is_array($json)) {
-                                   zp_log_debug('    -- JSON YES array');
+                                   log_debug('    -- JSON YES array');
                                    $_POST    = $json;
                                    $_REQUEST = $_POST;
                               } 
@@ -194,7 +198,7 @@ class ZP_ApiRouter
                     }
                     
                     if (is_null($json)) {
-                         zp_log_debug('  -- form-urlencoded / multipart');
+                         log_debug('  -- form-urlencoded / multipart');
 
                          $parsed = $this->parse_zpRequestRawMultipart($rawInput, $contentType);
                          $_POST  = $parsed['post'];
@@ -305,7 +309,7 @@ class ZP_ApiRouter
           if ($this->context == 'api') {
                $this->routePath = $routePath;          
                $this->routeBase = $routeBase;
-               $routeFilesTP = zp_scandirRecursiveUp($routeBase, '#\+server\.#');
+               $routeFilesTP = scan_dir_recursive_up($routeBase, '#\+server\.#');
                #if (is_file($routeBase."/+server.php")) {
                     //$this->log('     @ +server.php '.$routeBase);
                     // api-route will not have grouped routes
@@ -327,8 +331,8 @@ class ZP_ApiRouter
                
                $route_path_depth = ($routePath === '//' || $routePath === '/') ? 0 : max(0, count(array_filter(explode('/', $routePath))));
                //$route_path_depth = count(explode('/', $route_path_depth)); // -2; // -2 because of / at start and end
-               $routeFilesRP = zp_scandirRecursiveUp($routeBase, '#\+layout\.server\.#', $route_path_depth);
-               $routeFilesTP = zp_scandir($routeBase, '#\+page\.server\.#', $route_path_depth);
+               $routeFilesRP = scan_dir_recursive_up($routeBase, '#\+layout\.server\.#', $route_path_depth);
+               $routeFilesTP = scan_dir($routeBase, '#\+page\.server\.#', $route_path_depth);
                if (is_array($routeFilesRP) && sizeof($routeFilesRP) > 0)
                     $routeFiles = array_merge($routeFiles, $routeFilesRP);
           }
@@ -345,7 +349,7 @@ class ZP_ApiRouter
      function scandir_withGroupedRoutes() {
           // currently 1-level is supported
           $this->log('  -- scandir_withGroupedRoutes()');
-          $grouped_paths = zp_scandir($this->routeBase, '#^\(.*\)$#');
+          $grouped_paths = scan_dir($this->routeBase, '#^\(.*\)$#');
           foreach ($grouped_paths as $_) {
                $route_path = $this->routeBase . $_ . $this->route;
                if (is_dir($route_path)) {

@@ -3,7 +3,6 @@
 - support other +.php like +server,+layout,+hooks (17.05 prepared for) (23.07 in development/testing)
 - support more event types at ZP_EventDetails to handle more use-cases.
 - PHP 
-  - use namespaces (24.07 in preparation)
   - LIB return of/add more lib methods/classes
   - Session and Auth
 - Ideas:
@@ -37,3 +36,5 @@
 - (25-07-23)
   - added ssupport for +layout.server and +server.php
   - +hooks.server.php (prepared for)
+- (25-08-01)
+  - use of PHP Namespaces.

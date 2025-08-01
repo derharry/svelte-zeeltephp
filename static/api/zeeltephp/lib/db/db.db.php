@@ -1,5 +1,4 @@
-
-<?php
+<?php namespace ZeeltePHP\Lib\DB;
 
 interface IZP_DB {
      public function __get($name);
@@ -86,7 +85,6 @@ class ZP_DB {
                     return $this->dbsrc->$method(...$args);
                }
                $this->last_message = "ZP_DB: Method $method not found in DB adapter";
-               //throw new Exception("ZP_DB: Method $method not found in DB adapter");
           }
 
           /**
@@ -137,7 +135,7 @@ class ZP_DB {
                          $this->last_message = "Class $className not found."; 
                     }
                } catch (\Throwable $th) {
-                    zp_handle_error($th);
+                    \ZeeltePHP\Error\handle_error($th);
                }
           }
 
@@ -196,7 +194,7 @@ class ZP_DB {
                          // todo - support select DB file_put_contents(PATH_ZPLOG.'/buu', $this->hostname .' '.$this->database);
                     }
                } catch (\Throwable $th) {
-                    zp_handle_error($th);
+                    \ZeeltePHP\Error\handle_error($th);
                }
           }
      
@@ -213,7 +211,7 @@ class ZP_DB {
           public function query($sqlStatement) {
                $this->last_query = $sqlStatement;
                if (!$this->connect()) {
-                    throw new RuntimeException("Database connection failed. ".$this->last_error());
+                    throw new \RuntimeException("Database connection failed. ".$this->last_error());
                }
                if ($this->connect()) {
                     $result = $this->dbsrc->query($sqlStatement);

@@ -1,4 +1,4 @@
-<?php
+<?php namespace ZeeltePHP\Lib\DB;
 
 require_once('db.db.php');
 
@@ -92,7 +92,7 @@ class ZeeltePHP_DB_wordpress extends ZP_DB implements IZP_DB {
                if ($this->isConnected()) return;
           }
           catch (\Throwable $th) {
-               zp_handle_error($th);
+               \ZeeltePHP\Error\handle_error($th);
           }
      }
             
@@ -122,7 +122,7 @@ class ZeeltePHP_DB_wordpress extends ZP_DB implements IZP_DB {
                return $this->wpdb->get_results($sqlStatement, ARRAY_A);
           } catch (\Throwable $th) {
                $this->last_message = $this->wpdb->last_error ?: $th->getMessage();
-               zp_handle_error($th);
+               \ZeeltePHP\Error\handle_error($th);
                return false;
           }
      }

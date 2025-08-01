@@ -1,15 +1,17 @@
-<?php
+<?php namespace ZeeltePHP\Core\Exec;
 
-     function zp_exec_hooksServerPHP() {
+use function ZeeltePHP\Error\log_debug;
+
+     function exec_hooksServer() {
           global $zpAR, $data;
-          zp_log_debug('zp_exec_ServerPHP()');
+          log_debug('zp_exec_ServerPHP()');
 
           if (function_exists('handle')) {
-               zp_log_debug("execute handle()");
+               log_debug("execute handle()");
                return $callbackFunction();
           }
 
-          zp_log_debug("No handle found.");
+          log_debug("No handle found.");
 
      }
 
