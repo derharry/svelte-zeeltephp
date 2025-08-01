@@ -222,9 +222,10 @@ export class ZP_ApiRouter
             // supported
             //    GET  = URL :string      = PUBLIC_ZEELTEPHP_BASE?/route/&?/action=value&any
             //                ?/route/        : required so ZeeltePHP can find route/+page.server.php 
-            //                ?/action=value  : optional action from formAction or override, value : optional
-            //                &any_params_data: this.params or just this.fetch_query
-            //                                  this.data data is not supported or we push key_values into the get
+            //                -- no data supported for security 
+            //                -- ?/action=value  : optional action from formAction or override, value : optional
+            //                --     &any_params_data: this.params or just this.fetch_query
+            //                --     this.data data is not supported or we push key_values into the get
             //    POST = ZP_ApiRouter :JSON 
             //                zp_route  = ?/route/
             //                zp_action = ?/action
@@ -233,9 +234,10 @@ export class ZP_ApiRouter
             //    PUT, PATCH, ... 
             
             // -info- keep set_best_method() at __construct; do not set fetch_url here; -> otherwise manuall (override) settings are overwriten.
-            if      (this.method == 'GET')  this.prepare_GET()
+            if      (this.method == 'GET')   this.prepare_GET()
+            else if (this.method == 'HEAD')  this.prepare_GET()
             else {
-                  // anything else is POST, PUT, PATCH, DELETE, PUT, HEAD
+                  // anything else is POST, PUT, PATCH, DELETE, PUT
                   this.prepare_POST();
             }
             //else this.log(' - unsupported RequestType');
