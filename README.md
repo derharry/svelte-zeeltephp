@@ -22,6 +22,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
   - [Example Environments](#example-environments)
   - [Uninstall](#uninstall)
 - [Usage Examples](#usage-examples)
+  - [Namespaces of +server files](#namespaces-of-server-files)
   - [+page.server.php](#php-pageserverphp)
   - [+layout.server.php](#php-layoutserverphp)
   - [+page.svelte.js](#svelte-pagejs)
@@ -32,7 +33,6 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
     - [PHP.exe](#php-exe)
   - [Key Paths](#key-paths)
   - [.ignore example](#gitignore-example)
-  - [ZP Demo](#zp-demo)
   - [ZP Dev](#zp-dev)
   - [.env Configuration](#env-configuration)
   - [Key Methods, Classes & Components](#key-methods-classes--components)
@@ -97,7 +97,7 @@ Follow the installation steps 1 - 5.
    <br>If you encounter issues, check the CLI output for 🐘 ZeeltePHP and ensure the required paths have been created.
 
 5. **Demo & Debug (Optional)**  
-   Copy `/zpdemo/` into `/src/routes/` and verify it runs in development mode.
+   Copy `/zpdev/` into `/src/routes/` and verify it runs in development mode.
    <br>Green icons and receiving responses? Have fun `SveltePHP'ing`.
 
 6. **Configure for Build**  
@@ -174,15 +174,14 @@ Follow the installation steps 1 - 5.
 
 ## Usage Examples
 
-### /routes/+server .php files
-All +server PHP files requires to be in a uniq namepace the variable $zpns.
-This way SveltePHP can load your /routes/+server PHP files und use the same methods like load()
-Something like 
+
+### Namespaces of +server files
+All +server.php files within the /routes directory must declare a unique namespace and be assigned to the variable $zpns. 
+This convention allows SveltePHP to properly load your server route files and utilize the same method conventions, such as load().
 ```php
-      <?php 
-            namespace uniqNameSpace; 
-            $zpns = __NAMESPACE__;
-      ...
+<?php 
+      namespace uniqNameSpace; 
+      $zpns = __NAMESPACE__;
 ```
 
 
@@ -321,7 +320,7 @@ export async function load({ fetch, url }) {
 
 ### PHP: `+server.php`
 ```php
-<?php namespace zp333; $zpns=__NAMESPACE__;
+<?php
 
       // same for POST, PUT, PATCH, DELETE, HEAD
       function GET() {
@@ -340,7 +339,40 @@ export async function load({ fetch, url }) {
       }
 ?>
 ```
+### Svelte: `+page.svelte`
+```html
+<script>
+      import { zp_fetch_api } from "zeeltephp";
 
+      async function handle_submit(event) {
+            const data = await zp_fetch_ap(fetch, 'api/apidemo');
+         // OR
+            const data_load = await zp_fetch_api(fetch, 'api/apidemo/', undefined, 'GET')
+      }
+</script>
+
+<button
+      type="button"
+      formaction="?/myAction"
+      value="1"
+      on:click={handle_click}
+/>
+
+<form on:submit={handle_submit}>
+      <button
+            type="submit"
+            formaction="?/myAction"
+            value="42"
+      />
+      {#await promise}
+            ..
+      {:then data}
+            ..
+      {:catch error}
+            .. 
+      {/await}
+</form>
+```
 
 
 ---
@@ -348,8 +380,10 @@ export async function load({ fetch, url }) {
 ## Description 
 
 ### TL;TR
-- Copy `/zpdemo` into your `/routes` and see if it works.
+- Copy `/zpdev` into your `/routes` and see if it works.
 - Start using `zp_fetch_api()`, `ZP_EventDetails(event)`, and `ZP_ApiRouter()`.
+
+### Usage Examples for SvelteKit and PHP
 
 
 ### ZeeltePHP Vite Plugin `zeeltephp(mode)`
@@ -373,7 +407,7 @@ export async function load({ fetch, url }) {
 ### Key Methods, Classes & Components
 
 #### `zp_fetch_api(fetch, router, [, data, method, headers])` (Svelte)
-  Handles most use cases for fetching data from the PHP api.
+  Handles most use cases for fetching data from the backend.
   <br> Uses Svelte's fetch which needs to be passed as parameter and ZP_ApiRouter for the routing details.
   <br> This method has overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.
 
@@ -396,7 +430,7 @@ export async function load({ fetch, url }) {
   <br> Collects information from Events like actions and data to transfer. 
 
 ####  `ZPDev.svelte`:    
-  <br>Debugging component for your `+page.server.php` files. It's initial settings work with `ZPDemo`
+  <br>Debugging component for your `+page.server.php` files.
 
 ####  `VarDump.svelte`:  
   <br>Shows (dumps) the content of a variable visually in UI. Like PHPs var_dump().
@@ -408,19 +442,19 @@ export async function load({ fetch, url }) {
 /php_lib
 ```
 
-### ZP Demo
-The `/zpdemo/` folder serves as a complete demo and debugger. 
-<br>Copy it into your `routes` and access it at `http://localhost/myZPproject/zpdemo`.
-<br>If `zpdemo` does not work, there may be a misconfiguration from the installation steps. 
-
 ### ZP Dev
+The `/zpdev/` folder serves as a complete demo and debugger. 
+<br>Copy it into your `routes` and access it at `http://localhost/myZPproject/zpdev`.
+<br>If `zpdev` does not work, there may be a misconfiguration from the installation steps. 
+
 See troubleshooting for more details.
 * Use <ZPDev /> to inspect and interact with your API routes directly from the browser. 
 * The load() and actions() should return all globals for best debugging results.
 * You can test both GET and POST actions, as well as custom action handlers.
 * PHP Errors will be shown in <ZPDev /> directly from the browser, but 
   you can also access http://localhost/myZPproject/static/api 
-  
+
+
 ### .env Configuration
 ZeeltePHP is designed to run in different environments which can be configured 
 in .env-files specific dev and production build environment/landscape.

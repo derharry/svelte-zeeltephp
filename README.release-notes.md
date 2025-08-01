@@ -1,26 +1,33 @@
 **v1.0.4 (rc1)**   2025-07-12
 (...tbd...)
 - ** in general **
-  - Support for +layout.server.php and +server.php files. Namespaces have to used. 
-  - *tbd* The JSON-response from ZeeltePHP is now empty when the route is not properly 
+  - *tbd*  Support for +layout.server.php and +server.php files. Namespaces have to be used. 
+  - *tbd*  The JSON-response from ZeeltePHP is now empty when the route is not properly 
 - **zp_fetch_api**
   - Param `router` as string is for API +server.php access.
   - Added param-option debug.
 - **ApiRouter**
-  - Default API request routing/data is now POST by default (instead of GET)
-  - Param `router` as string is now direct API +server.php access
+  - Default SveltePHP requests  is now POST by default. Previously 
+  - Param `router` as string is now direct API +server.php access.
   - Fixed request deparser on POST/JSON.
-  - Added 'context' to distinguish for page or api route request
+  - Added 'context' to distinguish for page or api route request.
 - **ZP Demo / ZP Dev**
-  - fix for action send-json via POST request.
+  - To to keep the naming context in sync ***ZP Demo*** is merged into **ZP Dev**.
+    - The folder `/zpdemo` is renamed to `/zpdev`. 
+    - The initial settings of <ZPDev /> works fully on `/zpdev`. 
+    - `zpdev` is the folder to copy for Troubleshooting or as "demo" in action
+- **Examples**
+  - As replacement for ***ZP Demo*** the path `repo:/src/routes/(usage_examples)/` is introduced,
+    which contains usage examples of how to use `zp_fetch_api()` with SvelteKit and ZeeltePHP.
+- **PHP.exe**
+  - Your SvelteKit project with ZeeltePHP can be run from php.exe as well.
+  - To activate configure .env.ZEELTEPHP_EXE=/path/to/php.exe
+  - The project-folder can then be saved anywhere, inside `htdocs` is optional.
 - **PHP api/lib**
  - new class /time/class.timediff.php
   - **Database (lib/db/)**:
     - added select()
     - added support for mysql port parameter
-- **PHP.exe**
-  - ZeeltePHP can also run from php.exe - instead of using a full static-hosting environment.
-  - Set ZEELTEPHP_EXE=/path/to/php.exe
 
 ---
 
