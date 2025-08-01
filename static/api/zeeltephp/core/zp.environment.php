@@ -38,6 +38,7 @@ function zeeltephp_loadRunEnvironment() {
           zp_loadRunEnvironmentDev();
           zp_allow_cors(); // Enable cross-origin requests
      }
+     if (!is_dir(PATH_ZPLOG)) mkdir(PATH_ZPLOG);
      if (!is_dir(PATH_ZPTMP)) mkdir(PATH_ZPTMP);
      // Debug Output
      if (ZP_DEBUG) {
@@ -105,7 +106,7 @@ function zp_loadRunEnvironmentDev() {
      define('PATH_ZPLOG',    "$consumerRoot/php_log/");
      define('PATH_ZPLIB',    "$consumerRoot/src/lib_php/");
      define('PATH_ZPROUTES', "$consumerRoot/src/routes/");
-     define('PATH_ZPTMP',    "$consumerRoot/$apiPath/tmp/");
+     define('PATH_ZPTMP',    "$consumerRoot/$apiPath/zeeltephp/tmp/");
 
      // PHP Configuration
      ini_set('error_log', PATH_ZPLOG.'php_errors.log');
