@@ -13,13 +13,6 @@
           header("Access-Control-Allow-Headers: Content-Type");
           header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE, HEAD");
           header('Access-Control-Max-Age: 3600');
-
-          if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
-               file_put_contents(PATH_ZPTMP."xxx.log", getallheaders());
-               //exit(0);
-               //exit(1);
-          }
-
      }
 
      /**
