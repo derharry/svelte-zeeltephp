@@ -48,12 +48,17 @@ export function zp_get_eventDetails(event) {
  * @param {object} [headers] - Optional, additional headers for the request
  * @returns {Promise<any>} Resolves the backend response or the response object on error
  */
-export function zp_fetch_api(fetch, router, data = undefined, method = undefined, headers = undefined, debug = false) {
+export function zp_fetch_api(fetch, router, data = undefined, method = undefined, headers = undefined, debug = true) {
     //const debug = debug;
-    try {
+     try {
+        //-- forward to new zp_fetch
+        //return zp_fetch(router, { data, method, headers, debug });
+        //debug && console.clear()
+        debug && console.log('#zp_fetch_api()');
+
         // Create the API router object (parse router/data/method)
         const zpar = new ZP_ApiRouter(router, data, method, debug);
-        debug && zpar.dump();
+        //debug && zpar.dump();
 
         return new Promise((resolve, reject) => {
 
@@ -106,7 +111,7 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
 
 /**
  * Fetches data from the ZeeltePHP backend (PHP API) and resolves the response. 
- * The input can be anything like Events, string. 
+ * The route can be anything like Events, string. 
  * The options can be all options as normal `fetch` with some additional for ZeeltePHP.
  * 
  * For most use-cases you will just use in:
@@ -114,7 +119,7 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
  *      +page.js :   zp_fetch_api(url  , {options});
  * 
  * This is equivalent to:
- *      SvelteKit:   nothing-default-behaviour or `fetch(input, options)`
+ *      SvelteKit:   nothing-default-behaviour or `fetch(route, options)`
  *      SveltePHP:   `data = zp_fetch()` / to directly put it into `export let data`;
  * 
  * Usage examples:  
@@ -122,11 +127,25 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
  *
  * Method overloads
  * @param {Event | ZP_ApiRouter | ZP_EventDetails | URL | URLParams | string | undefined
- * }                input       ... Router, event, or URL describing the request
+ * }                route       ... Router, event, or URL describing the request
  *                              if its a string then the +page
  * @param { }       options     any fetch-options and some additional
+ * 
+ * dd@param {object}          router        
+ * @param {*}      [data] - Optional, force data to send with the request
+ * @param {string} [method] - Optional, force used HTTP method (GET, POST, etc.)
+ * @param {object} [headers] - Optional, additional headers for the request
+ * @returns {Promise<any>} Resolves the backend response or the response object on error
+ * 
+ *  Context API
+ * @param {String}          url      /api/demo/    to your /src/routes/api/demo/+server.php file.
+ * @param {String}          method      GET, POST, PUT, PATCH, DELETE, HEAD   to use for API request. 
+ * @param {*}               data        *optional*  data you want to send
+ * @param {null|object}     headers     *optional*  additional headers for the request
+ * @param {Boolean}         verbose     *optional*  to activate debug-output messages in browsers console. 
+ * 
  */
-export function zp_fetch(input, options = { 
+export function zp_fetch(route, options = { 
     method:  'POST', 
     data:    undefined, 
     headers: {}, 
@@ -134,27 +153,33 @@ export function zp_fetch(input, options = {
 }) {
     try {
         const defOptions = {
-            method: 'GET',
+            method: 'POST',
             debug: true
         }
         const zpOptions = { ...defOptions, ...options  }
         const debug     = zpOptions.debug ?? false
+        //zpOptions.fetch ? fetch = zpOptions.fetch : fetch
 
-        debug && console.clear()
+        //debug && console.clear()
         debug && console.log('# zp_fetch()')
         debug && console.log('    ', {zpOptions})
+        debug && console.log('    ', {zpOptions})
 
-        //zpOptions.fetch ? fetch = zpOptions.fetch : fetch
-            
-        const zpar = new ZP_ApiRouter(input, zpOptions.data, zpOptions.method, debug, zpOptions);
-        
-        if (!zpar.route) {
-            reject(new Error("ZP: route is undefined"))
-            return
-        }
+        const zpar = new ZP_ApiRouter(route, zpOptions.data, zpOptions.method, debug, zpOptions);
+
+        // -- moved inside promise 2025.08.02
+        //if (!zpar.route) {
+        //    reject(new Error("ZP: route is undefined"))
+        //    return
+        //}
 
         return new Promise((resolve, reject) => {
             debug && zpar.dump();
+
+            if (!zpar.route) {
+                reject(new Error("ZP: route is undefined"))
+                return
+            }
 
             // Perform the fetch to ZeeltePHP backend
             // -- idea: Resolve the response directly into Svelte $page.data, $page.form, $page.error, etc...(Trigger SvelteKit's behaviour)

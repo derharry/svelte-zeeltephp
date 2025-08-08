@@ -1,10 +1,7 @@
 <?php namespace zp1752176751; $zpns=__NAMESPACE__;
-
 #
 # /zpdev/+page.server.php
-#
 # ...
-#
 #
 
 // inc.demo.zpdev.php 
@@ -23,17 +20,12 @@ function load() {
       // $zpAR   = ZP_ApiRouter
       // $env    = .env values
       // $db     = ZP_DB
-      //
-      // your code
-      // $zpAR = ZP_ApiRouter 
-      // $_REQUEST, $_GET, $_POST contains projects real data ($zpAR->data) 
-      //
       return [
-            '+page.server.php'   => '/load( zpdev ) ',
+            '+page.server.php'   => 'ZPDev load( ) ',
             //'demo_lip_example()' => demo_lip_example(),
             '$_REQUEST'   => $_POST,
-            '$_zpAR' => $zpAR,
-            //'zpDB' => $db,
+            '_zpAR' => $zpAR,
+            //'zpDB' => $db
             //'zpEnv' => $end
       ];
 }
@@ -43,47 +35,44 @@ function load() {
  */
 function actions($action, $value) {
       global $zpAR, $env, $db;
-
-      class response {
-            public $message   = '+page.server.php/actions()';
-            public $requests  = null;
-            public $zpAR      = null;
-            public $zpEnv     = null;
-            public $zpDB      = null;
-      }
-      $resp = new response();
+            
+      $message = '+page.server.php/actions()';
 
       switch ($action) {
             case 'action':
                         // ... do anything
-                        $resp->message = 'actions/action';
+                        $message = 'actions/action';
                   break;
             case 'send_data_json':
                         // ... do anything
-                        $resp->message = 'actions/send_data_json';
+                        $message = 'actions/send_data_json';
                   break;
             case 'action_submit_2Form':
-                        $resp->message = 'actions/action_submit_form';
+                        $message = 'actions/action_submit_form';
                   break;
             case 'example':
-                        $resp->message = 'actions/example';
+                        $message = 'actions/example';
                   break;
             default:
-                        $resp->message = 'actions/default-fallback. expected: '.$action;
+                        $message = 'actions/default-fallback. expected: '.$action;
                   break;
       }
       // add value to message
-      $resp->message .= ' '.$value;
-      // requests
-      $resp->requests = [
-            '$_GET' => $_GET,
-            '$_POST' => $_POST,
-            '$_REQUEST' => $_REQUEST
-      ];
-      // expose $zpAR for ZPDev
-      $resp->zpAR      = $zpAR;
+      $message .= ' '.$value;
 
-      return $resp;
+      error_log('json_encode($db)');
+      error_log(json_encode($db));
+      return [
+            'message'  => $message,
+            'requests' => [
+                  '$_GET'     => $_GET,
+                  '$_POST'    => $_POST,
+                  '$_REQUEST' => $_REQUEST
+            ],
+            '_zpAR'  => $zpAR,
+            //'_zpEnv' => $env,
+            //'zpDB'  => $db
+      ];
 }
 
 /**
@@ -92,9 +81,9 @@ function actions($action, $value) {
 function action_foo($value) {
       global $zpAR;
       return [
-            'message'   => 'action_FOO '.$value,
-            '$_REQUEST' => $_REQUEST,
-            'zpAR'      => $zpAR
+            'message'    => 'action_FOO '.$value,
+            '$_REQUEST'  => $_REQUEST,
+            '$zpAR'      => $zpAR
       ];
 }
 
@@ -104,9 +93,9 @@ function action_foo($value) {
 function action_submit_Form($value) {
       global $zpAR;
       return [
-            'message' => 'PHP received POST: ',
+            'message' => 'PHP received Send-Form: ',
             '$_POST'  => $_POST,
-            'zpAR'    => $zpAR
+            '_zpAR'   => $zpAR
       ];
 }
 
@@ -116,8 +105,9 @@ function action_submit_Form($value) {
 function action_DB_get() {
       global $zpAR, $db;
       return [
-            '$db'  => $db,
-            'zpAR' => $zpAR
+            'message' => 'action_DB_get()',
+            '_zpAR'   => $zpAR,
+            //'_zpDB'   => $db
       ];
 }
 
@@ -128,9 +118,9 @@ function action_DB_execSQL() {
       global $zpAR, $db;
       $result = $db->query($_POST['sqlstatement']);
       return [
-            'result'  => $result,
-            '$db'     => $db,
-            'zpAR'    => $zpAR       
+            'result' => $result,
+            //'_zpDB'=> $db,
+            '_zpAR'  => $zpAR       
       ];
 }
 
@@ -140,16 +130,16 @@ function action_DB_execSQL() {
 function action_ENV_get() {
       global $zpAR, $env;
       return [
-            '$env'    => $env,
+            '_zpEnv' => $env,
             'PATHS'   => [
-                  'ZP_ENV' => ZP_ENV,
-                  'PATH_INIT' => PATH_INIT,
-                  'PATH_ZPLIB' => PATH_ZPLIB,
-                  'PATH_ZPROUTES' => PATH_ZPROUTES,
-                  'PATH_ZPLOG' => PATH_ZPLOG,
-                  'PATH_ZPAPIPHP' => PATH_ZPAPIPHP
+                  'ZP_ENV'         => ZP_ENV,
+                  'PATH_INIT'      => PATH_INIT,
+                  'PATH_ZPLIB'     => PATH_ZPLIB,
+                  'PATH_ZPROUTES'  => PATH_ZPROUTES,
+                  'PATH_ZPLOG'     => PATH_ZPLOG,
+                  'PATH_ZPAPIPHP'  => PATH_ZPAPIPHP
             ],
-            'zpAR'    => $zpAR       
+            '_zpAR'  => $zpAR       
       ];
 }
 

@@ -18,59 +18,45 @@ import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
  */
 export class ZP_ApiRouter 
 {
-      // --- Routing and action properties ---
-
-      /** @type {string|null} Route path (e.g. /foo/bar/) */
-      route = null;
-      /** @type {string|null} Action name (e.g. ?/ACTION) */
-      action = null;
-      /** @type {any} Action value */
-      value = null;
-      /** @type {any} Query params */
-      params = null;
-      /** @type {any} Data payload (formData, JSON, etc.) */
-      data = null;
-
-      // --- Svelte/CSR-specific properties ---
-
-      /** @type {string} Environment flag ('dev' or 'prod') */
-      environment = 'dev | build';
-      /** @type {string} HTTP method ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD') */
-      method = 'POST';
-      /** @type {string} page | api */
-      context = 'page';
-
-      // --- Fetch preparation ---
-
-      /** @type {string} Base API URL */
-      base_url = PUBLIC_ZEELTEPHP_BASE; // import.meta.env.PUBLIC_ZEELTEPHP_BASE
-      /** @type {string|null} Final fetch URL */
-      fetch_url = null;
-      /** @type {string|null} Query string for fetch */
-      fetch_query = null;
-      /** @type {object|null} Fetch options (method, headers, body) */
-      fetch_options = {};
-      /** @type {boolean} True if data is FormData */
-      dataIsFormData = false;
-      /** @type {string} Debugging last_message */
-      last_message = "";
-
       // --- Internal/debug ---
       debug      = false;
       debug_msgs = [];
 
-      /**
-       * Add a debug message (if debug mode is enabled).
-       * @param {string} msg
-       * @param {any} value
-       */
-      log(msg, value = '') {
-            this.last_message = msg;
-            if (this.debug) {
-                  this.debug_msgs.push({msg, value});
-                  console.log('  ', msg, value);
-            }
-      }
+      //#region Routing and action properties
+            /** @type {string|null} Route path (e.g. /foo/bar/) */
+            route = null;
+            /** @type {string|null} Action name (e.g. ?/ACTION) */
+            action = null;
+            /** @type {any} Action value */
+            value = null;
+            /** @type {any} Query params */
+            params = null;
+            /** @type {any} Data payload (formData, JSON, etc.) */
+            data = null;
+      //#endregion
+
+      //#region Svelte/CSR-specific properties
+            /** @type {string} Environment flag ('dev' or 'prod') */
+            environment = 'dev | build';
+            /** @type {string} HTTP method ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD') */
+            method = 'POST';
+            /** @type {string} page | api */
+            context = 'page';
+
+            // --- Fetch preparation ---
+            /** @type {string} Base API URL */
+            base_url = PUBLIC_ZEELTEPHP_BASE; // import.meta.env.PUBLIC_ZEELTEPHP_BASE
+            /** @type {string|null} Final fetch URL */
+            fetch_url = null;
+            /** @type {string|null} Query string for fetch */
+            fetch_query = null;
+            /** @type {object|null} Fetch options (method, headers, body) */
+            fetch_options = {};
+            /** @type {boolean} True if data is FormData */
+            dataIsFormData = false;
+            /** @type {string} Debugging last_message */
+            last_message = "";
+      //#region
 
       /**
        * Constructor: Overloaded for multiple use-cases. See zp_fetch_api() for details.
@@ -79,18 +65,20 @@ export class ZP_ApiRouter
        * @param {string} method Optional, force HTTP method (GET, POST, etc.)
        * @param {boolean} debug Enable debug mode
        */
-      constructor(router = undefined, data = undefined, method = undefined, debug = false) {
+      //constructor(input = undefined, options = undefined) {
+      constructor(router = undefined, data = undefined, method = undefined, debug = true, options = {}) {
             try {
                   if (router instanceof ZP_ApiRouter) return router;
-                  this.debug = debug;
-                  this.log('-- ZP ApiRouter ');
-
+                  this.debug = options.debug ?? debug;
+                  debug && console.log('# ZP_ApiRouter')
                   // Set environment
                   this.environment = dev ? 'dev' : 'prod';
                   this.log('env', this.environment);
+                  this.log('router', {router});
+
 
                   // Handle overloading: string, event, any..
-                  if (typeof router === 'string') {
+                  if (typeof router === 'string' || router instanceof String) {
                         //this.parse_routerFromString(router);
                         this.context = 'api';
                         this.route   = router
@@ -133,12 +121,25 @@ export class ZP_ApiRouter
        * Dumps the current state to the console (for debugging).
        */
       dump() {
-            console.log('---DUMP ZP_ApiRouter-----------------------------');
+            console.log('---DUMP ZP_ApiRouter------------');
             Object.entries(this).forEach(([variable, value]) => {
                   if (value !== undefined && value !== null)
                   console.log(variable, value);
             });
-            console.log('---END DUMP ZP_ApiRouter-----------------------------');
+            console.log('---END DUMP ZP_ApiRouter--------');
+      }
+
+      /**
+       * Add a debug message (if debug mode is enabled).
+       * @param {string} msg
+       * @param {any} value
+       */
+      log(msg, value = '') {
+            this.last_message = msg;
+            if (this.debug) {
+                  this.debug_msgs.push({msg, value});
+                  console.log('  ', msg, value);
+            }
       }
 
       /**

@@ -1,7 +1,8 @@
 <script>
      import { ZPDev } from "zeeltephp";
+     let { data, form } = $props();
 </script>
 
 <h1>ZP Dev</h1>
 <p>Expected zp_route /zpdev/</p>
-<ZPDev />
+<ZPDev {data} {form} />

@@ -1,0 +1,231 @@
+
+.frameParent * {
+     padding: 0;
+     margin:  0;
+     box-sizing: border-box;
+     font-family: arial;
+     font-size: 0.97em;
+}
+
+.frameParent {
+     width: auto;
+     border-radius: 0.5em;
+     border: 4px #FF3E00 inset;
+     background-color: #FF3E00 !important;
+}
+.frameHeader {
+     display: flex !important;            /** 1row */
+     flex-direction: row;
+     gap: 0.25em;
+     padding: 0.25em 0.5em;
+     border-radius: 0.25em 0.25em 0 0;
+     align-items: center !important; 
+}
+.frameFooter {
+     margin-top: 1px;
+     padding: 0em;
+     border-radius: 0 0 0.25em 0.25em !important;
+}
+.frameContent {
+     margin-top: 1px;
+     padding: 0;
+}
+.contentPadding {
+     padding: 0.25em !important;
+}
+
+
+.zpdev-tab-dump {
+     display: grid;
+     gap: 1px;
+     grid-template-columns: minmax(10em, 17em) minmax(0, 1fr);
+     width: 100%;
+
+}
+
+.zpdev-dump-dump {
+     display: grid;
+     grid-template-columns: auto, auto;
+     display: flex;
+     gap: 1px; /* optional, for spacing between columns */
+}
+.zpdev-dump-dump > div {
+     flex: 1 1 0;
+     min-width: 0; /* important for word breaking in flex items */
+     border-radius: 0 0 0.33em 0.33em !important;
+}
+
+.zpdev-apps,
+.zpdev-apps * {
+     color: #C4C9D0 !important; 
+}
+.zpdev-apps button {
+     background-color: lightskyblue;
+     color: black !important;
+     font-style: italic;
+     margin: 0;
+}
+
+.zp-vardump * {
+     font-size: 0.96em !important;
+     min-height: 10em !important;
+     max-height: 10em !important;
+     overflow: auto;
+}
+.zp-vardump span {
+     color: gray !important;
+     font-style: italic;
+}
+.zp-vardump pre {
+     overflow-wrap: break-word;
+     word-break: break-all;
+     hyphens: auto;
+     overflow: no-scroll;
+}
+
+a {
+     text-decoration: none;
+}
+a:hover {
+     text-decoration: underline;
+}
+
+.tab {
+     color: #D3D4D5;
+     background: none;
+     padding: 0em 0.25em !important;
+     border: none !important;
+}
+.tab.active {
+     color: #F96743;
+}
+.tab:hover {
+     color: orange !important;
+     text-decoration: none;
+}
+
+
+.zp-title {
+     font-size: 0.95em;
+     color: #F96743;
+}
+
+.zp-route {
+     color: #D43008;
+     font-size: 0.95em;
+     background-color:rgb(60, 66, 77);
+     padding: 0.05em 0.75em !important;
+     margin-left: 1em;
+     border-radius: 1em;
+     text-decoration: none;
+}
+.zp-route:hover {
+     background-color: #CACBCE;
+
+}
+
+
+.svcolor-header {
+     color: white !important;
+     background-color: #23272F !important;
+}
+
+.svcolor-editor {
+     color: blue;
+     background-color: #1E2235 !important; /*2E2E2E*/
+}
+
+.svcolor-preview,
+.svcolor-preview * {
+     color: white !important;
+     background-color: #2E2E2E !important;
+}
+
+
+HR {
+     border: none;
+     margin: 0.33em !important;
+}
+
+BUTTON {
+     padding: 0 0.25em !important;
+}
+
+INPUT, 
+TEXTAREA {
+     background-color: darkslategray !important;
+     display: flex;
+     flex: 1 1 0 !important;
+     min-width: 0 !important;
+     box-sizing: border-box !important;
+     max-width: 100%;
+     padding: 0.1em 0.25em !important;
+     margin-top: 2px !important;
+}
+INPUT {
+     height: fit-content !important;
+     max-height: fit-content !important;
+}
+TEXTAREA {
+     min-height: 5em;
+     width: 100% !important;
+}
+
+.input-row {
+     display: flex;
+     align-items: center;
+     width: 100%;
+     gap: 0.25em;
+}
+.input-row span {
+     flex: 0 0 auto;
+}
+
+
+.kv-list {
+     display: grid;
+     grid-template-columns: auto 1fr; /* key, value */
+     gap: 0.3em 1em; /* row gap, column gap */
+     align-items: start;
+     width: 100%;
+     margin: 0;
+     padding: 0;
+}
+
+.kv-list dt {
+     font-weight: bold;
+     color: #C4C9D0;
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+}
+
+.kv-list dd {
+     margin: 0;
+     color: #fff;
+     overflow-wrap: break-word;
+     word-break: break-all;
+     min-width: 0;
+}
+
+.status-list {
+     list-style: none;
+     padding: 0;
+     margin:  0;
+}
+.status-list li {
+     display: flex;
+     align-items: center;
+     padding: 0.0em 0;
+}
+.status-list .icon {
+     width: 20px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     flex-shrink: 0;
+}
+.status-list .desc {
+     margin-left: 0.5em;
+     white-space: nowrap;
+}
