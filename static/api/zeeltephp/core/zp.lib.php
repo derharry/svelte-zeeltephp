@@ -2,7 +2,7 @@
 
 use function ZeeltePHP\Error\log_debug;
 use function ZeeltePHP\Lib\IO\scan_dir;
-
+use ZeeltePHP\Core\zpTime;
 
 #
 #  Environment Utilities for ZeeltePHP (paths, allow cors, ...)
@@ -14,8 +14,12 @@ use function ZeeltePHP\Lib\IO\scan_dir;
       * @param string $path Directory path containing library files
       */
      function load_lib_files(string $path): void {
+          global $zpTime;
+          $zpTime->start('load_lib_files/()');
           log_debug("load_lib_files($path)");
+          $zpTime->start('load_lib_files()');
           $phpFiles = scan_dir($path, '#\.php$#'); //'/\.php$/');
+          $zpTime->start('load_lib_files()');
           foreach ($phpFiles as $file) {
                if ($file !== '.' && $file !== '..') {
                     $fullPath = PATH_ZPLIB . $file;
@@ -25,6 +29,8 @@ use function ZeeltePHP\Lib\IO\scan_dir;
                     }
                }
           }
+          log_debug($zpTime->endN('load_lib_files()'));
+          log_debug($zpTime->endN('load_lib_files/()'));
      }
 
      /**
