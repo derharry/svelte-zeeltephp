@@ -60,8 +60,8 @@ function actions($action, $value) {
       // add value to message
       $message .= ' '.$value;
 
-      error_log('json_encode($db)');
-      error_log(json_encode($db));
+      //error_log('json_encode($db)');
+      //error_log(json_encode($db));
       return [
             'message'  => $message,
             'requests' => [
