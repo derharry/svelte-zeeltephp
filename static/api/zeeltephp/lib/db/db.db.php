@@ -85,6 +85,7 @@ class ZP_DB {
                     return $this->dbsrc->$method(...$args);
                }
                $this->last_message = "ZP_DB: Method $method not found in DB adapter";
+               //throw new Exception("ZP_DB: Method $method not found in DB adapter");
           }
 
           /**
@@ -110,8 +111,8 @@ class ZP_DB {
                     $this->parse_connectionUrl($DATABASE_URL);
 
                     // Determine provider class and file
-                    $className = 'ZeeltePHP_DB_' . $this->dbtype;
-                    $classFile = 'lib/db/db.' . $this->dbtype . '.php';
+                    $className = '\ZeeltePHP\Lib\DB\ZeeltePHP_DB_' . $this->dbtype;
+                    $classFile = 'lib/db/db.'    . $this->dbtype . '.php';
 
                     // Load the DB-provider
                     if (!class_exists($className)) {
@@ -206,7 +207,7 @@ class ZP_DB {
            * Executes a SQL query and returns the result.
            * @param string $sql SQL query string
            * @return array|bool Query result as array, true/false for non-select queries
-           * @throws RuntimeException If the query fails
+           * @throws \RuntimeException If the query fails
            */
           public function query($sqlStatement) {
                $this->last_query = $sqlStatement;
