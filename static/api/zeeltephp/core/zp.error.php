@@ -12,8 +12,8 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
           global $zpAR;
           // code [ message , filename ]
           // -- todo : add also custom errorTypeNames
-          $zp_route  = $zpAR->routeFile ?? '-?-';
-          $zp_action = $zpAR->action    ?? '-?-';
+          $zp_route  = $zpAR->route  ?? '-?-';
+          $zp_action = $zpAR->action ?? '-?-';
           $zeeltephp_errors = [
                400 => ['no route requested', ''],  // bad request
                404 => ['no +.php in route', ''],   // not found
@@ -170,7 +170,7 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
                // truncate file - instead unlink() and touch() -> io-speeds. ;-)
                file_put_contents($file, date("Y-m-d H:i:s")."\n");
           } else if (!is_file($file)) {
-               touch($file);   // create file
+               touch($file);   // create file // todo: handle @touch Permission denied Exception
           }
 
           // if $content is not a string - convert to json (for now)

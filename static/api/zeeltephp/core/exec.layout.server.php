@@ -17,10 +17,6 @@ use function ZeeltePHP\Error\log_debug;
           global $zpAR, $data;
           log_debug('zp_exec_layoutServerPHP()');
 
-          // Include the +page.server.php from route
-          //include($zpAR->routeFile);
-          //include($consumerFile);
-
           $callbackFunction = $fqdn . '\\load';
           if (function_exists($callbackFunction)) {
                return $callbackFunction();

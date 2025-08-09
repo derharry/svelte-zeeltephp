@@ -14,8 +14,6 @@ use ZeeltePHP\Lib\Time\StopWatch;
 #    - start ZeeltePHP
 
 // Enable ZeeltePHP debugging  (set to false in production)
-
-
 define('ZP_DEBUG',   false);
 
 // Default response type is JSON
