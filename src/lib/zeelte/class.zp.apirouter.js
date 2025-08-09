@@ -1,10 +1,12 @@
 // class.zp.api.router.php
 import { dev }  from "$app/environment";
-import { base } from "$app/paths";
 import { page } from '$app/state';
+import { base } from "$app/paths";
+
+import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
+
 import { ZP_EventDetails } from "./class.zp.eventdetails.js";
 import { zp_page_route } from "../zeeltephp/zp.tools.js";
-import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
 
 /**
  * Api for communication between Svelte <-> ZeeltePHP.
@@ -41,7 +43,7 @@ export class ZP_ApiRouter
             /** @type {string} HTTP method ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD') */
             method = 'POST';
             /** @type {string} page | api */
-            context = 'page';
+            context = '';
 
             // --- Fetch preparation ---
             /** @type {string} Base API URL */
@@ -66,20 +68,21 @@ export class ZP_ApiRouter
        * @param {boolean} debug Enable debug mode
        */
       //constructor(input = undefined, options = undefined) {
-      constructor(router = undefined, data = undefined, method = undefined, debug = true, options = {}) {
+      constructor(router = undefined, data = undefined, method = undefined, debug = false, options = {}) {
             try {
                   if (router instanceof ZP_ApiRouter) return router;
-                  this.debug = options.debug ?? debug;
                   debug && console.log('# ZP_ApiRouter')
+
+                  this.debug = options.debug ?? debug;
+
                   // Set environment
                   this.environment = dev ? 'dev' : 'prod';
-                  this.log('env', this.environment);
-                  this.log('router', {router});
-
+                  this.log('environment ', this.environment);
+                  this.log('router is   ', typeof router);
+                  this.log('router      ', router)
 
                   // Handle overloading: string, event, any..
                   if (typeof router === 'string' || router instanceof String) {
-                        //this.parse_routerFromString(router);
                         this.context = 'api';
                         this.route   = router
                         this.log('context', this.context);
@@ -143,23 +146,6 @@ export class ZP_ApiRouter
       }
 
       /**
-       * Parse/decode the string for the routing details.
-       * @param {string} router 
-       */
-      parse_routerFromString(router) {
-            this.log('parse_routerFromString()', router);
-            this.route = router
-            // new feature preparation (+.api.php)
-            // -- if (router.startsWith('+')) {
-            // --      this.log('ZP_ApiRouter-api/**');
-            // --      this.route = router;
-            // -- } else {
-                  // decode the string - assumed to be a GET-URL string to deparse
-            //this.parse_routerFromString(router);
-            // --}
-      }
-
-      /**
        * Parse routing/action/value/data from a ZP_EventDetails object or event.
        * @param {*} event
        * @returns {ZP_EventDetails|false}
@@ -213,13 +199,17 @@ export class ZP_ApiRouter
             this.log(`set_best_method(', ${this.method}, ${isSet}, ')`)
             this.prepare(); // update ready-to-fetch-state
       }
-      
 
       /**
        * Prepares the fetch_url and fetch_options for the current state.
        */
       prepare() {
             this.log('prepare()')
+
+            this.fetch_options = {
+                  headers: {}
+            }
+            
             // supported
             //    GET  = URL :string      = PUBLIC_ZEELTEPHP_BASE?/route/&?/action=value&any
             //                ?/route/        : required so ZeeltePHP can find route/+page.server.php 
@@ -242,6 +232,22 @@ export class ZP_ApiRouter
                   this.prepare_POST();
             }
             //else this.log(' - unsupported RequestType');
+            const headers = {}
+            if (this.context === "api") {
+                  headers['X-ZPC-CONTEXT']  = 'api';
+            } else {
+                  headers['X-ZPC-CONTEXT'] = 'page';
+                  //headers['X-ZPC-ACTION']  = this.action;
+                  //headers['X-ZPC-VALUE']   = this.value;
+            }
+            headers['X-ZPC-ROUTE']  = this.route;
+
+            this.fetch_options = {
+                  method:     this.method,
+                  headers:    {...headers, ...this.fetch_options.headers},
+                  body:       this.data
+            }
+            this.log(this.fetch_options);
       }
 
       /**
@@ -277,18 +283,8 @@ export class ZP_ApiRouter
             zpURLPush(this.data)
             // --info-- params is already pushed to data! and ignored from now on  -- zpURLPush(this.params);
 
-            const headers = {}
-            if (this.context === "api") {
-                  headers['X-ZPC-API'] = 1;
-            } else {
-                  headers['X-ZPC-PAGE'] = 1;
-            }
             // set baseUrl + zp_route/&
             this.fetch_url = this.base_url +'?'+ zpURL.join('&');
-            this.fetch_options = {
-                  method:     this.method,
-                  headers:    headers
-            }
       }
 
       /**
@@ -297,43 +293,32 @@ export class ZP_ApiRouter
       prepare_POST() {
             this.log('prepare_POST');
             let data = null;
-            const headers = {}
-            if (this.context === "api") {
-                  headers['X-ZPC-API'] = 1;
-            } else {
-                  headers['X-ZPC-PAGE'] = 1;
-            }
 
             if (this.data instanceof FormData) {
                   // inject route, action, value into data. 
                   // [ ...data, zp_route, zp_action, zp_value ];
                   // headers['Content-Type'] =  browser-default
-                  data = this.data;
-                  data.append('zp_route',  this.route);
-                  data.append('zp_action', this.action);
-                  data.append('zp_value',  this.value);
+                  this.data.append('zpx_context',this.context);
+                  this.data.append('zpx_route',  this.route);
+                  this.data.append('zpx_action', this.action);
+                  this.data.append('zpx_value',  this.value);
                   this.log('prepared: POST/FormData')
             } else {
                   // create POST/json [ zp_route, zp_action, zp_value, zp_data ]
                   // [ zp_route, zp_action, zp_value, zp_data ];
-                  data = JSON.stringify({
-                        'zp_route':  this.route,
-                        'zp_action': this.action,
-                        'zp_value':  this.value,
-                        'zp_data':   this.data
+                  this.data = JSON.stringify({
+                        'zpx_context':this.context,
+                        'zpx_route':  this.route,
+                        'zpx_action': this.action,
+                        'zpx_value':  this.value,
+                        'zpx_data':   this.data
                   });
-                  headers['Content-Type'] = 'application/json';
+                  this.fetch_options.headers['Content-Type'] = 'application/json';
                   this.log('prepared: POST/json');
             }
-
             // set baseUrl + zp_route/&
             // 1.0.4 -> Middleware / Proxy / Intercept ApiPHP request add this.route
             this.fetch_url     = this.base_url + `?${this.route}`
-            this.fetch_options = {
-                  method:     this.method,
-                  headers:    headers,
-                  body: data // data
-            }
       }
 
 
