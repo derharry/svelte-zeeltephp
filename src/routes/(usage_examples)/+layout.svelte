@@ -1,6 +1,7 @@
 <script>            
      import { base } from "$app/paths";
      import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
+
      let { children } = $props();
 </script>
 
@@ -10,7 +11,7 @@
       <ul>
             <li>
                   <ul>
-                        <li><a href="{base}/zp_fetch_PAGE">PAGE</a></li>
+                        <li><a href="{base}/zp_fetch_PAGE">Svelte</a></li>
                         <li><a href="{base}/zp_fetch_API">API</a></li>
                   </ul>
             </li>

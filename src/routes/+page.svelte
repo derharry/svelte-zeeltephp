@@ -2,4 +2,6 @@
     import { ZPDev } from "zeeltephp";
 </script>
 
-<h1>Zeelte PHP Examples</h1>
+<h1>ZeeltePHP (aka SveltePHP)</h1>
+
+
