@@ -29,5 +29,10 @@ vite.config.ts.timestamp-*
 # Bun, Node
 *.lock
 
-# ZeeltePHP
+# ZeeltePHP (SveltePHP)
 /php_log
+
+# Dev
+*Copy*
+*copy*
+*dist*
