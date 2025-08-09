@@ -1,5 +1,7 @@
 <?php namespace ZeeltePHP\Lib\IO;
 
+use function ZeeltePHP\Error\handle_error;
+
       /**
        * Removes the directory and its content.
        */
@@ -14,16 +16,24 @@
        * Empties the directory from files and folders
        */
       function empty_dir($path, $reqursive = false, $regExp = null) {
-            if (is_dir($path)) {
-                  $content = zp_scandirRecursiveDown($path);
-                  foreach ($content as $_) {
-                        $path_content = "$path/$_";
-                        is_file($path_content) && unlink($path_content);
-                        is_dir ($path_content) && rmdir ($path_content);
+            try {
+                  if (is_dir($path)) {
+                        $content = zp_scandirRecursiveDown($path);
+                        foreach ($content as $_) {
+                              $path_content = "$path/$_";
+                              is_file($path_content) && unlink($path_content);
+                              is_dir ($path_content) && rmdir ($path_content);
+                        }
+                        $content = zp_scandir($path, $regExp);
+                        return count($content) == 0;
                   }
+            }
+            catch (\Exception $exp) {
+                  handle_error($exp);
                   $content = zp_scandir($path, $regExp);
                   return count($content) == 0;
             }
+
       }
 
       /**
