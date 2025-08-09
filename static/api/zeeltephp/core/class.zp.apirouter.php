@@ -14,38 +14,32 @@ class ZP_ApiRouter
      //#region Svelte/SSR Routing Properties
 
           /** @var string|null Route string (e.g. /foo/bar/) */
-          public $route;
+          public $route = null;
 
           /** @var string|null Action string (e.g. ?/ACTION) */
-          public $action;
+          public $action = null;
 
           /** @var mixed Action value */
-          public $value;
+          public $value = null;
 
           /** @var mixed Additional data */
-          public $data;
+          public $data = null;
 
      //#endregion
 
      //#region PHP SSR specific
 
           /** @var string Environment name ('development', 'library', 'self-development') */
-          public $environment = ZP_ENV;
-
-          /** @var string page | api */
-          public $context = 'page';
+          public $environment = ZP_ENV;          
+          
+          /** @var string Environment name ('development', 'library', 'self-development') */
+          public $context = null;
 
           /** @var string HTTP request method */
-          public $method = 'GET';
+          public $method = null;
 
           /** @var string|null used content-type */
           public $contentType = null;
-
-          /** deprecated @var bool Whether a +page.server.php file exists for the route */
-          public $routeFileExist = false;
-
-          /** deprecated @var string Path to the matched +page.server.php file */
-          public $routeFile = '/';
 
           /** @var string Base path for routes */
           public $routeBase = PATH_ZPROUTES;
@@ -100,34 +94,32 @@ class ZP_ApiRouter
       * @param array $env    Environment variables from .env or auto-generated.
       * @param bool  $debug  active debug to get all messages in $dbg_msgs;
       */
-     function __construct($env, $debug = false) {
+     function __construct($env, $debug = true) {
           global $zpTime;
           $zpTime->start('ZP_ApiRouter()');
-          $this->debug = $debug;
           $this->log('ZP_ApiRouter()');
 
+          $this->debug = $debug;
           $this->routeBaseApi = isset($env['PUBLIC_ZEELTEPHP_BASE']) ?? '/'; //--? $env['PUBLIC_ZEELTEPHP_BASE'] : '/';
           $this->contentType  = $_SERVER['CONTENT_TYPE'] ?? null;
 
-          // get context
-          $headers = getallheaders();
-          if (  !empty($headers['X-ZPC-API']) || !empty($headers['x-zpc-api']) ||
-              ( !empty($headers['Access-Control-Request-Headers']) && 
-                str_contains($headers['Access-Control-Request-Headers'], 'X-ZPC-API') 
-              )
-          ) {
-               $this->context = 'api';
-          }
-          $this->log('  -- context: '.$this->context);
-
           // 1.0.4 support for CLI/php.exe
-          //    new logic for decode/parse zpRequest
-          // -- $this->parse_zpRequest();
-          $this->decode_zpRequest();
-          $this->parse_zpRequest();
-          $this->collect_plusPHPfilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
+          $this->decode_request_type();
+          $this->fetch_zp_request();
+
+          // 1.0.4 force using header ith X-ZPC-api,page context requests.
+          //if (!defined('ZP_CONTEXT')) {
+          $this->context = $this->context ?? ZP_CONTEXT;
+          $this->route   = $this->route   ?? ZP_ROUTE;
+          if (!$this->context) {
+               $this->context = 'page';
+               $this->log('  ! unsupported context !');
+               //return;
+          }
+
+          $this->collect_plusServerFilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
           
-          log_debug($this->dbg_msgs);
+          //log_debug($this->dbg_msgs);
           log_debug($zpTime->endN('ZP_ApiRouter()'));
           $this->log('//ZP_ApiRouter()');
 
@@ -137,79 +129,84 @@ class ZP_ApiRouter
       * 1.0.4 support for CLI/php.exe
       * new logic for decode/parse zpRequest
       */
-     function decode_zpRequest() {
-          $this->log('  decode_zpRequest()');
-          //file_put_contents(PATH_ZPLOG . 'php_env_vars.log', print_r($_SERVER['REQUEST_METHOD'], true));
-          $this->method = $_SERVER['REQUEST_METHOD'];
-          $this->log('    -- method '. $this->method);
+     function decode_request_type() {
+          try {
+               $this->log('  decode_request_type()');
 
-          if ($_GET && is_array($_GET) && sizeof($_GET) > 0) {
-               // default PHP GET 
-               // deparse_GET()
-               log_debug('deparsed $_GET');
-          }
-          elseif ($_POST && is_array($_POST) && sizeof($_POST) > 0 && isset($_['zp_route'])) {
-               // default PHP POST
-               // contentType = 'multipart/form-data, application/x-www-form-urlencoded', etc;
-               // nothing to do :-)
-               log_debug('deparsed $_POST');
-          }
-          else {
-               // no $_GET or $_POST ? -> fallback read STDIN INPUT
+               //file_put_contents(PATH_ZPLOG . 'php_env_vars.log', print_r($_SERVER['REQUEST_METHOD'], true));
+               $this->method = $_SERVER['REQUEST_METHOD'];
+               $this->log('    .method '. $this->method);
+
+               // Check $_GET, $_POST, CLI-stdin/PHP-input, json/form encoded, then unknown
+               if ($this->method == 'GET' ) {
+                    // default PHP GET 
+                    $this->log('    .detected $_GET');
+                    if ($_GET && is_array($_GET) && sizeof($_GET) > 0) {
+                         $this->log('     .decoded by PHP into $_GET');
+                         return;
+                    }
+               }
+               // check $_POST
+               if ($_POST && is_array($_POST) && sizeof($_POST) > 0) {
+                    // default PHP POST - any default contentType = 'multipart/form-data, application/x-www-form-urlencoded', etc;
+                    // nothing to do :-)
+                    $this->log('    .decoded by PHP into $_POST');
+                    return;
+               }
+               ////////////
+               // fallback read and decode CLI-stdin/PHP-input, json/form encoded, then unknown
+               $this->log('    .read rawInput');
+               // read CLI-stdin/PHP-input
                $rawInput = null;
-               if (php_sapi_name() === 'cli' || isset($_SERVER['ZEELTEPHP_EXE'])) {  
-                    // 1.0.4 - read CLI php://STDIN
-                    // file_get_contents is empty reading stdin.
-                    $rawInput = stream_get_contents(fopen('php://stdin', 'r'));
-               }
-               else {
-                    // read input
-                    $rawInput = file_get_contents('php://input');
-               }
+               if (php_sapi_name() === 'cli' || isset($_SERVER['ZEELTEPHP_EXE'])) 
+                    // 1.0.4 - read CLI php://STDIN; file_get_contents is empty reading stdin.
+                    $rawInput = stream_get_contents(fopen('php://stdin', 'r'));               
+               else $rawInput = file_get_contents('php://input');
+               // decode CLI-stdin/PHP-input
                if ($rawInput) {
 
                     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
                     $json = null;
-                    if (stripos($contentType, 'application/json')) {
-                         log_debug('rawInput JSON');
-                         $json = json_decode($rawInput, true);
+
+                    $this->log('    .method-type: '.$contentType);
+                    $this->log('    .rawInput: '.$rawInput);
+                    
+                    function processJsonInput ($jsonInput, $log): bool {
+                         $json = json_decode($jsonInput, true);
                          if (is_array($json)) {
-                              log_debug('rawInput JSON YES');
+                              $log->log('    .json decoded into $_POST, $_REQUEST');
                               $_POST    = $json;
                               $_REQUEST = $_POST;
-                         } else 
-                              log_debug('rawInput JSON NO');
-                    }
-                    else {
-                         // default browser - 'application/x-www-form-urlencoded'
-                         log_debug('  -- rawInput default/browser');
-                         $trimmed = trim($rawInput);
+                              return true;
+                         } 
+                         $log->log('    .json NOT decoded !');
+                         return false;
+                    };
 
-                         if (str_starts_with($trimmed, '{') && str_ends_with($trimmed, '}')) {
-                              log_debug('    -- JSON');
-                              $json = json_decode($rawInput, true);
-                              if (is_array($json)) {
-                                   log_debug('    -- JSON YES array');
-                                   $_POST    = $json;
-                                   $_REQUEST = $_POST;
-                              } 
-                              else $json = null;
-                         }
-                    }
-                    
-                    if (is_null($json)) {
-                         log_debug('  -- form-urlencoded / multipart');
+                    // json encoded
+                    if (stripos($contentType, 'application/json') >= 0 && processJsonInput($rawInput, $this))
+                         return;
 
-                         $parsed = $this->parse_zpRequestRawMultipart($rawInput, $contentType);
-                         $_POST  = $parsed['post'];
-                         $_FILES = $parsed['files'];
-                         if (is_array($_POST)) {
-                              $_REQUEST = $_POST;
-                         }
+                    // default browser - 'application/x-www-form-urlencoded'
+                    $this->log('    .check default/browser encoding');
+                    $trimmed = trim($rawInput);
+
+                    // json encoded 
+                    if (str_starts_with($trimmed, '{') && str_ends_with($trimmed, '}') && processJsonInput($rawInput, $this)) 
+                         return;
+
+                    // multipart, form-url-encoded, ..
+                    $parsed = $this->parse_zpRequestRawMultipart($rawInput, $contentType);
+                    $_POST  = $parsed['post'];
+                    $_FILES = $parsed['files'];
+                    if (is_array($_POST)  || is_array($_FILES)) {
+                         $_REQUEST = $_POST;
+                         $this->log('    .decoded multipart into $_POST, $_FILES');
+                         return;
                     }
                }
                else {
-                    $this->log('    -- possible GET()');
+                    $this->log('    .possible GET()');
                     // Parse current request URI, fill $_GET accordingly
                     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
                     $requestUri = str_replace('/?', '', $requestUri);
@@ -223,35 +220,47 @@ class ZP_ApiRouter
                          $this->log("       $key = $value");
                     }
                }
+               $this->log('    .unsupported request-type !');
           }
-          $this->log('  //decode_zpRequest()');
+          finally {
+               $this->log('  //decode_request_type()');
+          }
      }
 
      /**
       * Parses the incoming request and sets route, action, value, and data.
       */
-     function parse_zpRequest() {
-          $this->log('  parse_zpRequest()');
-          if (isset($_POST['zp_route'])) {
-               $this->log('    -- $_POST[zproute] '.$_POST['zp_route']);
-               $this->route  = $_POST['zp_route']  ?? $this->route;
-               $this->action = $_POST['zp_action'] ?? $this->action;
-               $this->value  = $_POST['zp_value']  ?? $this->value;
-               unset($_POST['zp_route']);  unset($_REQUEST['zp_route']);
-               unset($_POST['zp_action']); unset($_REQUEST['zp_action']);
-               unset($_POST['zp_value']);  unset($_REQUEST['zp_value']);
-               if (isset($_POST['zp_data'])) {
-                    $this->data = $_POST['zp_data'];
-                    $_POST      = $_POST['zp_data'];
-               } 
+     function fetch_zp_request() {
+          $this->log('  fetch_zp_request()');
+          if (isset($_POST['zpx_route'])) {
+               $this->context = $_POST['zpx_context'] ?? $this->context;
+               $this->route   = $_POST['zpx_route']   ?? $this->route;
+               $this->action  = $_POST['zpx_action']  ?? $this->action;
+               $this->value   = $_POST['zpx_value']   ?? $this->value;
+               unset($_POST['zpx_context']);  unset($_REQUEST['zpx_context']);
+               unset($_POST['zpx_route']);    unset($_REQUEST['zpx_route']);
+               unset($_POST['zpx_action']);   unset($_REQUEST['zpx_action']);
+               unset($_POST['zpx_value']);    unset($_REQUEST['zpx_value']);
+               //$this->data    = $_POST['zpx_data'] ?? $this->data;
+               if (isset($_POST['zpx_data'])) {
+                    $this->data = $_POST['zpx_data'];
+                    unset($_POST['zpx_data']); unset($_REQUEST['zpx_data']);
+                    $_POST = $this->data;
+               }
+               //$_POST = $this->data;
                $_REQUEST = $_POST;
+               $this->log('     context '.$this->context);
+               $this->log('     route   '.$this->route);
+               $this->log('     action  '.$this->action);
+               $this->log('     value   '.$this->value);
+               $this->log(json_encode($this->data));
           }
           else {
-               $this->parse_request_GET();
+               $this->fetch_zp_request_GET();
           }
           $this->route = str_replace('//', '/', $this->route ?? '');
           // Clean up route slashes
-          $this->log('  //parse_zpRequest()');
+          $this->log('  //fetch_zp_request()');
      }
 
      /**
@@ -260,8 +269,8 @@ class ZP_ApiRouter
       *   for exec load():     ?/route/&...
       *   for exec action():   ?/route/&?/action&...
       */
-     function parse_request_GET() {
-          $this->log('    parse_request_GET()');
+     function fetch_zp_request_GET() {
+          $this->log('    fetch_zp_request_GET()');
           $idx = -1;
           foreach ($_GET as $key => $value) {
                $idx++;
@@ -281,16 +290,16 @@ class ZP_ApiRouter
                }
           }
           $this->data = $_GET;
-          $this->log('    //parse_request_GET()');
+          $this->log('    //fetch_zp_request_GET()');
      }
 
      /**
-      * Collects all +.php files in the current route path (upwards).
+      * Collects all +server*.php files in the current route path (upwards).
       * @param string $replaceBaseRoute Path prefix to remove from route.
       */
-     function collect_plusPHPfilesInRoute($replaceBaseRoute) {
-          $this->log('  collect_plusPHPfilesInRoute()');
-          //$this->log('     @ replaceBaseRoute : '.$replaceBaseRoute);
+     function collect_plusServerFilesInRoute($replaceBaseRoute) {
+          $this->log('  collect_plusServerFilesInRoute()');
+          //$this->log('     . replaceBaseRoute : '.$replaceBaseRoute);
           if (!$this->route) {
                $this->log(" ! route is missing, i need a route to collect +.php files"); 
                return;
@@ -305,19 +314,19 @@ class ZP_ApiRouter
           $routePath = $this->route;
           $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
 
-          // context here?
           if ($this->context == 'api') {
-               $this->routePath = $routePath;          
+               $this->log('    for +server.php');
+               $this->routePath = $routePath;
                $this->routeBase = $routeBase;
-               $routeFilesTP = scan_dir_recursive_up($routeBase, '#\+server\.#');
+               $routeFilesTP = scan_dir_recursive_up($routeBase, '#\+server\.php#');
                #if (is_file($routeBase."/+server.php")) {
                     //$this->log('     @ +server.php '.$routeBase);
                     // api-route will not have grouped routes
                #     $this->routeFiles[] = '+server.php'; #]
           }
-          else {
+          else if ($this->context == 'page') {
                // 'page'
-               $this->log('     @ +page.server.php '.$routeBase);
+               $this->log('     +page.server.php '.$routeBase);
                if (!is_dir($routeBase)) {
                     // page-route could have grouped routes
                     $routePath = $this->scandir_withGroupedRoutes();
@@ -339,7 +348,7 @@ class ZP_ApiRouter
           if (is_array($routeFilesTP) && sizeof($routeFilesTP) > 0)
                $routeFiles = array_merge($routeFiles, $routeFilesTP);
           $this->routeFiles = $routeFiles;
-          $this->log('  //collect_plusPHPfilesInRoute()');
+          $this->log('  //collect_plusServerFilesInRoute()');
           return;
      }
 
@@ -373,7 +382,7 @@ class ZP_ApiRouter
           $boundary = $matches[1];
           $parts = explode('--' . $boundary, $input);
 
-          array_pop($parts); // Remove last closing --
+          array_pop($parts);   // Remove last closing --
           array_shift($parts); // Remove preamble if any
 
           foreach ($parts as $part) {
