@@ -68,8 +68,8 @@
 
 .zp-vardump * {
      font-size: 0.96em !important;
-     min-height: 10em !important;
-     max-height: 10em !important;
+     min-height: 15em !important;
+     max-height: 15em !important;
      overflow: auto;
 }
 .zp-vardump span {
@@ -96,8 +96,17 @@ a:hover {
      padding: 0em 0.25em !important;
      border: none !important;
 }
+.tab-group {
+     border-radius: 25%;
+     border: 1px silver dotted;
+}
 .tab.active {
      color: #F96743;
+     background-color: #f967435a;
+}
+.tab.activebg {
+     color: #F96743;
+     transition-property: 0.33;
 }
 .tab:hover {
      color: orange !important;

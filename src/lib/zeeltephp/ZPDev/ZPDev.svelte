@@ -1,98 +1,121 @@
 <script>
+// ZPDev.svelte
 
      import './zpdev.css'
-     import ZPDevNav               from "./ZPDevNav.svelte"
-     import Temp                   from "./Temp.svelte"
 
-     import { zpAR_svelte, zpAR_pageJS, zpAR_php, zpED_svelte, showDumpPanel } from './zpdev.stores.js';
-     import { zp_fetch, data, form, error } from "$lib/zeelte/zp.fetch.api.js";
-     import { derived } from 'svelte/store';
+     import { derived    } from 'svelte/store';
+     import { invalidate } from '$app/navigation';
+
+     // ZP related
+     import { ZP_ApiRouter }    from "$lib/zeeltephp/class.zp.apirouter.js";
+     import { ZP_EventDetails } from "$lib/zeelte/class.zp.eventdetails.js";
+     import { zp_fetch, data, form, error } from "$lib/zeeltephp/zp.fetch.js";
+
+     // Component related
+     import { 
+          showApp, showDumpPanel,
+          dataDumpPanel,
+          zpED_svelte,
+          zpAR_svelte,
+          resetLocalStores,
+     } from './zpdev.stores.js';
+     import ZPDevDDS              from "./ZPDevDDS.svelte";
+     import ZPDevNav             from "./ZPDevNav.svelte"
+     import ZPDevResponseStates  from "./ZPDevResponseStates.svelte";
+     import ZPDevAppPageServer   from "./ZPDevAppPageServer.svelte";
+     import ZPDevAppServer       from "./ZPDevAppServer.svelte";
+     import ZPDevAppDB           from "./ZPDevAppDB.svelte";
 
      const debug = true
      
      /** Promise for API fetch (for Svelte's #await) */
      let promise_fetch = $state()
 
-     /**
-      * Resets all API state variables to initial values.
-      */
-     const setVariablesToInit = () => {
-          debug && console.log('  #/ setVariablesToInit()')
-          promise_fetch = null
-          zpAR_svelte.update(null)
-          zpAR_pageJS.update(null)
-          zpAR_php   .update(null)
-          zpED_svelte.update(null)
-          //data = null;
-     };     
+     let setVariablesToInit;
 
      /**
       * Initializes dashboard and API state before a fetch.
       * @param e Optional event object
       */
      function init_ZPDev(event = undefined) {
-          //debug && console.clear();
+          //debug &&
+          console.clear();
           debug && console.log('# init_ZPDev()')
-          setVariablesToInit()
+          event.preventDefault()
+          resetLocalStores()
           // show the manually the pre steps of zp_fetch(event) ..
-          zpED_svelte.update(new ZP_EventDetails(event))
-          zpAR_svelte.update(new ZP_ApiRouter(zpED_svelte))
+          zpED_svelte.set(new ZP_EventDetails(event))
+          zpAR_svelte.set(new ZP_ApiRouter(zpED_svelte))
+          // show correct DumpPanel
+          debug && console.log('# setDumpPanel()')
+          if ($zpED_svelte.action) {
+               showDumpPanel.set('form')
+          }
+          else 
+               showDumpPanel.set('data')
           debug && console.log('/ init_ZPDev()')
      }
 
-     const dataDumpPanel = $derived.by(() => {
-          //console.log('derived.by()', $showDumpPanel)
-          switch ($showDumpPanel) {
-               case 'data':  return $data
-               case 'form':  return $form
-               case 'error': return $error
-          }
-          return 'noo'
-     });
-     
 </script>
+
+<ZPDevDDS 
+     bind:promise_fetch
+     bind:setVariablesToInit
+/>
 
 <form 
      class="frameParent" 
-     on:submit={(e) => {
-          e.preventDefault()
-          console.log('# handle-submitForm()')
-          console.log('/ handle-submitForm()')
+     onsubmit={(e) => {
+          console.log('# form/handle-submitForm()')
+          init_ZPDev(e)
+          promise_fetch = zp_fetch(e)
+          console.log('/ form/handle-submitForm()')
      }}
 >
+
+     <!-- HEAD -->
      <ZPDevNav bind:promise_fetch />
 
      <!-- MAIN -->
      <div class="zpdev-tab-dump">
-          <!-- tab -->
+
+          <!-- .-tab Apps -->
           <div class="contentPadding zpdev-apps svcolor-editor">
+               <ZPDevResponseStates />
+               <hr />
+               {#if $showApp == "PAGE.SERVER.PHP"}
+                    <ZPDevAppPageServer {init_ZPDev} bind:promise_fetch />
+               {:else if $showApp == "SERVER.PHP"}
+                    <ZPDevAppServer {init_ZPDev} bind:promise_fetch />
+               {:else if $showApp == "DB"}
+                    <ZPDevAppDB {init_ZPDev} bind:promise_fetch />
+               {:else}
+                    <div>
+                         newApp {$showApp}
+                    </div>
+               {/if}
+               <!--
+               {:else if $showApp == ".ENV"}
+                    <div>
+                         <button
+                              type="submit"
+                              name="btnEnvGet"
+                              formaction="?/ENV_get"
+                              style="width:50%"
+                         >Get .ENV</button>
+                    </div>
+               {:else if $showApp == "ROUTES"}
+                    <ZPDevAppRoutes />
+               -->
           </div>
-          <!-- dump -->
+
+          <!-- .-dump DumpPanel for data form error -->
           <div class="contentPadding zp-vardump svcolor-preview">
 
                <span>{$showDumpPanel}: {typeof data}</span>
-               <pre style="overflow:auto">{JSON.stringify(dataDumpPanel, null, 2)}</pre>
+               <pre style="overflow:auto">{JSON.stringify($dataDumpPanel, null, 2)}</pre>
 
           </div>
      </div>
 
-     <!-- FOOTER -->
-     <div class="zpdev-dump-dump frameFooter">
-          <div class="contentPadding zp-vardump svcolor-preview">
-               <span>zpAR svelte: {typeof zpAR_svelte}</span>
-               <pre style="overflow:auto">{JSON.stringify(zpAR_svelte, null, 2)}</pre>
-          </div>
-          <div class="contentPadding zp-vardump svcolor-preview">
-               <span>zpAR svelte: {typeof zpAR_php}</span>
-               <pre style="overflow:auto">{JSON.stringify(zpAR_php, null, 2)}</pre>
-               <!--
-               <VarDump
-                    title="zpAR php"
-                    vardump={zpAR_php}
-                    dumpJson={showDumpsInJSON}
-                    noBorder={true}
-               />
-               -->
-          </div>
-     </div>
 </form>

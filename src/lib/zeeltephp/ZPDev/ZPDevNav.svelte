@@ -1,85 +1,72 @@
 <script>
+// ZPDevNav.svelte
      import './zpdev.css';
-     import { zp_page_route }         from "../zp.tools.js";
-     import { showApp, showDumpPanel, zpAR_php }     from "./zpdev.stores.js";
+     import { get } from 'svelte/store';
      import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
      import HTML_Marquee              from "$lib/zeelte/HTML_Marquee.svelte";
-     
+
+     import { data, form, error }     from "$lib/zeeltephp/zp.fetch.js"
+          import { 
+          showApp, showDumpPanel,
+          appTabs, dumpTabs,
+          dumpTabsHasData
+     } from "./zpdev.stores.js";
+
      let {
           promise_fetch = $bindable()
      } = $props();
- 
+
+     const debug = true
+
+     const clickSet = (e, store, value) => {
+          e.preventDefault();
+          store.set(value);
+     };
+
 </script>
 
-     <div class="frameHeader svcolor-header">
+<div class="frameHeader svcolor-header">
 
-          <span class="zp-title">
-               ZP Dev
-               {#await promise_fetch}
-                    <HTML_Marquee value="🐘" />
-               {:then _}
-                    {#if zpAR_php && !zpAR_php?.routeFiles}
-                         ⚠️
-                    {:else}
-                         🐘
-                    {/if}
-               {/await}
-          </span>
+     <span class="zp-title">
+          ZP Dev
+          {#await promise_fetch}
+               <HTML_Marquee value="🐘" />
+          {:then _}
+               {#if $error}
+                    ⚠️
+               {:else if $data || $form}
+                    🐘                    
+               {:else}
+                    ⚠️
+               {/if}
+          {/await}
+     </span>
+
      <!-- navButtons to show current App -->
-          <div>
+     <!-- App nav buttons -->
+     <div>
+          {#each appTabs as t}
                <button
                     class="tab"
-                    class:active={$showApp === "PAGE.SERVER.PHP"}
-                    onclick={(e) => { e.preventDefault(); showApp.set("PAGE.SERVER.PHP")}}
-               >+page.server.php</button>
-               <button
-                    class="tab"
-                    class:active={$showApp === "SERVER.PHP"}
-                    onclick={(e) => { e.preventDefault(); showApp.set("SERVER.PHP")}}
-               >+server.php</button>
-               <button
-                    class="tab"
-                    class:active={$showApp === "DB"}
-                    onclick={(e) => { e.preventDefault(); showApp.set("DB")}}
-               >DB</button>
-               <button
-                    class="tab"
-                    class:active={$showApp === ".ENV"}
-                    onclick={(e) => { e.preventDefault(); showApp.set(".ENV")}}
-               >.ENV</button>
-          </div>
-
-          <div>
-               <button
-                    class="tab"
-                    class:active={$showDumpPanel === "data"}
-                    onclick={(e) => { e.preventDefault(); showDumpPanel.set("data")}}
-               >data</button>
-               <button
-                    class="tab"
-                    class:active={$showDumpPanel === "form"}
-                    onclick={(e) => { e.preventDefault(); showDumpPanel.set("form"); }}
-               >form</button>
-               <button
-                    class="tab"
-                    class:active={$showDumpPanel === "error"}
-                    onclick={(e) => { e.preventDefault(); showDumpPanel.set("error"); }}
-               >error</button>
-          </div>
-          <!--
-               <button
-                    onclick={(e) => { e.preventDefault(); showDumpsInJSON = !showDumpsInJSON)}
-                    class:active={showDumpsInJSON}
-               >{#if showDumpsInJSON}JSON{:else}DUMP{/if}</button>
-          -->
-          <!--
-               <button onclick={() => (showApp.set("DASHBOARD"))}  class:activeApp={showApp=="DASHBOARD"}>Dashboard</button>
-          -->
-
-          <a   href="{PUBLIC_ZEELTEPHP_BASE}?{zp_page_route()}"
-               target="_blank"
-               class="zp-route"
-               onclick={ () => { return; /*showApp = "IFRAME"*/ } }
-          >{zp_page_route()}</a>
-          
+                    class:activebg={$showApp === t.key}
+                    onclick={(e) => clickSet(e, showApp, t.key)}
+               >{t.label}</button>
+          {/each}
      </div>
+
+     <!-- DumpPanel nav buttons 
+          class:activebg={$t.store ?? false} 
+          class:activebg={localDumpTabStates.find(v => v.key === t.key)?.hasData}
+      -->
+     <div>
+          {#each dumpTabs as t}
+               <button
+                    class="tab"
+                    class:active={$showDumpPanel === t.key} 
+                    class:activebg={$dumpTabsHasData.find(v => v.key === t.key)?.hasData === true}
+                    onclick={(e) => clickSet(e, showDumpPanel, t.key)}
+               >{t.label} </button>
+          {/each}
+     </div>
+
+</div>
