@@ -2,6 +2,7 @@
 
 use function ZeeltePHP\Core\lib\change_full_paths_to_zp_relative;
 use function ZeeltePHP\Error\log_debug;
+use function ZeeltePHP\Lib\List\KeyValue\key_value_list_to_text_table_format;
 
 /**
  * Enable cross-origin requests for development environment (allow from anywhere/no-cors)
@@ -40,11 +41,17 @@ function prepare_RunTimeEnvironment_context() :void {
      if (ZP_DEBUG) \ZeeltePHP\Lib\IO\empty_dir(PATH_ZPLOG, true);
      #if (ZP_DEBUG) \empty_dir(PATH_ZPLOG, true);
      // re-create deleted dirs
-     if (!is_dir(PATH_ZPLOG)) mkdir(PATH_ZPLOG, 0666, true);
-     if (!is_dir(PATH_ZPTMP)) mkdir(PATH_ZPTMP, 0666, true);
+     if (!is_dir(PATH_ZPLOG)) mkdir(PATH_ZPLOG);
+     if (!is_dir(PATH_ZPTMP)) mkdir(PATH_ZPTMP);
+     prepare_pageServer_context();
+     // fill-up missing vars
+     $vars = ['ZP_METHOD', 'ZP_ROUTE', 'ZP_CONTEXT', 'ZP_ACTION', 'ZP_VALUE'];
+     //foreach ($vars as $var) 
+     //     if (!defined($var))
+     //          define($var, null);
      // Debug Output 
      if (ZP_DEBUG) {                          // true = restart log file
-          log_debug('ZP_ENV:        '.ZP_ENV, 0, true); 
+          log_debug('ZP_ENV:        '.ZP_ENV, 0, false);
           log_debug('PATH_INIT:     '.PATH_INIT); 
           log_debug('PATH_CPROOT:   '.PATH_CPROOT);
           log_debug('PATH_ZPAPIPHP: '.PATH_ZPAPIPHP);
@@ -52,7 +59,38 @@ function prepare_RunTimeEnvironment_context() :void {
           log_debug('PATH_ZPLIB:    '.PATH_ZPLIB);
           log_debug('PATH_ZPROUTES: '.PATH_ZPROUTES);
           log_debug('PATH_ZPTMP:    '.PATH_ZPTMP);
+          $max  = 15;
+          foreach ($vars as $var) 
+               if (defined($var))
+                    log_debug( str_pad($var, $max, " ", STR_PAD_RIGHT).constant($var) );
      }
+}
+
+function prepare_pageServer_context() {
+     $headers    = getallheaders();
+     $headers    = array_change_key_case($headers, CASE_LOWER);
+     $searchXZPC = ['context', 'route', 'action', 'value'];
+     $value = '?';
+     $match = '';
+     foreach ($searchXZPC as $xzpc) {
+          $xzpcH = "x-zpc-$xzpc";
+          $xzpcL = "x_zpc_$xzpc";
+          $value = '?';
+          if (!empty($headers[$xzpcH]) || !empty($headers[$xzpcL])) {
+               $match = 'headers';
+               $value = $headers[$xzpcH];
+          }
+          else if (!empty($headers['Access-Control-Request-Headers']) && str_contains($headers['Access-Control-Request-Headers'], $xzpcH) ) {
+               $match = 'A-C-R-H';
+               $value = $headers['Access-Control-Request-Headers'];
+          }
+          if ($value !== '?') {
+               $xzpc = strtoupper($xzpc);
+               define("ZP_$xzpc", $value);
+               //log_debug("ZP_$xzpc  ".constant("ZP_$xzpc"));
+          }
+     }
+     define('ZP_METHOD', $_SERVER['REQUEST_METHOD']);
 }
 
 /**
