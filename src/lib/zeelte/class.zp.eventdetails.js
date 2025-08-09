@@ -1,4 +1,4 @@
-import { ZP_ApiRouter } from "./class.zp.apirouter.js"
+import { ZP_ApiRouter  } from "../zeeltephp/class.zp.apirouter.js"
 import { zp_page_route } from "../zeeltephp/zp.tools.js";
 
 /**

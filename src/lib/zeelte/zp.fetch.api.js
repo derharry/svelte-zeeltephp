@@ -2,9 +2,14 @@
  * ZeeltePHP API Client
  * Provides Svelte/SvelteKit integration helpers for ZeeltePHP backend communication.
  */
-import { json } from "@sveltejs/kit";
-import { ZP_ApiRouter } from "./class.zp.apirouter.js" 
-import { ZP_EventDetails } from "./class.zp.eventdetails.js"  
+import { writable        } from "svelte/store";
+
+import { ZP_ApiRouter    } from "$lib/zeeltephp/class.zp.apirouter.js" 
+import { ZP_EventDetails } from "$lib/zeelte/class.zp.eventdetails.js"  
+
+export const data  = writable() // 'storeData')
+export const form  = writable() // 'storeForm')
+export const error = writable() // 'storeError')
 
 /**
  * Creates a ZP_EventDetails object from a browser event.
@@ -16,6 +21,11 @@ export function zp_get_eventDetails(event) {
 }
 
 /**
+ * *deprecated* 
+ *      zp_fetch() is the new method to prefer.
+ *      For backwards compability zp_fetch_api() 
+ *         will exist until further notice 
+ *         and forwards to zp_fetch() 
  * Fetches data from the ZeeltePHP backend (PHP API) and resolves the response. 
  * For most use-cases you will just use 
  *      .svelte  : zp_fetch_api(fetch, event);
@@ -52,8 +62,9 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
     //const debug = debug;
      try {
         //-- forward to new zp_fetch
-        //return zp_fetch(router, { data, method, headers, debug });
-        //debug && console.clear()
+        //   return zp_fetch(router, { data, method, headers, debug });
+
+        debug && console.clear()
         debug && console.log('#zp_fetch_api()');
 
         // Create the API router object (parse router/data/method)
@@ -131,7 +142,7 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
  *                              if its a string then the +page
  * @param { }       options     any fetch-options and some additional
  * 
- * dd@param {object}          router        
+ * @param {object}          router        
  * @param {*}      [data] - Optional, force data to send with the request
  * @param {string} [method] - Optional, force used HTTP method (GET, POST, etc.)
  * @param {object} [headers] - Optional, additional headers for the request
@@ -149,23 +160,23 @@ export function zp_fetch(route, options = {
     method:  'POST', 
     data:    undefined, 
     headers: {}, 
-    debug:   true
+    debug:   false
 }) {
+    let debug = false
     try {
-        const defOptions = {
+        const defaultOptions = {
             method: 'POST',
             debug: true
         }
-        const zpOptions = { ...defOptions, ...options  }
-        const debug     = zpOptions.debug ?? false
-        //zpOptions.fetch ? fetch = zpOptions.fetch : fetch
+        const zp_fetch_options = { ...defaultOptions, ...options  }
+        debug = zp_fetch_options.debug ?? false
+        //zp_fetch_options.fetch ? fetch = zp_fetch_options.fetch : fetch
 
-        //debug && console.clear()
+        debug && console.clear()
         debug && console.log('# zp_fetch()')
-        debug && console.log('    ', {zpOptions})
-        debug && console.log('    ', {zpOptions})
-
-        const zpar = new ZP_ApiRouter(route, zpOptions.data, zpOptions.method, debug, zpOptions);
+        debug && console.log('    route:    ', route)
+        debug && console.log('    zp_fetch_options ', {zp_fetch_options})
+        const zpar = new ZP_ApiRouter(route, zp_fetch_options.data, zp_fetch_options.method, debug, zp_fetch_options);
 
         // -- moved inside promise 2025.08.02
         //if (!zpar.route) {
@@ -185,18 +196,33 @@ export function zp_fetch(route, options = {
             // -- idea: Resolve the response directly into Svelte $page.data, $page.form, $page.error, etc...(Trigger SvelteKit's behaviour)
             fetch(zpar.fetch_url, zpar.fetch_options) 
                 .then(response => {
-                    console.log(response.headers);
-                    const contentLength = response.headers.get('Content-Length')
-                    if (contentLength && Number(contentLength) > 0) 
-                         return response.json()
-                    else return response.headers // GET, HEAD
+                    //const contentLength = response.headers.get('Content-Length')
+                    //if (contentLength && Number(contentLength) > 0) 
+                     return response.json()
+                    //else return response.headers // GET, HEAD
                 })
                 .then(jsonData =>  {
-                        //let data = jsonData?.data
-                        //let form = jsonData?.form
-                        //({ data, form, promise } = zp_fetch_api());
-                        resolve(jsonData) // directly return JSON response from 1.0.4
-                }) 
+                    //console.error('----------------------------', jsonData)
+                    // deparse Context-Layer
+                    let responseData = jsonData
+                    if (jsonData?.page && jsonData?.page == 'page') {
+                        //({ data, form, error } = zp_fetch_api());
+                        responseData = {  
+                            data:  jsonData?.data  ?? null, 
+                            form:  jsonData?.form  ?? null, 
+                            error: jsonData?.error ?? null
+                        }                        
+                        data.set (responseData.data  ?? null);
+                        form.set (responseData.form  ?? null);
+                        error.set(responseData.error ?? null);
+                    }
+                    else {
+                        data.set(jsonData);
+                    }
+                    // THIS IS THE IMPORTANT PART:
+                    resolve(responseData) // directly return JSON response from 1.0.4
+                    //todo try : return json(responseData)  .then(jsonResponse => console.log(jsonResponse))
+                })
                 .catch(error => {
                     console.error({ error })
                     reject(new Error(error.message || 'Unknown error'))
@@ -205,7 +231,7 @@ export function zp_fetch(route, options = {
     } catch (error) {
         console.error({ error })
     } finally {
-        console.log('/ zp_fetch()')
+        debug && console.log('/ zp_fetch()')
     }
 }
 
