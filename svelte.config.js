@@ -18,7 +18,7 @@ const config = {
 		prerender: {
 			entries: ['*']
 		},
-		// set alias zeeltephp - so /routes/** can be used as zpdemo
+		// set alias zeeltephp - so /routes/** can be used as documentation
 		alias: {
 			'zeeltephp': process.env.ZP_IS_SELFENV ? path.resolve('./src/lib/index.js') : 'zeeltephp'
 		},
