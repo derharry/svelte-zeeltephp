@@ -1,11 +1,7 @@
 <?php namespace zp1753838398; $zpns=__NAMESPACE__;
 
      function fallback() {
-          global $zpAR, $env, $db;
-          return [
-               'msg' => 'hi from fallback()',
-               
-          ];
+          return 'hi from fallback()';
      }
 
      function GET() {
