@@ -1,6 +1,6 @@
 <script>
+// ZPAppDB.svelte
 </script>
-
 
 <div class="input-row">
      <button
@@ -14,4 +14,5 @@
           formaction="?/DB_execSQL"
      >exec SQL</button>
 </div>
+
 <textarea name="sqlstatement">SELECT 'Hello,  World!' AS message;</textarea>

@@ -1,12 +1,8 @@
 <script>
-
+// ZPDevAppServer.svelte
+     import { promise_fetch, init_ZPDev   } from "./zpdev.stores.js";
      import { zp_fetch, data, form, error } from "$lib/zeeltephp/zp.fetch.js";
      import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
-
-     let {
-          init_ZPDev,
-          promise_fetch = $bindable()
-     } = $props();
 
      /** */
      let url_api  = zp_page_route()
@@ -14,7 +10,7 @@
      function wrap_fetch(e, method) {
           e.preventDefault()
           init_ZPDev(e)
-          promise_fetch = zp_fetch('/zpdev', { method: method })
+          $promise_fetch = zp_fetch('/zpdev', { method: method })
           /*
           -- the origin from to using data,form,error Stores and new response-layer 25-08-06,
           -- - within zeeltephp/zp_fetch.js // data, form, error
@@ -36,7 +32,6 @@
                });
           */
      }
-
 </script>
 
 <div>

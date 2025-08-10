@@ -101,11 +101,13 @@ a:hover {
      border: 1px silver dotted;
 }
 .tab.active {
-     color: #F96743;
-     background-color: #f967435a;
+     color: #F96743 !important;
 }
 .tab.activebg {
-     color: #F96743;
+     color: silver;
+     background-color: #f967435a;
+     border-radius: 25px;
+     padding: 0 0.5em;
      transition-property: 0.33;
 }
 .tab:hover {

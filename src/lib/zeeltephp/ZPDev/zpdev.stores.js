@@ -1,79 +1,156 @@
-// zpdev.store.js
-import { writable, derived } from "svelte/store";
+//zpdev.stores.js
+import { writable, derived, get   } from "svelte/store";
 import { persistentStore_KeyValue } from "$lib/zeelte/persistentStore";
+import { data, form, error }        from "$lib/zeeltephp/zp.fetch.js" ; // hook zp_fetch() Stores
+export { data, form, error }
+import { ZP_ApiRouter      } from "$lib/zeeltephp/class.zp.apirouter.js";
+import { ZP_EventDetails   } from "$lib/zeelte/class.zp.eventdetails.js";
 
-/** hook zp_fetch() Stores  */
-import { data, form, error } from "$lib/zeeltephp/zp.fetch.js"
+const debug = false
 
-/** persistent Stores  */
+// ------------------------------
+// Persistent UI state
+// ------------------------------
 export const showApp       = persistentStore_KeyValue('ZPDev_showApp', 'PAGE.SERVER.PHP')
 export const showDumpPanel = persistentStore_KeyValue('ZPDev_showDumpPanel', 'data')
-export const dataDumpPanel = writable();
+export const dataDumpPanel = writable()
 
-/** local Stores */
-export const zpED_js     = writable()
-export const zpED_svelte = writable()
-export const zpAR_js     = writable()
-export const zpAR_svelte = writable()
-export const zpAR_pageJS = writable()
-export const zpAR_php    = writable()
-export const zpDB_php    = writable()
-export const zpENV_php   = writable()
+// ------------------------------
+// Local API/Dev state stores
+// ------------------------------
+export const promise_fetch = writable()
+export const zpED_js       = writable()
+export const zpED_svelte   = writable()
+export const zpAR_js       = writable()
+export const zpAR_svelte   = writable()
+export const zpAR_pageJS   = writable()
+export const zpAR_php      = writable()
+export const zpDB_php      = writable()
+export const zpENV_php     = writable()
 
-// Navigation: "App" panel buttons
+// ------------------------------
+// Navigation AppTabs and DumpTabs
+// ------------------------------
 export const appTabs = [
      { key: "PAGE.SERVER.PHP", label: "+page.server.php" },
      { key: "SERVER.PHP",      label: "+server.php" },
      { key: "DB",              label: "DB" }
 ];
 
-// Navigation: DumpPanel buttons
 export const dumpTabs = [
-     { key: "data",     label: "data",   store: data },
-     { key: "form",     label: "form",   store: form },
-     { key: "error",    label: "error",  store: error },
-     { key: "_zpAR_js", label: "AR js",  store: zpAR_svelte },
-     { key: "_zpED_js", label: "ED js",  store: zpAR_svelte },
-     { key: "_zpAR",    label: "AR php", store: zpAR_php },
-     { key: "_zpDB",    label: "DB",     store: zpDB_php  },
-     { key: "_zpENV",   label: "ENV",    store: zpENV_php }
+    { key: "data",         store: data,         label: "data"   },
+    { key: "form",         store: form,         label: "form"   },
+    { key: "error",        store: error,        label: "error"  },
+    { key: "_zpED_js",     store: zpED_js,      label: "ED js"  },
+    { key: "_zpED_svelte", store: zpED_svelte,  label: "ED sv"  },
+    { key: "_zpAR_js",     store: zpAR_js,      label: "AR js"  },
+    { key: "_zpAR_svelte", store: zpAR_svelte,  label: "AR sv"  },
+    { key: "_zpAR",        store: zpAR_php,     label: "AR php" },
+    { key: "_zpDB",        store: zpDB_php,     label: "DB"     },
+    { key: "_zpENV",       store: zpENV_php,    label: "ENV"    }
 ];
 
-function isEmpty(val) {
-  if (val == undefined) return true;
-  if (val == null) return true;
-  if (typeof val === "string" && val.trim().length === 0) return true;
-  if (typeof val === "number" && val === 0) return true;
-  if (Array.isArray(val) && val.length === 0) return true;
-  // Only treat plain objects as empty if not null and not array
-  if (typeof val === "object" && !Array.isArray(val)) {
-    return Object.keys(val).length === 0;
-  }
-  return false;
-}
 
+derived([data, form, error], ([$data, $form, $error]) => {
+     const sources = [
+          { value: $data,  store: data },
+          { value: $form,  store: form },
+          { value: $error, store: error }
+     ];
+
+     sources.forEach(({ value, store }) => {
+          if (!value || typeof value !== "object") return;
+
+          let rest = { ...value };
+          let changed = false;
+
+          dumpTabs.forEach(tab => {
+               if (rest.hasOwnProperty(tab.key)) {
+               const vv = rest[tab.key];
+               tab.store.set(vv);
+               delete rest[tab.key];
+               changed = true;
+               }
+          });
+
+          // Always set the cleaned object back
+          if (changed) {
+               store.set(isEmpty(rest) ? undefined : rest);
+          }
+     });
+}).subscribe(() => {});
+
+
+// ------------------------------
+// Derived: dumpTabsHasData
+// ------------------------------
 export const dumpTabsHasData = derived(
   dumpTabs.map(t => t.store),
   (values) =>
-    dumpTabs.map((t, i) => {
-      const val = values[i];
-      return { key: t.key, hasData: !isEmpty(val), value: val };
-    })
+    dumpTabs.map((t, i) => ({
+      key: t.key,
+      value: values[i],
+      hasData: !isEmpty(values[i]),
+    }))
 );
+
+// Derived: current dump panel’s content
+export const currentDumpPanelValue = derived(
+    [showDumpPanel,   ...dumpTabs.map(t => t.store)],
+    ([$showDumpPanel, ...values]) => {
+        const tabIndex = dumpTabs.findIndex(t => t.key === $showDumpPanel);
+        if (tabIndex === -1) return '-'; // Not found
+        return values[tabIndex];
+    }
+);
+
+// Keep `dataDumpPanel` in sync automatically
+currentDumpPanelValue.subscribe(val => dataDumpPanel.set(val));
+
+/**
+ * Initializes dashboard and API state before a fetch.
+ * @param e Optional event object
+ */
+export function init_ZPDev(event = undefined) {
+     //debug &&
+     console.clear()
+     debug && console.log('# init_ZPDev()')
+     event.preventDefault()
+     resetLocalStores()
+     // show the manually the pre steps of zp_fetch(event) ..
+     zpED_svelte.set(new ZP_EventDetails(event))
+     zpAR_svelte.set(new ZP_ApiRouter(zpED_svelte))
+     // show correct DumpPanel
+     if (get(zpED_svelte).action) {
+          debug && console.log('# setDumpPanel()')
+          showDumpPanel.set('form')
+     }
+     else 
+          showDumpPanel.set('data')
+     debug && console.log('/ init_ZPDev()')
+}
 
 /**
  * Resets all API state variables to initial values.
  */
-export function resetLocalStores () {
-     console.log(" #/ resetLocalStores()")
-     data.set(undefined);
-     form.set(undefined);
-     error.set(undefined);
-     zpED_js.set(undefined)
-     zpED_svelte.set(undefined)
-     zpAR_js.set(undefined)
-     zpAR_svelte.set(undefined)
-     zpAR_pageJS.set(undefined)
-     zpAR_php   .set(undefined)
-     zpENV_php  .set(undefined)
+export function resetLocalStores() {
+     debug && console.log(" #/ resetLocalStores()");
+     [    data, form, error,
+          zpED_js, zpED_svelte,
+          zpAR_js, zpAR_svelte, zpAR_pageJS,
+          zpAR_php, zpDB_php, zpENV_php
+     ].forEach(s => s.set(undefined));
+}
+
+function isEmpty(val) {
+     if (val == undefined) return true;
+     if (val == null)      return true;
+     if (typeof val === "string" && val.trim().length === 0) return true;
+     if (typeof val === "number" && val === 0) return true;
+     if (Array.isArray(val) && val.length === 0) return true;
+     if (typeof val === "object" && !Array.isArray(val)) {
+          const meaningfulKeys = Object.keys(val).filter(k => !isEmpty(val[k]));
+          return meaningfulKeys.length === 0;
+     }
+     return false;
 }

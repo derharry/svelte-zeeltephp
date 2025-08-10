@@ -1,21 +1,11 @@
 <script>
-
-     import './zpdev.css'
-
+//ZPDevAppPageServer.svelte
      import { invalidate, invalidateAll } from '$app/navigation';
-
-     import { zpAR_svelte   } from "$lib/zeeltephp/ZPDev/zpdev.stores"
-     import { zp_fetch_api, zp_fetch, data, form, error } from "$lib/zeeltephp/zp.fetch.js";
-
-     import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
+     import { promise_fetch, init_ZPDev, zpAR_svelte } from "$lib/zeeltephp/ZPDev/zpdev.stores"
+     import { zp_fetch      } from "$lib/zeeltephp/zp.fetch.js";
      import { tinyid        } from "$lib/zeelte/tiny.id.js";
 
-     const debug = false
-
-     let {
-          init_ZPDev,
-          promise_fetch = $bindable(),
-     } = $props()
+     const debug = false;
 
      /** Action name for API testing */
      let zp_action = $state("action")
@@ -37,7 +27,7 @@
           e.preventDefault()
           init_ZPDev(e)
           debug && console.log('# handle_btnAction()')
-          promise_fetch = zp_fetch(e)
+          $promise_fetch = zp_fetch(e)
           debug && console.log('/ handle_btnAction()')
      }
      
@@ -51,12 +41,11 @@
           init_ZPDev(event)
           zpAR_svelte.data = zp_data
           $zpAR_svelte.prepare()
-          promise_fetch = zp_fetch(event)
+          $promise_fetch = zp_fetch(event)
           debug && console.log('  / handle_sendFormAsJson')
      }
 
 </script>
-
 
 <div class="">
      <button
@@ -79,7 +68,7 @@
           onclick={async (e) => {
                debug && console.log('#/ invalidateAll()');
                init_ZPDev(e);
-               promise_fetch = invalidateAll()
+               $promise_fetch = invalidateAll()
           }}
      >invalidateAll()</button>
 </div>
@@ -92,14 +81,12 @@
 </div>
 
 <div class="input-row">
-
      <button
           type="submit"
           name="btnSubmit"
           formaction="?/submit_Form"
           style="width:50%"
      >send-form</button>
-
      <button
           type="button"
           name="btnSendJson"
@@ -107,7 +94,6 @@
           style="width:50%"
           onclick={handle_sendFormAsJson}
      >send-json</button>
-
 </div>
 
 <div class="input-row">

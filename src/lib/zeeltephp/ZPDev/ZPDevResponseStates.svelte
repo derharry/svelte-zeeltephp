@@ -1,13 +1,13 @@
 <script>
-
-     import './zpdev.css'
-
+// ZPDevResponseStates.svelte
      import { writable } from "svelte/store";
+     import { 
+          data, form, error,
+          zpAR_pageJS, zpAR_php 
 
-     import { zpAR_pageJS, zpAR_php } from './zpdev.stores.js';
-     import { data, form, error } from "$lib/zeeltephp/zp.fetch.js";
+     } from './zpdev.stores.js';
 
-     const debug = true;
+     const debug = false;
 
      /**  Dashboard states for const iconStates[] in getIconState() and the UI-status-indicators */
      const dashboardStates = writable ({
@@ -37,26 +37,14 @@
      /** 
       * Reactively update dashboard state indicators when data changes or is resetted
       */
-     $effect.pre(() => {
-          if (!$data) return;
+     $effect(() => {
+          //if (!$data) return;
           dashboardStates.set({
                phpFileFound    : !$zpAR_php ? 0 : $zpAR_php?.routeFiles ? 1 : 3,
                phpError        : $error ? 3 : 1,
-               phpDataReceived : $data  ? 1 : 2
+               phpDataReceived : $data || $form || $error ? 1 : 2
           })
      })
-
-     const x = $derived.by(() => {
-          console.log('derived.byRS()', $data, $form, $error);
-          //updateDashboardStates()
-          /*
-
-          */
-
-          //dashboardStates.update(phpError = $error ? 3 : 1
-          //dashboardStates.update(phpDataReceived = $data ? 1 : 2);  //dashboardStates.validPhpResponse === 1 && dashboardStates.phpFileFound === 1 && !data?.type ? 1 : 0;
-          //return $form
-     });
 
      function updateDashboardStates() {
           console.log('updateDashboardStates()', $data, $form, $error);
@@ -64,10 +52,9 @@
                ...states,
                phpError: $error ? 3:1,
           })))
-     } 
+     }
 
 </script>
-
 
 <ul class="status-list">
      <li>
@@ -87,8 +74,3 @@
           <span class="desc">data received</span>
      </li>
 </ul>
-
-<style>
-
-
-</style>
