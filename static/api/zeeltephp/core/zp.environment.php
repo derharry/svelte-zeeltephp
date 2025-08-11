@@ -9,7 +9,6 @@ use function ZeeltePHP\Lib\List\KeyValue\key_value_list_to_text_table_format;
  */
 function allow_cors() :void {
      header("Access-Control-Allow-Origin: *");
-     header('Access-Control-Allow-Headers: X-ZPC-PAGE, X-ZPC-API, Content-Type');
      header("Access-Control-Allow-Headers: Content-Type");
      header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE, HEAD");
      header('Access-Control-Max-Age: 3600');
@@ -44,11 +43,6 @@ function prepare_RunTimeEnvironment_context() :void {
      if (!is_dir(PATH_ZPLOG)) mkdir(PATH_ZPLOG);
      if (!is_dir(PATH_ZPTMP)) mkdir(PATH_ZPTMP);
      prepare_pageServer_context();
-     // fill-up missing vars
-     $vars = ['ZP_METHOD', 'ZP_ROUTE', 'ZP_CONTEXT', 'ZP_ACTION', 'ZP_VALUE'];
-     //foreach ($vars as $var) 
-     //     if (!defined($var))
-     //          define($var, null);
      // Debug Output 
      if (ZP_DEBUG) {                          // true = restart log file
           log_debug('ZP_ENV:        '.ZP_ENV, 0, false);
@@ -59,10 +53,6 @@ function prepare_RunTimeEnvironment_context() :void {
           log_debug('PATH_ZPLIB:    '.PATH_ZPLIB);
           log_debug('PATH_ZPROUTES: '.PATH_ZPROUTES);
           log_debug('PATH_ZPTMP:    '.PATH_ZPTMP);
-          $max  = 15;
-          foreach ($vars as $var) 
-               if (defined($var))
-                    log_debug( str_pad($var, $max, " ", STR_PAD_RIGHT).constant($var) );
      }
 }
 
@@ -90,7 +80,6 @@ function prepare_pageServer_context() {
                //log_debug("ZP_$xzpc  ".constant("ZP_$xzpc"));
           }
      }
-     define('ZP_METHOD', $_SERVER['REQUEST_METHOD']);
 }
 
 /**

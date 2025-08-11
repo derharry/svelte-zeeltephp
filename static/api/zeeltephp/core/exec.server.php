@@ -11,7 +11,6 @@ use function ZeeltePHP\Error\log_debug;
           log_debug('zp_exec_ServerPHP()');
           log_debug('  request-method '.$_SERVER['REQUEST_METHOD']);
           log_debug('  $zpAR->method  '.$zpAR->method);
-          log_debug('  ZP_METHOD      '.ZP_METHOD);
 
           $method = $zpAR->method;
 

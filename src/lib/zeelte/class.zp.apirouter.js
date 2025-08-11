@@ -233,15 +233,6 @@ export class ZP_ApiRouter
             }
             //else this.log(' - unsupported RequestType');
             const headers = {}
-            if (this.context === "api") {
-                  headers['X-ZPC-CONTEXT']  = 'api';
-            } else {
-                  headers['X-ZPC-CONTEXT'] = 'page';
-                  //headers['X-ZPC-ACTION']  = this.action;
-                  //headers['X-ZPC-VALUE']   = this.value;
-            }
-            headers['X-ZPC-ROUTE']  = this.route;
-
             this.fetch_options = {
                   method:     this.method,
                   headers:    {...headers, ...this.fetch_options.headers},

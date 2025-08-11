@@ -107,10 +107,6 @@ class ZP_ApiRouter
           $this->decode_request_type();
           $this->fetch_zp_request();
 
-          // 1.0.4 force using header ith X-ZPC-api,page context requests.
-          //if (!defined('ZP_CONTEXT')) {
-          $this->context = $this->context ?? ZP_CONTEXT;
-          $this->route   = $this->route   ?? ZP_ROUTE;
           if (!$this->context) {
                $this->context = 'page';
                $this->log('  ! unsupported context !');

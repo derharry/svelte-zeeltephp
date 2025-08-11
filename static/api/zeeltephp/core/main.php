@@ -4,8 +4,6 @@ use function ZeeltePHP\Core\Lib\load_DotEnv_file;
 use function ZeeltePHP\Core\Lib\load_lib_files;
 use function ZeeltePHP\Error\log_debug;
 use function ZeeltePHP\Error\handle_error;
-
-use stdClass;
 use ZeeltePHP\Lib\DB\ZP_DB;
 
 /***
@@ -24,6 +22,7 @@ function main() {
 
           // deparse api-request via ZP_ApiRouter 
           $zpAR = new ZP_ApiRouter($env);
+          $response = null;
 
           // 2025-07-17 1.0.4 support for context page/api
           // previous version executed +page.server.php if is_file(routeFileExist + routeFile) 
@@ -133,9 +132,8 @@ function main() {
                     ]);
                */
                log_debug('response is context '.$zpAR->context);
-               $response;
                if ($zpAR->context == 'page') {
-                    $response = new stdClass();
+                    $response = new \stdClass();
                     $response->page  = $zpAR->context;
                     $response->form  = $form ;
                     $response->error = $error;
