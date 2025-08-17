@@ -1,6 +1,8 @@
 <script>
 // ZPDevNav.svelte
-     import HTML_Marquee              from "$lib/zeelte/HTML_Marquee.svelte";
+     import HTML_Marquee from "$lib/zeelte/HTML_Marquee.svelte";
+     import { zp_page_route } from "../zp.tools.js";
+     import { page } from '$app/state';
      import { 
           promise_fetch,
           data, form, error,
@@ -27,10 +29,12 @@
                {#if $error}
                     ⚠️
                {:else if $data || $form}
-                    🐘                    
+                    🐘
                {:else}
                     ⚠️
                {/if}
+          {:catch}
+                    ⚠️
           {/await}
      </span>
 
@@ -60,5 +64,9 @@
                     onclick={(e) => clickSet(e, showDumpPanel, t.key)}
                >{t.label} </button>
           {/each}
+     </div>
+
+     <div>
+          <a href="http://localhost:5173/api?{page.url.pathname || page.route.id}" target="_blank">{page.url.pathname || page.route.id}</a>
      </div>
 </div>

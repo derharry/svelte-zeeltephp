@@ -2,21 +2,20 @@
 // ZPDevResponseStates.svelte
      import { writable } from "svelte/store";
      import { 
+          promise_fetch,
           data, form, error,
           zpAR_pageJS, zpAR_php 
-
      } from './zpdev.stores.js';
 
      const debug = false;
 
-     /**  Dashboard states for const iconStates[] in getIconState() and the UI-status-indicators */
-     const dashboardStates = writable ({
-          validPhpResponse: 0,
-          phpFileFound:     0,
-          phpError:         0,
-          phpDataReceived:  0,
+     let dashboardStates = $derived({
+          http_status: $promise_fetch?.status ?? 0,
+          sphpFound  : !$zpAR_php ? 0 : $zpAR_php?.routeFiles == 0 ? 2 : 1,
+          phpError   : $error ? 3 : 1,
+          phpDataReceived: $data || $form || $error ? 1 : 2
      });
-          
+
      /**
       * Returns a status icon based on the state code. Used in UI
       * @param state Status code (0–3)
@@ -34,18 +33,6 @@
           return '?'
      };
 
-     /** 
-      * Reactively update dashboard state indicators when data changes or is resetted
-      */
-     $effect(() => {
-          //if (!$data) return;
-          dashboardStates.set({
-               phpFileFound    : !$zpAR_php ? 0 : $zpAR_php?.routeFiles ? 1 : 3,
-               phpError        : $error ? 3 : 1,
-               phpDataReceived : $data || $form || $error ? 1 : 2
-          })
-     })
-
      function updateDashboardStates() {
           console.log('updateDashboardStates()', $data, $form, $error);
             dashboardStates.update((states => ({
@@ -54,23 +41,27 @@
           })))
      }
 
+     function getResponseCodeDetails() {
+          // get code and message
+     }
+
 </script>
 
 <ul class="status-list">
      <li>
-          <span class="icon">{@html getIconState($dashboardStates.validPhpResponse)}</span>
-          <span class="desc">api response <small>php | +page.js</small></span>
+          <span class="icon">{dashboardStates.http_status}</span>
+          <span class="desc">Code</span>
      </li>
      <li>
-          <span class="icon">{@html getIconState($dashboardStates.phpFileFound)}</span>
-          <span class="desc">+.php route found?</span>
+          <span class="icon">{@html getIconState(dashboardStates.sphpFound)}</span>
+          <span class="desc">+.server</span>
      </li>
      <li>
-          <span class="icon">{@html getIconState($dashboardStates.phpError)}</span>
-          <span class="desc">php error</span>
-     </li>
-     <li>
-          <span class="icon">{@html getIconState($dashboardStates.phpDataReceived)}</span>
+          <span class="icon">{@html getIconState(dashboardStates.phpDataReceived)}</span>
           <span class="desc">data received</span>
+     </li>
+     <li>
+          <span class="icon">{@html getIconState(dashboardStates.phpError)}</span>
+          <span class="desc">error</span>
      </li>
 </ul>
