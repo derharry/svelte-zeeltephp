@@ -108,8 +108,8 @@ class ZP_ApiRouter
           $this->fetch_zp_request();
 
           if (!$this->context) {
-               $this->context = 'page';
-               $this->log('  ! unsupported context !');
+               $this->context = 'api';
+               //$this->log('  ! unsupported context !');
                //return;
           }
 
@@ -290,7 +290,7 @@ class ZP_ApiRouter
      }
 
      /**
-      * Collects all +server*.php files in the current route path (upwards).
+      * Collects all +server files in the current route path (upwards).
       * @param string $replaceBaseRoute Path prefix to remove from route.
       */
      function collect_plusServerFilesInRoute($replaceBaseRoute) {
@@ -304,29 +304,23 @@ class ZP_ApiRouter
           // Remove base route prefix if present (tmpFix-001)
           $this->route = str_replace($replaceBaseRoute, '', $this->route);
 
-          // v1.0.4 - supporting more +.php files
-          $routeFiles   = [];
-          $routeFilesTP = [];
-          $routePath = $this->route;
-          $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+          $routeFiles = [];
+          $routePath  = $this->route;
+          $routeBase  = str_replace('//', '/', $this->routeBase."/$routePath");
 
           if ($this->context == 'api') {
                $this->log('    for +server.php');
                $this->routePath = $routePath;
                $this->routeBase = $routeBase;
-               $routeFilesTP = scan_dir_recursive_up($routeBase, '#\+server\.php#');
-               #if (is_file($routeBase."/+server.php")) {
-                    //$this->log('     @ +server.php '.$routeBase);
-                    // api-route will not have grouped routes
-               #     $this->routeFiles[] = '+server.php'; #]
+               $serverFile = $routeBase . '+server.php';
+               is_file($serverFile) && $routeFiles[] = $serverFile;
           }
           else if ($this->context == 'page') {
-               // 'page'
-               $this->log('     +page.server.php '.$routeBase);
+               $this->log('     for +page|layout.server.php '.$routeBase);
                if (!is_dir($routeBase)) {
-                    // page-route could have grouped routes
                     $routePath = $this->scandir_withGroupedRoutes();
-                    $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+                    if ($routePath)
+                         $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
                     if (!is_dir($routeBase)) {
                          $this->log('  No route-path found! '.$routeBase);
                          return;
@@ -334,16 +328,22 @@ class ZP_ApiRouter
                $this->routePath = $routePath;
                $this->routeBase = $routeBase;
                
-               $route_path_depth = ($routePath === '//' || $routePath === '/') ? 0 : max(0, count(array_filter(explode('/', $routePath))));
-               //$route_path_depth = count(explode('/', $route_path_depth)); // -2; // -2 because of / at start and end
-               $routeFilesRP = scan_dir_recursive_up($routeBase, '#\+layout\.server\.#', $route_path_depth);
-               $routeFilesTP = scan_dir($routeBase, '#\+page\.server\.#', $route_path_depth);
-               if (is_array($routeFilesRP) && sizeof($routeFilesRP) > 0)
-                    $routeFiles = array_merge($routeFiles, $routeFilesRP);
+               // +layout.server.php
+               $path_parts = array_filter(explode('/', trim($routePath, '/')));
+               array_unshift($path_parts, ''); // root
+               $path  = PATH_ZPROUTES;
+               for ($i = 0; $i < count($path_parts); $i++) {
+                    $path .= $path_parts[$i].'/';
+                    $serverFile = $path . '+layout.server.php';
+                    is_file($path) && $routeFiles[] = $serverFile;
+               }
+               // +page.server.php
+               $serverFile = $routeBase . '+page.server.php';
+               is_file($serverFile) && $routeFiles[] = $serverFile;
           }
-          if (is_array($routeFilesTP) && sizeof($routeFilesTP) > 0)
-               $routeFiles = array_merge($routeFiles, $routeFilesTP);
+
           $this->routeFiles = $routeFiles;
+          $this->log($this->routeFiles);
           $this->log('  //collect_plusServerFilesInRoute()');
           return;
      }
@@ -362,6 +362,7 @@ class ZP_ApiRouter
                     return $real_route;
                }
           }
+          return false;
      }
 
      /**
