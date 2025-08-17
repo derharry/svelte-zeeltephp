@@ -13,8 +13,8 @@ use ZeeltePHP\Lib\Time\StopWatch;
 #      - set default error_handler
 #    - start ZeeltePHP
 
-// Enable ZeeltePHP debugging  (set to false in production)
-define('ZP_DEBUG',   false);
+// Enable ZeeltePHP debugging
+define('ZP_DEBUG',   true);
 
 // Default response type is JSON
 header('Content-Type: application/json');
@@ -68,7 +68,21 @@ if (!function_exists('getallheaders')) {
 // Prepare runtime context prod/dev
 prepare_RunTimeEnvironment_context();
 
-// Start ZeeltePHP
+// Autoload $lib files
+spl_autoload_register(function ($class_name) {
+    if (str_starts_with($class_name, 'Zeelte\\')) {
+        $class_file = str_replace('Zeelte\\', '', $class_name);
+        $class_file = str_replace('Lib\\',    '', $class_name);
+        $class_file = str_replace('_',       '.', $class_name);
+        $file = PATH_ZPROOT . '/lib/' . str_replace('\\', '/', $class_file) . '.php';
+    } else {
+        $file = PATH_ZPLIB . '/' . str_replace('\\', '/', $class_name) . '.php';
+    }
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
+
 \ZeeltePHP\Core\main();
 
 log_debug($zpTime->endN('init()'));
