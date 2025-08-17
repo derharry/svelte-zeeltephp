@@ -16,8 +16,12 @@ use function ZeeltePHP\Error\log_debug;
      function exec_PlusLayoutServer($fqdn) {
           global $zpAR, $data;
           log_debug('zp_exec_layoutServerPHP()');
-
-          $callbackFunction = $fqdn . '\\load';
+          $response = new \stdClass();
+          $response->form  = null;
+          $response->error = null;
+          $response->data  = null;
+          
+          $callbackFunction = "$fqdn\load";
           if (function_exists($callbackFunction)) {
                return $callbackFunction();
                //throw new \Error(801); // 801 no load() function

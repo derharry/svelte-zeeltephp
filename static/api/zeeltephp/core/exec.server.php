@@ -1,5 +1,6 @@
 <?php namespace ZeeltePHP\Core\Exec;
 
+use function ZeeltePHP\Error\handle_error;
 use function ZeeltePHP\Error\log_debug;
 
      /****
@@ -13,20 +14,20 @@ use function ZeeltePHP\Error\log_debug;
           log_debug('  $zpAR->method  '.$zpAR->method);
 
           $method = $zpAR->method;
-
-          //include($consumerFile);
           $callbackFunction = "$fqdn\\$method";
 
           if (function_exists($callbackFunction)) {
-                 log_debug("  execute $callbackFunction()");
-                 return $callbackFunction();
-          } else log_debug('  no function '.$callbackFunction);
+               log_debug("  execute $callbackFunction()");
+               return $callbackFunction();
+          } 
+          else log_debug('  no function '.$callbackFunction);
 
           $callbackFunction = "$fqdn\\fallback";
           if (function_exists($callbackFunction)) {
-                 log_debug("  execute fallback()");
-                 return $callbackFunction();
-          } else log_debug('  not found callback-function '.$callbackFunction);
+               log_debug("  execute fallback()");
+               return $callbackFunction();
+          } 
+          else log_debug('  not found callback-function '.$callbackFunction);
 
           log_debug("No METHOD $method or fallback() found.");
           log_debug('//zp_exec_ServerPHP()');

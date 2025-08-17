@@ -1,5 +1,6 @@
 <?php namespace ZeeltePHP\Core\Exec;
 
+use function ZeeltePHP\Error\handle_error;
 use function ZeeltePHP\Error\log_debug;
 
      /**
@@ -14,12 +15,12 @@ use function ZeeltePHP\Error\log_debug;
      function exec_PlusPageServer($fqdn, $options = []) {
           global $zpAR, $data, $db;
           $response = new \stdClass();
+          $response->zpxc  = $zpAR->context;
           $response->form  = null;
           $response->error = null;
           $response->data  = null;
+          log_debug('zp_exec_pageServerPHP()');
           try {
-               log_debug('zp_exec_pageServerPHP()');
-               
                // Normalize: threat string "null" as null
                $action = $zpAR->action;
                if ($action === "null" || is_string($action) && !str_starts_with($action, '?/'))
@@ -27,31 +28,27 @@ use function ZeeltePHP\Error\log_debug;
 
                // Handle actions
                if (is_string($action) && str_starts_with($action, '?/')) {
-                                           
-                    // Remove action prefix ?/
-                    $action  = str_replace('?/', '', $zpAR->action); // preg_replace('/^\\?\\//', '', $zpAR->action); 
 
-                    // Try outside action handler first (action_FOO())
-                    $outsideActionHandler = $fqdn . '\\action_' . $action;
+                    $action = str_replace('?/', '', $zpAR->action);
+
+                    $outsideActionHandler = "$fqdn\action_$action";
                     if (function_exists($outsideActionHandler)) {
                          $response->form = $outsideActionHandler($zpAR->value);
                     }
 
-                    // Fallback to general actions() handler
-                    $actionHandler = $fqdn . '\\actions';
-                    if (function_exists($actionHandler)) {
-                         // exec actions($action, $value, $data)
-                         $response->form = $actionHandler($action, $zpAR->value, $zpAR->data);
-                    } 
-                    else {
-                         // No valid handler found
-                         throw new \Error(802); // 802 = No action handler
+                    if (!$response->form) {
+                         $actionHandler = "$fqdn\actions";
+                         if (function_exists($actionHandler)) {
+                              $response->form = $actionHandler($action, $zpAR->value, $zpAR->data);
+                         }
+                    }
+
+                    if (!$response->form) {
+                         throw new \Error(802);
                     }
                }
-
-               // Handle GET/POST requests without specific action
                else {
-                    $load = $fqdn .'\\load';
+                    $load = "$fqdn\load";
                     if (function_exists($load)) {
                          $response->data = $load();                    
                     }
@@ -59,9 +56,10 @@ use function ZeeltePHP\Error\log_debug;
                }
           }
           catch (\Exception $exp) {
-               zp_handle_error($exp);
-               $response->error = 'error';
+               $response->error = $exp;
+               handle_error($exp);
           }
+          log_debug('//zp_exec_pageServerPHP()');
           return $response;
      }
 
