@@ -137,7 +137,7 @@ function action_ENV_get() {
                   'PATH_ZPLIB'     => PATH_ZPLIB,
                   'PATH_ZPROUTES'  => PATH_ZPROUTES,
                   'PATH_ZPLOG'     => PATH_ZPLOG,
-                  'PATH_ZPAPIPHP'  => PATH_ZPAPIPHP
+                  'PATH_ZPROOT'    => PATH_ZPROOT
             ],
             '_zpAR'  => $zpAR       
       ];
