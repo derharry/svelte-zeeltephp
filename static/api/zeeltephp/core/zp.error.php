@@ -3,53 +3,51 @@
 use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
 
      /**
-      * Translates error codes to human-readable messages and related info.
+      * Checks if  error codes to human-readable messages and related info.
       *
-      * @param int|string $code Error code or message.
-      * @return array [code, message, filename, errorTypeName] or [null, null, null] if not found.
+      * @param int|string $input Error code or message.
+      * @return array [code, message, filename] or [null, null, null] if not found.
       */
-     function error_message_translation($code) {
+     function fetch_zp_error($input) {
           global $zpAR;
-          // code [ message , filename ]
-          // -- todo : add also custom errorTypeNames
-          $zp_route  = $zpAR->route  ?? '-?-';
-          $zp_action = $zpAR->action ?? '-?-';
+          $zp_route  = $zpAR->route  ?? '';
+          $zp_action = $zpAR->action ?? '';
           $zeeltephp_errors = [
                400 => ['no route requested', ''],  // bad request
-               404 => ['no +.php in route', ''],   // not found
-               801 => ['no load() ', $zp_route],
-               802 => ["no action( $zp_action )", $zp_route],
+               404 => ['no +.php in route' , ''],  // not found
+               801 => ['no load() in '     , $zp_route],
+               802 => ["no action( $zp_action ) in ", $zp_route],
           ];
-          if (isset($zeeltephp_errors[$code])) 
-               return [ $code, ...$zeeltephp_errors[$code] ];
+          if (isset($zeeltephp_errors[$input])) 
+               return [ $input, ...$zeeltephp_errors[$input] ];
           return [null, null, null];
      }
 
      /**
-      * Collects information about the error including error_message_translation()
+      * Collects information about the error including fetch_zp_error()
       * Converts full file-system paths to relative for readability.
       */
-     function get_event_details($e, $message = null, $code = null) {
+     function get_error_response($error, $message = null, $code = null) {
           [ $e_type, $e_code, $e_message, $e_short, $e_file, $e_line, $e_previous ] = null;
 
           // Extract error details from Error or json-fallback
-          $e_type     = is_object($e) ? get_class($e) : '';
-          if ($e instanceof \Throwable) {
-                 $e_code     = $e->getCode();
-                 $e_file     = $e->getFile();
-                 $e_line     = $e->getLine();
-                 $e_message  = $e->getMessage();
-                 $e_previous = $e->getPrevious();
-                 // uncomment if required :
-                 //$e_trace = $e->getTrace()
-                 //$e_traceString => $e->getTraceAsString()
-          } else $e_message  = json_encode($e);
+          $e_type = is_object($error) ? get_class($error) : '';
+          if ($error instanceof \Throwable) {
+                 $e_code     = $error->getCode();
+                 $e_file     = $error->getFile();
+                 $e_line     = $error->getLine();
+                 $e_message  = $error->getMessage();
+                 $e_previous = $error->getPrevious();
+                 // uncomment if required:
+                 //$e_trace = $error->getTrace()
+                 //$e_traceString => $error->getTraceAsString()
+          } else $e_message  = json_encode($error);
 
           // Translate error codes/messages
-          [$zp_code, $zp_msg, $zp_file] = error_message_translation($e_message);
-          [$cc_code, $cc_msg, $cc_file] = error_message_translation($code);
+          [$zp_code, $zp_msg, $zp_file] = fetch_zp_error($e_message);
+          [$cc_code, $cc_msg, $cc_file] = fetch_zp_error($code);
           
-          // Determine final values, preferring provided arguments, then translations, then defaults
+          // destruct final values: arguments / translations zp,cc / fallback
           $e_code    = $code    ?? $zp_code ?? $cc_code ?? ($e_code ?: 500);
           $e_message = $message ?? $zp_msg  ?? $cc_msg  ?? $e_message;
           $e_file    = $zp_file ?? $cc_file ?? $e_file;
@@ -58,8 +56,7 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
           $e_short = $e_file && basename($e_file);
           if ($e_line) $e_short .= ":$e_line";
 
-          // Prepare error response
-          $errorJsonRespone = [
+          $errorResponse = [
                'time'     => date("Y-m-d H:i:s"),
                'ok'       => false,
                'error'    => $e_type,
@@ -69,18 +66,11 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
                'file'     => $e_file,
                'line'     => $e_line,
                'previous' => $e_previous,
-               // for debugging:
-               //'cpPath'   => PATH_CPROOT,
-               //'zpAR'     => $zpAR,
-               //'zpDB'     => $db,
           ];
+          $errorResponse = (object)$errorResponse;
 
-           // Encode to JSON and clean up full paths
-          $json = json_encode($errorJsonRespone);
-          $json = change_full_paths_to_zp_relative($json);
-          
-          return json_decode($json);
-          return $json;
+          //return $errorResponse;
+          return change_full_paths_to_zp_relative($errorResponse);
      }
 
 
@@ -88,59 +78,47 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
       * Handles all ZeeltePHP errors and exceptions, outputs as JSON, and logs the error.
       * Converts full file-system paths to relative for readability.
       *
-      * @param Exception|Error $e       The error or exception object.
-      * @param string|null     $message Optional custom error message.
-      * @param int|null        $code    Optional custom error code.
+      * @param Throwable   $error     
+      * @param string|null $message Optional custom error message.
+      * @param int|null    $code    Optional custom error code.
       */
-     function handle_error($e, $message = null, $code = null) {
-          global $zpAR;
+     function handle_error($error, $message = null, $code = null) {
+          //var_dump($error);
+          $er = log_error($error, $message, $code);
+          http_response_code($er->code);
+          //var_dump($er);
+          echo json_encode($er);
 
-          // Prepare Error
-          $ed = get_event_details($e, $message, $code);
-          
-          // Log error
-          if (is_object($ed)) {
-               //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
-               error_log( sprintf('%s %s %s %s:%s %s',
-                    $ed->time,
-                    $ed->code,
-                    $ed->error,
-                    $ed->file,
-                    $ed->line,
-                    $ed->message
-               )."\n", 3, PATH_ZPLOG.'error.log');
-          }
-          else 
-          
-          // Output error JSON
-          echo json_encode($ed);
      }
 
      /**
       * Write a log entry to /php_log/error.log.
       *
-      * @param mixed $content String or data to log.
+      * @param Throwable $error String or data to log.
       */
-     function log_error($e, $message = null, $code = null) {
-          if (is_string($e)) {
-               $content = $e;
+     function log_error($error, $message = null, $code = null) {
+
+          $content = '';
+          if (is_string($error)) {
+               $content = $error;
           } 
           else {
                // Prepare Error
-               $ed = get_event_details($e, $message, $code);
+               $er = get_error_response($error, $message, $code);
                $content = sprintf('%s %s %s %s:%s %s',
-                    $ed->time,
-                    $ed->code,
-                    $ed->error,
-                    $ed->file,
-                    $ed->line,
-                    $ed->message
+                    $er->time,
+                    $er->code,
+                    $er->error,
+                    $er->file,
+                    $er->line,
+                    $er->message
                );
           }
+          //error_log(json_encode($er)."$message\n" , 3, PATH_ZPLOG.'error.log');
           
           // Log error
-          //error_log($json . "\n", 3, PATH_ZPLOG.'error_zp.log');
           error_log($content."\n", 3, PATH_ZPLOG.'error.log');
+          return $er;
      }
 
      /**

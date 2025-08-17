@@ -2,24 +2,20 @@
 
 use function ZeeltePHP\Error\log_debug;
 use function ZeeltePHP\Lib\IO\scan_dir;
-use ZeeltePHP\Core\zpTime;
-
-#
-#  Environment Utilities for ZeeltePHP (paths, allow cors, ...)
-#  
+use ZeeltePHP\Core\zpTime;  
 
      /**
-      * Loads PHP library files from specified directory
+      * Load /src/lib/lib_php/
       * 
       * @param string $path Directory path containing library files
       */
-     function load_lib_files(string $path): void {
+     function load_php_lib(string $path): void {
           global $zpTime;
-          $zpTime->start('load_lib_files/()');
-          log_debug("load_lib_files($path)");
-          $zpTime->start('load_lib_files()');
-          $phpFiles = scan_dir($path, '#\.php$#'); //'/\.php$/');
-          $zpTime->start('load_lib_files()');
+          $zpTime->start('load_php_lib/()');
+          log_debug("load_php_lib($path)");
+          $zpTime->start('load_php_lib()');
+          $phpFiles = scan_dir($path, '#\.php$#'); # '/\.php$/');
+          $zpTime->start('load_php_lib()');
           foreach ($phpFiles as $file) {
                if ($file !== '.' && $file !== '..') {
                     $fullPath = PATH_ZPLIB . $file;
@@ -29,41 +25,47 @@ use ZeeltePHP\Core\zpTime;
                     }
                }
           }
-          log_debug($zpTime->endN('load_lib_files()'));
-          log_debug($zpTime->endN('load_lib_files/()'));
+          log_debug($zpTime->endN('load_php_lib()'));
+          log_debug($zpTime->endN('load_php_lib/()'));
      }
 
      /**
-      * Sanitizes full system paths in strings to relative paths for readability.
+      * Sanitizes full system paths to relative paths.
       * 
-      * @param string $stringToReplace The string containing paths to sanitize
-      * @return string Sanitized string with relative paths
+      * @param  string|array|object $data
+      * @return string|array|object $data
       */
-     function change_full_paths_to_zp_relative(string $stringToReplace): string {
-          // Normalize path separators, always use /
-          $removeFullSystemPath = str_replace('\\',   '/', PATH_CPROOT);
-          $stringToReplace      = str_replace('\\\\', '/', $stringToReplace);
-          
-          // Remove absolute paths
-          $stringToReplace = str_replace($removeFullSystemPath, '', $stringToReplace);
-          
-          // Simplify common ZeeltePHP paths
-          $replacements = [
-               'node_modules/dist/' => '',
-               'static/'            => '/',
-               '/api/zeeltephp/'    => '/api/',
-               'src/lib/php_log/'   => '/php_log/',
-               'src/routes/'        => '/routes/'
-          ];
-          
-          return str_replace(array_keys($replacements), array_values($replacements), $stringToReplace);
-     }   
+     function change_full_paths_to_zp_relative(mixed $data): mixed {
+          if (is_array($data)) {
+               return array_map(fn($val) => change_full_paths_to_zp_relative($val), $data );
+          }
+          elseif (is_object($data)) {
+               foreach ($data as $key => $value) {
+                    $data->$key = change_full_paths_to_zp_relative($value);
+               }
+               return $data; // <-- FIXED: make sure mutated object is returned!
+          }
+          elseif (is_string($data)) {
+               $removeFullSystemPath = str_replace('\\',   '/', PATH_CPROOT);
+               $data = str_replace('\\',   '/', $data);
+               $data = str_replace($removeFullSystemPath, '', $data);
+               $replacements = [ // Simplify common ZeeltePHP paths
+                    'node_modules/dist/' => '',
+                    'static/'            => '/',
+                    '/api/zeeltephp/'    => '/api/',
+                    'src/lib/php_log/'   => '/php_log/',
+                    'src/routes/'        => '/routes/'
+               ];
+               $data = str_replace(array_keys($replacements), array_values($replacements), $data);
+          }
+          //error_log(gettype($data)."$data\n", 3, PATH_ZPLOG.'error.log');
+          return $data;
+     }
   
-     
-
-
+  
      /**
-      * Loads and validates environment variables for ZeeltePHP
+      * Loads and validates $env variables for ZeeltePHP.
+      * Equivalent to vite-plugin/load_DotEnv_file
       * 
       * @return array Parsed environment configuration
       * @throws RuntimeException If environment configuration is invalid
@@ -79,33 +81,29 @@ use ZeeltePHP\Core\zpTime;
                } 
                // Development environment
                elseif (str_contains(ZP_ENV, 'development')) {
-                    $cfg = scan_dir_recursive_upload_development_env();
+                    $cfg = load_DotEnv_dev();
                } else {
                     throw new \RuntimeException('Unsupported environment: ' . ZP_ENV);
                }
-
-               // Validate critical configuration
-               scan_dir_recursive_upvalidate_env_config($cfg);
-
+               load_env_mimimum_vars($cfg);
           } catch (\Throwable $e) {
                log_debug('Environment Error: ' . $e->getMessage());
                throw $e;
           }
-
           log_debug('//load_DotEnv_file()');
           return $cfg;
      }
 
      /**
-      * Loads development environment configuration
+      * Load .env-file or $env
       */
-     function scan_dir_recursive_upload_development_env(): array {
+     function load_DotEnv_dev(): array {
           $cfgFiles = [
                PATH_CPROOT . '.env.development',
                PATH_CPROOT . '.env.dev',
-               PATH_CPROOT . '.env'
+               PATH_CPROOT . '.env',
+               PATH_CPROOT . '.local'
           ];
-
           foreach ($cfgFiles as $file) {
                if (file_exists($file)) {
                     $cfg = parse_ini_file($file);
@@ -113,10 +111,9 @@ use ZeeltePHP\Core\zpTime;
                     return $cfg;
                }
           }
-
           log_debug("  -- No .env file found, using defaults");
           return [
-               'BASE' => '',  // PUBLIC_BASE now just BASE (whitelisted)
+               'BASE' => '',  // todo: PUBLIC_BASE now just BASE (whitelisted)
                'ZEELTEPHP_DATABASE_URL' => ''
           ];
      }
@@ -124,12 +121,11 @@ use ZeeltePHP\Core\zpTime;
      /**
       * Validates required environment configuration
       */
-     function scan_dir_recursive_upvalidate_env_config(array &$cfg): void {
+     function load_env_mimimum_vars(array &$cfg): void {
           // Set defaults for missing values
           $defaults = [
                'BASE' => ''  // PUBLIC_BASE now just BASE (whitelisted)
           ];
-
           foreach ($defaults as $key => $value) {
                if (!isset($cfg[$key])) {
                     $cfg[$key] = $value;
