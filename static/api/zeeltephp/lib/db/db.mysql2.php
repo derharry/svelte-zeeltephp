@@ -1,6 +1,6 @@
 <?php namespace ZeeltePHP\Lib\DB;
 
-require_once('db.db.php');
+require_once('zp.db.php');
 
 /**
  * ZeeltePHP MySQL Database Adapter

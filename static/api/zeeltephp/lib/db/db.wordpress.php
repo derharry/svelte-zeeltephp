@@ -1,6 +1,7 @@
 <?php namespace ZeeltePHP\Lib\DB;
 
-require_once('db.db.php');
+use function ZeeltePHP\Error\log_error;
+require_once('zp.db.php');
 
 class ZeeltePHP_DB_wordpress extends ZP_DB implements IZP_DB {
 
@@ -81,19 +82,14 @@ class ZeeltePHP_DB_wordpress extends ZP_DB implements IZP_DB {
       */
      public function connect() {
           global $wpdb;
-          try {
-               if ($this->isConnected()) return;
-               if (is_null($this->wpdb) && !is_file($this->hostname))
-                    $this->last_message = "path to wp-load.php not found.";
-               else if (is_null($this->wpdb) && is_file($this->hostname)) {
-                    include_once($this->hostname);
-                    $this->wpdb = $wpdb;
-               }
-               if ($this->isConnected()) return;
+          if ($this->isConnected()) return;
+          if (is_null($this->wpdb) && !is_file($this->hostname))
+               $this->last_message = "path to wp-load.php not found.";
+          else if (is_null($this->wpdb) && is_file($this->hostname)) {
+               include_once($this->hostname);
+               $this->wpdb = $wpdb;
           }
-          catch (\Throwable $th) {
-               \ZeeltePHP\Error\handle_error($th);
-          }
+          if ($this->isConnected()) return;
      }
             
      /**
@@ -122,7 +118,7 @@ class ZeeltePHP_DB_wordpress extends ZP_DB implements IZP_DB {
                return $this->wpdb->get_results($sqlStatement, ARRAY_A);
           } catch (\Throwable $th) {
                $this->last_message = $this->wpdb->last_error ?: $th->getMessage();
-               \ZeeltePHP\Error\handle_error($th);
+               log_error($th);
                return false;
           }
      }
