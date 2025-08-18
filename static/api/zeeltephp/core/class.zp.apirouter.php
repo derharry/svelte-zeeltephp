@@ -308,26 +308,25 @@ class ZP_ApiRouter
           $routePath  = $this->route;
           $routeBase  = str_replace('//', '/', $this->routeBase."/$routePath");
 
+          if (!is_dir($routeBase)) {
+               $routePath = $this->scandir_withGroupedRoutes();
+               if ($routePath)
+                    $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
+               if (!is_dir($routeBase)) {
+                    $this->log('  No route-path found! '.$routeBase);
+                    return;
+          }}
+          $this->routePath = $routePath;
+          $this->routeBase = $routeBase;
+
           if ($this->context == 'api') {
                $this->log('    for +server.php');
-               $this->routePath = $routePath;
-               $this->routeBase = $routeBase;
                $serverFile = $routeBase . '+server.php';
                is_file($serverFile) && $routeFiles[] = $serverFile;
           }
           else if ($this->context == 'page') {
                $this->log('     for +page|layout.server.php '.$routeBase);
-               if (!is_dir($routeBase)) {
-                    $routePath = $this->scandir_withGroupedRoutes();
-                    if ($routePath)
-                         $routeBase = str_replace('//', '/', $this->routeBase."/$routePath");
-                    if (!is_dir($routeBase)) {
-                         $this->log('  No route-path found! '.$routeBase);
-                         return;
-               }}
-               $this->routePath = $routePath;
-               $this->routeBase = $routeBase;
-               
+                              
                // +layout.server.php
                $path_parts = array_filter(explode('/', trim($routePath, '/')));
                array_unshift($path_parts, ''); // root
