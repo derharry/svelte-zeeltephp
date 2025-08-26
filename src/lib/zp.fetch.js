@@ -13,8 +13,8 @@ export const statuscode = writable(0)
 export const data  = writable({})
 export const form  = writable({})
 export const error = writable({})
+//console.log('Init-state of ZP-Fetch-Stores:', { data, form, error, statuscode });
 
-console.log('Initializing zeeltephp-fetch stores:', { data, form, error, statuscode });
 /**
  * returns EventDetails  from a browser event.
  * @param   {*} event - any Dom Event

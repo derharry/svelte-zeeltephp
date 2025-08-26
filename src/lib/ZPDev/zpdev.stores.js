@@ -48,12 +48,11 @@ export const dumpTabs = [
     { key: "_zpDB",        store: zpDB_php,     label: "DB"     },
     { key: "_zpENV",       store: zpENV_php,    label: "ENV"    }
 ];
-console.log('stores in zpdev.stores.js:', { data, form, error, statuscode });
 
 // Verify all stores
 /*
 dumpTabs.forEach(({key, store}) => {
-  console.log(`${key}: valid store?`, store && typeof store.subscribe === 'function');
+  console.log(`Init state of ZP-Dev-Stores ${key}:`, store && typeof store.subscribe === 'function');
 });
 */
 
