@@ -2,7 +2,7 @@
 import { browser } from "$app/environment"
 import { writable } from "svelte/store"
 
-export function persistentStore(key, initialValue, { onSet, onUpdate }) {
+export function persistentStore(key, initialValue, { onSet, onUpdate } = {}) {
      if (key && typeof key.subscribe === "function" && key.isPersistent) {
           return key
      }
