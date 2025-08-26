@@ -40,11 +40,11 @@ export const dumpTabs = [
     { key: "data",         store: data,         label: "data"   },
     { key: "form",         store: form,         label: "form"   },
     { key: "error",        store: error,        label: "error"  },
-    { key: "_zpED_js",     store: zpED_js,      label: "ED js"  },
-    { key: "_zpED_svelte", store: zpED_svelte,  label: "ED sv"  },
-    { key: "_zpAR_js",     store: zpAR_js,      label: "AR js"  },
-    { key: "_zpAR_svelte", store: zpAR_svelte,  label: "AR sv"  },
-    { key: "_zpAR",        store: zpAR_php,     label: "AR php" },
+    { key: "_zpED_js",     store: zpED_js,      label: "ED_js"  },
+    { key: "_zpAR_js",     store: zpAR_js,      label: "AR_js"  },
+    { key: "_zpED_sv",     store: zpED_svelte,  label: "ED_sv"  },
+    { key: "_zpAR_sv",     store: zpAR_svelte,  label: "AR_sv"  },
+    { key: "_zpAR",        store: zpAR_php,     label: "AR_php" },
     { key: "_zpDB",        store: zpDB_php,     label: "DB"     },
     { key: "_zpENV",       store: zpENV_php,    label: "ENV"    }
 ];
