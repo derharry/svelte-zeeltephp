@@ -2,7 +2,6 @@
 import { sveltekit }    from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { zeeltephp }    from './src/lib/vite-plugin/zeeltephp-vite-plugin.js';
-import path from 'path';
 
 export default defineConfig(({ mode }) => {
 
@@ -10,19 +9,10 @@ export default defineConfig(({ mode }) => {
 	process.env.ZP_IS_SELFENV = true;
 
 	return {
-		 plugins: [
-			  zeeltephp(mode),
-			  sveltekit()
-		 ],
-		 resolve: {
-			alias: {
-				// - default:        $lib: path.resolve('./src/lib'),
-				// - do just zeelte: $lib_zeelte: path.resolve('./src/lib_zeelte'),
-				'zeelte': path.resolve('./src/lib_zeelte'),
-				'zeelte/io': path.resolve('./src/lib_zeelte/js/io'),
-				'zeelte/ui': path.resolve('./src/lib_zeelte/ui'),
-			}
-		 },
+		plugins: [
+			zeeltephp(mode),
+			sveltekit()
+		],
 		vite: {
 			ssr: {
 				noExternal: ['zeelte']
@@ -33,7 +23,7 @@ export default defineConfig(({ mode }) => {
 			// # The request url "C:\Users\harry\xCode\www\svelte-zeeltephp\dist\index.js" is outside of Vite serving allow list.
 			// # Allow serving files from one level up to the project root
 			fs: {
-			    allow: ['..', '../node_modules/zeeltephp']
+				allow: ['..', '../node_modules/zeeltephp']
 			}
 		 }
 	};

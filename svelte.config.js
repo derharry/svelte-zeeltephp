@@ -20,7 +20,9 @@ const config = {
 		},
 		// set alias zeeltephp - so /routes/** can be used as documentation
 		alias: {
-			'zeeltephp': process.env.ZP_IS_SELFENV ? path.resolve('./src/lib/index.js') : 'zeeltephp'
+			'zeeltephp': process.env.ZP_IS_SELFENV ? path.resolve('./src/lib') : 'zeeltephp',
+			'zeelte':    process.env.ZP_IS_SELFENV ? path.resolve('./src/lib_zeelte') : 'zeelte',
+			'zeelte/ui': process.env.ZP_IS_SELFENV ? path.resolve('./src/lib_zeelte/ui') : 'zeelte/ui',
 		},
      }, 
 	trailingSlash: 'always',
