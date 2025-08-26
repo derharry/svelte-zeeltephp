@@ -1,6 +1,5 @@
-import { base } from "$app/paths";
+//import { base } from "$app/paths";
 import { page } from '$app/state';
-
 
 /**
  * Gets the current normalized route for ZeeltePHP
@@ -15,7 +14,7 @@ export function zp_page_route(returnRoutes = false) {
      
      // !! tmpFix-001-v103-Routing-zp_route
      // Svelte should do this, but doesn't. PHP does the counterpart now.
-     route = route.replace(base, '');  // remove BASE on builds 
+     //route = route.replace(base, '');  // remove BASE on builds 
 
      return route;
 }

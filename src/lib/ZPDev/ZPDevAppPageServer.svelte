@@ -1,9 +1,9 @@
 <script>
 //ZPDevAppPageServer.svelte
      import { invalidate, invalidateAll } from '$app/navigation';
-     import { promise_fetch, init_ZPDev, zpAR_svelte } from "$lib/zeeltephp/ZPDev/zpdev.stores"
-     import { zp_fetch      } from "$lib/zeeltephp/zp.fetch.js";
-     import { tinyid        } from "$lib/zeelte/tiny.id.js";
+     import { promise_fetch, init_ZPDev, zpAR_svelte } from "./zpdev.stores"
+     import { zp_fetch      } from "zeeltephp";
+     import { tinyid        } from "zeelte";
 
      const debug = false;
 

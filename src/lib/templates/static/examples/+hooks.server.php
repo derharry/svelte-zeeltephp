@@ -1,4 +1,5 @@
 <?
+//+hooks.server.php
 
      /**
       * @param object   $event 

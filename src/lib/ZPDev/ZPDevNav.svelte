@@ -1,15 +1,14 @@
 <script>
 // ZPDevNav.svelte
-     import HTML_Marquee from "$lib/zeelte/HTML_Marquee.svelte";
-     import { zp_page_route } from "../zp.tools.js";
+     import { HTML_Marquee  } from "zeelte";
      import { page } from '$app/state';
      import { 
           promise_fetch,
-          data, form, error,
           appTabs, dumpTabs,
           showApp, showDumpPanel,
           dumpTabsHasData
      } from "./zpdev.stores.js";
+     import { data, form, error } from 'zeeltephp';
 
      const clickSet = (e, store, value) => {
           e.preventDefault();

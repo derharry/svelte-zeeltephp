@@ -8,7 +8,7 @@
      import ZPDevAppServer       from "./ZPDevAppServer.svelte";
      import ZPDevAppDB           from "./ZPDevAppDB.svelte";
 
-     import { zp_fetch } from "$lib/zeeltephp/zp.fetch.js";
+     import { zp_fetch } from "zeeltephp";
      import { 
           showApp,
           showDumpPanel, dataDumpPanel,

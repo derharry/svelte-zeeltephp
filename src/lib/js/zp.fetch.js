@@ -1,16 +1,19 @@
+//zpfetch.js
+
 /**
  * ZeeltePHP API Client
  * Provides Svelte/SvelteKit integration helpers for ZeeltePHP backend communication.
  */
 import { writable        } from "svelte/store";
+import { ZP_ApiRouter    } from "$lib/js/class.zp.apirouter.js" 
+import { ZP_EventDetails } from "zeelte"  
 
-import { ZP_ApiRouter    } from "$lib/zeeltephp/class.zp.apirouter.js" 
-import { ZP_EventDetails } from "$lib/zeelte/class.zp.eventdetails.js"  
+export const statuscode = writable(0)
+export const data  = writable({})
+export const form  = writable({})
+export const error = writable({})
 
-export const data  = writable()
-export const form  = writable()
-export const error = writable()
-
+console.log('Initializing zeeltephp-fetch stores:', { data, form, error, statuscode });
 /**
  * returns ZP_EventDetails  from a browser event.
  * @param   {*} event - any Dom Event
@@ -94,22 +97,24 @@ export function zp_fetch(route, options = {
     try {
         const defaultOptions = {
             method: 'POST',
-            debug: true
+            debug: false
         }
         const zp_fetch_options = { ...defaultOptions, ...options  }
         debug = zp_fetch_options.debug ?? false
 
         debug && console.clear()
-        debug && console.log('# zp_fetch()')
+        debug && console.log('# zp_fetch()', debug)
 
         return new Promise((resolve, reject) => {
 
+            /*
             if (/^https?:\/\//.test(route)) {
                 if (zp_fetch_options?.fetch)
                     return zp_fetch_options.fetch(route, options)
                 else
                     return fetch(route, options)
             }
+            */
 
             debug && console.log('    route:           :', route)
             debug && console.log('    zp_fetch_options :', {zp_fetch_options})
@@ -121,10 +126,13 @@ export function zp_fetch(route, options = {
                 return
             }
 
-            fetch(zpar.fetch_url, zpar.fetch_options) 
+            let fetchFn = zp_fetch_options.fetch ?? fetch;
+
+            fetchFn(zpar.fetch_url, zpar.fetch_options) 
                 .then(response => {
                     // -- if (contentLength && Number(contentLength) > 0) 
                     // -- else return response.headers // GET, HEAD
+                    statuscode.set(response.status);
                     return response.json()
                 })
                 .then(jsonData =>  {

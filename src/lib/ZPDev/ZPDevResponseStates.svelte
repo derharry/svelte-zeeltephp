@@ -1,16 +1,14 @@
 <script>
 // ZPDevResponseStates.svelte
-     import { writable } from "svelte/store";
      import { 
           promise_fetch,
-          data, form, error,
           zpAR_pageJS, zpAR_php 
      } from './zpdev.stores.js';
+     import { data, form, error, statuscode } from 'zeeltephp';
 
      const debug = false;
 
      let dashboardStates = $derived({
-          http_status: $promise_fetch?.status ?? 0,
           sphpFound  : !$zpAR_php ? 0 : $zpAR_php?.routeFiles == 0 ? 2 : 1,
           phpError   : $error ? 3 : 1,
           phpDataReceived: $data || $form || $error ? 1 : 2
@@ -49,7 +47,7 @@
 
 <ul class="status-list">
      <li>
-          <span class="icon">{dashboardStates.http_status}</span>
+          <span class="icon">{$statuscode}</span>
           <span class="desc">Code</span>
      </li>
      <li>

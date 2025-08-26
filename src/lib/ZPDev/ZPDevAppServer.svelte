@@ -1,8 +1,8 @@
 <script>
 // ZPDevAppServer.svelte
      import { promise_fetch, init_ZPDev   } from "./zpdev.stores.js";
-     import { zp_fetch, data, form, error } from "$lib/zeeltephp/zp.fetch.js";
-     import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
+     import { zp_fetch, data, form, error } from "zeeltephp";
+     import { zp_page_route } from "zeeltephp";
 
      /** */
      let url_api  = zp_page_route()
