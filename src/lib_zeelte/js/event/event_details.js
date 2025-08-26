@@ -19,8 +19,6 @@ export class EventDetails {
 
       /** @type {string} Current route (from page or event) */
       route;
-      /** @type {Event} The original event */
-      event;
 
       /** @type {string} Name of the source element (e.g., button name) */
       name;
@@ -36,8 +34,6 @@ export class EventDetails {
       //** @type {any} Event target (for future use) */
       // -- target;
       
-      /** @type {HTMLElement} Source element (generic) */
-      srcElement;
       /** @type {HTMLElement} Button element (if source is a button) */
       button;
       /** @type {HTMLFormElement} Form element (if source is a form) */
@@ -51,6 +47,11 @@ export class EventDetails {
 
       /** @type {string} last internal message */
       last_message = "";
+
+      /** @type {Event} The original event */
+      event;
+      /** @type {HTMLElement} Source element (generic) */
+      srcElement;
 
       // --- Internal/debug ---
       debug      = false;
