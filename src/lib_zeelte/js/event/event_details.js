@@ -1,22 +1,21 @@
-import { ZP_ApiRouter  } from "../zeeltephp/class.zp.apirouter.js"
-import { zp_page_route } from "../zeeltephp/zp.tools.js";
-
+import { page_route } from "../route/route.js";
 
 /**
- * returns object of ZP_EventDetails()
+ * returns object of EventDetails()
  * @param {Event} event - The DOM event (e.g., form submit, button click)
- * @returns {ZP_EventDetails} Parsed event details
+ * @returns {EventDetails} Parsed event details
  */
 export function get_event_action_details(event) {
-    return new ZP_EventDetails(event);
+    return new EventDetails(event);
 }
+
 
 /**
  * Extracts and normalizes routing, action, value, and data from various event types
  * (form submissions, buttons, keyboard/mouse events, URLSearchParams, etc.)
  * for use with ZeeltePHP's API router. 
  */
-export class ZP_EventDetails {
+export class EventDetails {
 
       /** @type {string} Current route (from page or event) */
       route;
@@ -71,20 +70,20 @@ export class ZP_EventDetails {
       }
 
       /**
-       * Constructs a ZP_EventDetails object from various event types.
-       * @param {any}     event - Event, URLSearchParams, ZP_ApiRouter, SubmitEvent, PointerEvent, .. etc.
+       * Constructs a EventDetails object from various event types.
+       * @param {any}     event - Event, URLSearchParams, SubmitEvent, PointerEvent, .. etc.
        * @param {boolean} debug - Enable debug logging
-       * @returns {ZP_EventDetails|false}
+       * @returns {EventDetails|false}
        */
       constructor(event, debug = false) {
             try {
                   if (!event) return false
-                  if (event instanceof ZP_EventDetails) return event
+                  if (event instanceof EventDetails) return event
                   this.debug = debug
                   this.log('-- ZP EventDetails ')
 
                   // Set current route from from Svelte page (default)
-                  this.route = zp_page_route();
+                  this.route = page_route();
                   this.log('route', this.route)
                   
                   this.event = event;
@@ -105,8 +104,10 @@ export class ZP_EventDetails {
                         this.parse_URLSearchParams()
                   else if (event instanceof URL)
                         this.parse_URL()
-                  else if (event instanceof ZP_ApiRouter)
-                        this.log('event is type of ZP_ApiRouter. nothing to do.')
+                  else if (typeof event === 'object' && event.constructor.name === 'ZP_ApiRouter') {
+                        // instead of (event instanceof ZP_ApiRouter) thus, no import required and can be standalone in zeelte
+                        // nothing todo, or copy values from ZP_ApiRouter route, action, name, value?
+                  }
                   else if (event?.detail) {
                         this.log('event.detail');
                         this.action = event.detail.formaction;
@@ -114,7 +115,7 @@ export class ZP_EventDetails {
                         this.value  = event.detail.value;
                   }
                   else
-                        this.log('unknown event-type', typeof event, event);
+                        this.log('unknown event-type', typeof event, event, event?.constructor.name ?? '');
 
                   // ready
                   //this.log(this);
@@ -130,13 +131,13 @@ export class ZP_EventDetails {
        * @param {boolean} [sub] - Internal flag for recursion
        */
       dump(subdata = null, sub = false) {
-            if (!sub) console.log('---DUMP ZP_EventDetails-----------------------------');
+            if (!sub) console.log('---DUMP EventDetails-----------------------------');
             Object.entries(this).forEach(([variable, value]) => {
                   if (value !== undefined && value !== null) {
                   console.log(variable, value);
                   }
             });
-            if (!sub) console.log('---END DUMP ZP_EventDetails-----------------------------');
+            if (!sub) console.log('---END DUMP EventDetails-----------------------------');
       }
 
       /**
