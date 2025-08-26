@@ -1,17 +1,16 @@
 # ZeeltePHP (v1.0.4 rc1)
-
-A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`, `+layout.server.php`, `+server.php`).
+A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
+using SvelteKit-style file conventions (e.g., `+page.server.php`, `+layout.server.php`, `+server.php`).
 
 **Combine the best of Svelte and PHP in your project.**
-- Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`.
+- Use `+.php` files in your project just like SvelteKit’s `+.js|.ts`.
 - Develop as if you’re using SvelteKit natively, including hot-reloading.
 - Easily port existing PHP projects into the SvelteKit project structure, or move SvelteKit-native projects to a PHP backend.
 
 ---
 
 ## In Short
-
-- Run `npm run dev` and use `+.php` files inside your `/src/routes`.
+- Run `npm run dev` and use `+server.php` files inside your `/src/routes` as `+server.js|ts`.
 - Run `npm run build` and deploy to your production environment. Access your app at `http://domain/<build>`.
 
 [TOC]: # "## Table of Contents"
@@ -33,7 +32,7 @@ A SvelteKit adapter-static plugin that enables seamless PHP backend integration 
     - [PHP.exe](#php-exe)
   - [Key Paths](#key-paths)
   - [.ignore example](#gitignore-example)
-  - [ZP Dev](#zp-dev)
+  - [ZPDev](#zp-dev)
   - [.env Configuration](#env-configuration)
   - [Key Methods, Classes & Components](#key-methods-classes--components)
   - [PHP](#php)
@@ -409,14 +408,28 @@ export async function load({ fetch, url }) {
 #### `zp_fetch_api(fetch, router, [, data, method, headers])` (Svelte)
   Handles most use cases for fetching data from the backend.
   <br> Uses Svelte's fetch which needs to be passed as parameter and ZP_ApiRouter for the routing details.
-  <br> This method has overloads. See `zp.fetch.api.js / zp_fetch_api()` for more details.
-
+  <br> This method has overloads. See `zp.fetch.js / zp_fetch()` for more details.
+  
   ```js
-  zp_fetch_api(fetch, string, [, ..])          // use directly +server.php in given route
-  zp_fetch_api(fetch, Event [, ..])            // AnyEventType; will be parsed by ZP_EventDetails 
-  zp_fetch_api(fetch, URL|URLParams, [, ..])   // Will be parsed by ZP_EventDetails
-  zp_fetch_api(fetch, ZP_ApiRouter [, ..])     // If you created (or modified) ZP_ApiRouter earlier.
-  zp_fetch_api(fetch, ZP_EventDetails [, ..])  // If you created (or modified) ZP_EventDetails earlier.
+  /**
+   * @param [*] any     Any will be read by ZP_EventDetails and ZP_ApiRouter
+   * @param {
+   *    method: undefined,
+   *    header: {}
+   *    debug:  false
+   * }
+   */
+  zp_fetch( any, {options} )  // 
+
+  /**
+   * 
+   */
+  zp_fetch( string , {options} )  // string = route/to/ +server.php
+
+  zp_fetch(Event [, ..])            // AnyEventType; will be parsed by ZP_EventDetails 
+  zp_fetch(URL|URLParams, [, ..])   // Will be parsed by ZP_EventDetails
+  zp_fetch(ZP_ApiRouter [, ..])     // If you created (or modified) ZP_ApiRouter earlier.
+  zp_fetch(ZP_EventDetails [, ..])  // If you created (or modified) ZP_EventDetails earlier.
   ```
   
   - **data {*}**: overrules auto-detected data to send. 
@@ -431,10 +444,6 @@ export async function load({ fetch, url }) {
 
 ####  `ZPDev.svelte`:    
   <br>Debugging component for your `+page.server.php` files.
-
-####  `VarDump.svelte`:  
-  <br>Shows (dumps) the content of a variable visually in UI. Like PHPs var_dump().
-
 
 ### .gitignore Example
 ```sh
