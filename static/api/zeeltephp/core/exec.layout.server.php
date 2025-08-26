@@ -13,20 +13,23 @@ use function ZeeltePHP\Error\log_debug;
       * @return mixed Response data from executed action or load function
       * @throws Error If no valid handler is found (801, 802, 501)
       */
-     function exec_PlusLayoutServer($fqdn) {
-          global $zpAR, $data;
+     function exec_PlusLayoutServer($fqdn, $response) {
+          global $zpAR;
           log_debug('zp_exec_layoutServerPHP()');
-          $response = new \stdClass();
-          $response->form  = null;
-          $response->error = null;
-          $response->data  = null;
+
+          if (!$response) {
+               $response = new \stdClass();
+               $response->form  = null;
+               $response->data  = null;
+               $response->error = null;
+          }
           
           $callbackFunction = "$fqdn\load";
           if (function_exists($callbackFunction)) {
-               return $callbackFunction();
+               $response->data  = $callbackFunction($response->data);
                //throw new \Error(801); // 801 no load() function
           }
-          return;
+          return $response;
      }
 
 

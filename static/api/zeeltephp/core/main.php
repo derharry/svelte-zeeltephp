@@ -43,7 +43,6 @@ function main() {
 
           $response = null;
           if (is_file(PATH_ZPROUTES."+hooks.server.php")) {
-               log_debug(count($zpAR->routeFiles). ' hooks');
                require_once('  exec.hooks.server.php');
                $response = exec_hooksServer();
           }
@@ -65,9 +64,7 @@ function main() {
      }
 }
 
-/**
- * 
- */
+
 function resolve_routes() {
      global $zpAR, $zpTime, $db, $env;
      $zpTime->start('resolve_routes()');
@@ -95,6 +92,7 @@ function resolve_routes() {
                if ($zpns === '') {
                     $data = null; // reset data to not expose parent data
                     log_debug("  ! missing namespace for $zpAR->routeBase/$plusPhpFile !");
+                    throw new \Error(803);
                     break;
                } else {
                     log_debug("  has namespace $zpns");
@@ -107,12 +105,12 @@ function resolve_routes() {
                          log_debug("  is context 'page' ");
                          if (str_ends_with($plusPhpFile, '+layout.server.php')) {
                               include_once('core/exec.layout.server.php');
-                              $response = \ZeeltePHP\Core\Exec\exec_PlusLayoutServer($zpns, $options);
+                              $response = \ZeeltePHP\Core\Exec\exec_PlusLayoutServer($zpns, $response);
                          }
                          else if (str_ends_with($plusPhpFile, '+page.server.php')) {
                               log_debug("  load +page.server");
                               include_once('core/exec.page.server.php');
-                              $response = \ZeeltePHP\Core\Exec\exec_PlusPageServer($zpns, $options);
+                              $response = \ZeeltePHP\Core\Exec\exec_PlusPageServer($zpns, $response);
                               log_debug("  response:");
                               log_debug($response);
                          }

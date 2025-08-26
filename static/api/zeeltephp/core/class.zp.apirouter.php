@@ -115,6 +115,10 @@ class ZP_ApiRouter
 
           $this->collect_plusServerFilesInRoute($env['BASE']);  // PUBLIC_BASE now just BASE (whitelisted)
           
+          $this->log('   context: '. $this->context);
+          $this->log('   route  : '. $this->route);
+          $this->log('   action : '. $this->action);
+
           //log_debug($this->dbg_msgs);
           log_debug($zpTime->endN('ZP_ApiRouter()'));
           $this->log('//ZP_ApiRouter()');
@@ -307,7 +311,6 @@ class ZP_ApiRouter
           $routeFiles = [];
           $routePath  = $this->route;
           $routeBase  = str_replace('//', '/', $this->routeBase."/$routePath");
-
           if (!is_dir($routeBase)) {
                $routePath = $this->scandir_withGroupedRoutes();
                if ($routePath)
@@ -330,11 +333,12 @@ class ZP_ApiRouter
                // +layout.server.php
                $path_parts = array_filter(explode('/', trim($routePath, '/')));
                array_unshift($path_parts, ''); // root
-               $path  = PATH_ZPROUTES;
+               $path = PATH_ZPROUTES;
                for ($i = 0; $i < count($path_parts); $i++) {
                     $path .= $path_parts[$i].'/';
                     $serverFile = $path . '+layout.server.php';
-                    is_file($path) && $routeFiles[] = $serverFile;
+                    $this->log($serverFile);
+                    is_file($serverFile) && $routeFiles[] = $serverFile;
                }
                // +page.server.php
                $serverFile = $routeBase . '+page.server.php';

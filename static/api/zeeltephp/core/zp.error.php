@@ -17,6 +17,7 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
                404 => ['no +.php in route' , ''],  // not found
                801 => ['no load() in '     , $zp_route],
                802 => ["no action( $zp_action ) in ", $zp_route],
+               803 => ['missing namespace in route', '']
           ];
           if (isset($zeeltephp_errors[$input])) 
                return [ $input, ...$zeeltephp_errors[$input] ];
@@ -86,8 +87,11 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
           //var_dump($error);
           $er = log_error($error, $message, $code);
           http_response_code($er->code);
+          
+          $response = new \stdClass();
+          $response->error = $er;
           //var_dump($er);
-          echo json_encode($er);
+          echo json_encode($response);
 
      }
 
