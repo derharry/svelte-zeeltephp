@@ -40,13 +40,11 @@
      gap: 1px;
      grid-template-columns: minmax(10em, 17em) minmax(0, 1fr);
      width: 100%;
-
 }
 
 .zpdev-dump-dump {
      display: grid;
-     grid-template-columns: auto, auto;
-     display: flex;
+     grid-template-columns: auto auto;
      gap: 1px; /* optional, for spacing between columns */
 }
 .zpdev-dump-dump > div {
@@ -239,4 +237,12 @@ TEXTAREA {
 .status-list .desc {
      margin-left: 0.5em;
      white-space: nowrap;
+}
+
+
+@media only screen and (max-width: 625px) {
+     .zpdev-tab-dump {
+          grid-template-columns: auto;
+     }
+
 }
