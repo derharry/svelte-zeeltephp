@@ -1,7 +1,13 @@
+# ZeeltePHP (SveltePHP)
 node_modules
+/php_log
 
-# temp
-.temp
+# Dev
+*copy*
+*Copy*
+*dist*
+*temp*
+*tmp*
 
 # Output
 .output
@@ -28,11 +34,3 @@ vite.config.ts.timestamp-*
 
 # Bun, Node
 *.lock
-
-# ZeeltePHP (SveltePHP)
-/php_log
-
-# Dev
-*Copy*
-*copy*
-*dist*
