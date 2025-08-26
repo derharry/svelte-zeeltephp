@@ -1,20 +1,20 @@
-<script>            
-     import '@picocss/pico'
-     import '../app.css'
-     import { base } from "$app/paths";
-     import { zp_page_route } from "$lib/zeeltephp/zp.tools.js";
+<script>
+
+     import { Navigation } from "zeelte";
+
+     let { children } = $props();
+
+      const menu = [
+            { label: 'ZeeltePHP',      url: '/'               },
+            { label: 'Documentation',  url: '/docs'           },
+            //{ label: 'Zeelte',         url: '/docs_zeelte'    },
+            //{ label: 'Usage Examples', url: '/zp_fetch_PAGE'  },
+            { label: 'ZPDev',          url: '/zpdev'          },
+            //{ label: 'What Else',      url: '/what_else'      }
+      ];
+
 </script>
 
-<div class="layoutApp">
-     <nav>
-           <ul>
-                 <li><a href="{base}/">Home</a></li>
-                 <li><a href="{base}/zp_fetch_PAGE">Usage Examples</a></li>
-                 <li><a href="{base}/zpdev">ZPDev</a></li>
-                 <li><a href="{base}/apidemo">API-Demo</a></li>
-                 <!--<li><a href="{base}/documentation">Documentation</a></li>-->
-           </ul>
-     </nav>
-     <div class="routeBar">{zp_page_route()}</div>
-     <slot />
-</div>
+<Navigation data_nav={menu} />
+
+{@render children()}

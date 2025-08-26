@@ -1,0 +1,11 @@
+[
+     {    
+          "label": "PHP",
+          "route": "php",
+          "articles": [
+               { "label": "Globals", "anchor": "quick-start", "articles": [] },
+               { "label": "Error Log", "anchor": "quick-start", "articles": [] },
+               { "label": "PHP.exe", "anchor": "quick-start", "articles": [] },
+               { "label": "Database Provider", "anchor": "quick-start", "articles": [] }
+     ]}
+]

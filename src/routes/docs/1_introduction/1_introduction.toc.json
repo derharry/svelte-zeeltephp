@@ -1,0 +1,13 @@
+[
+     {    
+          "label": "Introduction",
+          "href":  "/docs/zeeltephp",
+          "route": "introduction",
+          "articles": [
+               { "label": "What is ZeeltePHP", "anchor": "h-1-head", "articles": [] },
+               { "label": "Before we begin", "anchor": "h-2-head", "articles": [] },
+               { "label": "Who is it for", "anchor": "h-2-head", "articles": [] },
+               { "label": "Use-Cases", "anchor": "h-2-head", "articles": [] }
+          ]
+     }
+]

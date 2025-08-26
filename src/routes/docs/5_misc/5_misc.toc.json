@@ -1,0 +1,13 @@
+[
+     {    
+          "label": "Misc",
+          "href":  "",
+          "route": "misc",
+          "articles": [
+               { "label": "Vite Plugin", "anchor": "quick-start", "articles": [] },
+               { "label": "Key Paths", "anchor": "quick-start", "articles": [] },
+               { "label": ".gitignore", "anchor": "quick-start", "articles": [] },
+               { "label": ".env config", "anchor": "quick-start", "articles": [] }
+
+     ]}
+]

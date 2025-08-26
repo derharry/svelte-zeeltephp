@@ -1,0 +1,12 @@
+[
+     {    
+          "label": "Client Side Routing (CSR)",
+          "href":  "",
+          "route": "client_side_routing",
+          "articles": [
+               { "label": "Component (forms)", "anchor": "quick-start", "articles": [] },
+               { "label": "Component (api)", "anchor": "h-2-head", "articles": [] },
+               { "label": "+page.js", "anchor": "h-2-head", "articles": [] },
+               { "label": "+layout.js", "anchor": "h-2-head", "articles": [] }
+     ]}
+]
