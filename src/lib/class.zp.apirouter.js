@@ -78,7 +78,7 @@ export class ZP_ApiRouter
                   // Set environment
                   this.environment = dev ? 'dev' : 'prod';
                   this.log('environment ', this.environment);
-                  this.log('router is   ', typeof router);
+                  this.log('router is   ', typeof router == 'object' ? router?.constructor?.name ? router.constructor.name : typeof router : typeof router);
                   this.log('router      ', router)
 
                   // Handle overloading: string, event, any..
@@ -155,7 +155,7 @@ export class ZP_ApiRouter
        */
       parse_routerFromZPeventDetails(event) {
             this.log('parse_routerFromZPeventDetails');
-            const zpED = new Event(event, this.debug);
+            const zpED = new EventDetails(event, this.debug);
             if (zpED) {
                   this.route  = zpED.route  || this.route;
                   this.action = zpED.action || this.action;
