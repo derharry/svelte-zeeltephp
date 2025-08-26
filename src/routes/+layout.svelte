@@ -1,8 +1,9 @@
 <script>
+      import '@picocss/pico'
+      import '../app.css'
+      import { Navigation } from "zeelte";
 
-     import { Navigation } from "zeelte";
-
-     let { children } = $props();
+      let { children } = $props();
 
       const menu = [
             { label: 'ZeeltePHP',      url: '/'               },
@@ -15,6 +16,27 @@
 
 </script>
 
-<Navigation data_nav={menu} />
+<main>
+      <Navigation data_nav={menu} />
+      <article>
+            {@render children()}
+      </article>
+</main>
 
-{@render children()}
+<style>
+
+      main {
+            background-color: none;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr;
+      }
+
+      article {
+            overflow: auto;
+      }
+
+</style>
+
+
