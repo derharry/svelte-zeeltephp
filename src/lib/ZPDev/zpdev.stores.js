@@ -1,9 +1,9 @@
 //zpdev.stores.js
 import { writable, derived, get   } from "svelte/store";
-import { persistentStore   } from "zeelte/js";
-import { data, form, error, statuscode } from "$lib/js/zp.fetch.js" ; // hook zp_fetch() Stores
-import { ZP_ApiRouter      } from "$lib/js/class.zp.apirouter.js";
-import { ZP_EventDetails   } from "zeelte";
+import { persistentStore   } from "zeelte";
+import { data, form, error, statuscode } from "$lib/zp.fetch.js" ; // hook zp_fetch() Stores
+import { ZP_ApiRouter      } from "$lib/class.zp.apirouter.js";
+import { EventDetails      } from "zeelte";
 
 const debug = false
 
@@ -50,12 +50,12 @@ export const dumpTabs = [
 ];
 console.log('stores in zpdev.stores.js:', { data, form, error, statuscode });
 
-
+// Verify all stores
+/*
 dumpTabs.forEach(({key, store}) => {
   console.log(`${key}: valid store?`, store && typeof store.subscribe === 'function');
 });
-
-console.log('showDumpPanel:', showDumpPanel && typeof showDumpPanel.subscribe === 'function');
+*/
 
 
 derived([data, form, error], ([$data, $form, $error]) => {
@@ -125,7 +125,7 @@ export function init_ZPDev(event = undefined) {
      event.preventDefault()
      resetLocalStores()
      // show the manually the pre steps of zp_fetch(event) ..
-     zpED_svelte.set(new ZP_EventDetails(event))
+     zpED_svelte.set(new EventDetails(event))
      zpAR_svelte.set(new ZP_ApiRouter(zpED_svelte))
      // show correct DumpPanel
      if (get(zpED_svelte).action) {

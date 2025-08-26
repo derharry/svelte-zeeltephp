@@ -2,10 +2,10 @@
 // ZPDevAppServer.svelte
      import { promise_fetch, init_ZPDev   } from "./zpdev.stores.js";
      import { zp_fetch, data, form, error } from "zeeltephp";
-     import { zp_page_route } from "zeeltephp";
+     import { page_route } from "zeeltephp";
 
      /** */
-     let url_api  = zp_page_route()
+     let url_api  = page_route()
 
      function wrap_fetch(e, method) {
           e.preventDefault()

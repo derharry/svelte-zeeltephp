@@ -5,8 +5,9 @@
  * Provides Svelte/SvelteKit integration helpers for ZeeltePHP backend communication.
  */
 import { writable        } from "svelte/store";
-import { ZP_ApiRouter    } from "$lib/js/class.zp.apirouter.js" 
-import { ZP_EventDetails } from "zeelte"  
+import { ZP_ApiRouter    } from "$lib/class.zp.apirouter.js" 
+import { EventDetails    } from "zeelte";
+
 
 export const statuscode = writable(0)
 export const data  = writable({})
@@ -15,12 +16,12 @@ export const error = writable({})
 
 console.log('Initializing zeeltephp-fetch stores:', { data, form, error, statuscode });
 /**
- * returns ZP_EventDetails  from a browser event.
+ * returns EventDetails  from a browser event.
  * @param   {*} event - any Dom Event
- * @returns {ZP_EventDetails} Parsed event details
+ * @returns {EventDetails} Parsed event details
  */
 export function zp_get_eventDetails(event) {
-    return new ZP_EventDetails(event);
+    return new EventDetails(event);
 }
 
 /**
@@ -28,13 +29,13 @@ export function zp_get_eventDetails(event) {
  * For backwards compability zp_fetch_api() forwards to zp_fetch() and will remain at least for next 2 updates.
  * 
  * Overloads:
- *   zp_fetch_api(fetch, Event [, ..])             AnyEvent - will be parsed by ZP_EventDetails
- *   zp_fetch_api(fetch, URL|URLParams   [, ..])   Will be parsed by ZP_EventDetails
+ *   zp_fetch_api(fetch, Event [, ..])             AnyEvent - will be parsed by EventDetails
+ *   zp_fetch_api(fetch, URL|URLParams   [, ..])   Will be parsed by EventDetails
  *   zp_fetch_api(fetch, ZP_ApiRouter    [, ..])   If you created ZP_ApiRouter earlier.
- *   zp_fetch_api(fetch, ZP_EventDetails [, ..])   If you created ZP_EventDetails earlier.
+ *   zp_fetch_api(fetch, EventDetails [, ..])   If you created EventDetails earlier.
  * 
  * @param {Function} fetch - SvelteKit's fetch function (include from +page.js or +page.svelte) (connot be imported seperatly)
- * @param {ZP_ApiRouter|ZP_EventDetails|Event|URL|URLParams|string} router - Router, event, or URL describing the request
+ * @param {ZP_ApiRouter|EventDetails|Event|URL|URLParams|string} router - Router, event, or URL describing the request
  * @param {*}      [data] - Optional, force data to send with the request
  * @param {string} [method] - Optional, force used HTTP method (GET, POST, etc.)
  * @param {object} [headers] - Optional, additional headers for the request
@@ -72,17 +73,17 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
  *         SvelteKit:   fetch()
  *         SveltePHP:   data = zp_fetch()
  * 
- * @param {string | Event | ZP_EventDetails | ZP_ApiRouter | URL | URLParams | undefined} route
+ * @param {string | Event | EventDetails | ZP_ApiRouter | URL | URLParams | undefined} route
  *  if `string`           this is the path +server.php, or, if starting with https:// its a normal fetch to the endpoint URL.
- *  if `Event`            any DOM-events, parsed and destructured by `ZP_EventDetails`.
- *  if `ZP_EventDetails`  instance of, if you want to change attributes.
+ *  if `Event`            any DOM-events, parsed and destructured by `EventDetails`.
+ *  if `EventDetails`  instance of, if you want to change attributes.
  *  if `ZP_ApiRouter`     instance of, if you want to change attributes.
  *  if `URL`              instance of. Like load({url}) in +page.js.
  *  if `URLParams`    instance of Svelte/URLParams
  *  if `undefined`    the request is the current route and will execute load() in +layout|page.server.php in route.
  * @param {Object}   [options                 ]  - Optional fetch configuration.
  * @param {string}   [options.method  = 'POST']  - force HTTP method to use (e.g., 'GET', 'POST', 'PUT'). Note: default GET when route starts with http(s)://.
- * @param {*}        [options.data            ]  - override data-payload, e.g. instead of the data-payload by ZP_EventDetails.
+ * @param {*}        [options.data            ]  - override data-payload, e.g. instead of the data-payload by EventDetails.
  * @param {Object}   [options.headers = {}    ]  - Additional request headers.
  * @param {boolean}  [options.debug   = false ]  - If true, logs debug information.
  * @returns {Promise<any>} A promise resolving to Stores `$data`, `$form`, and `$error`.
