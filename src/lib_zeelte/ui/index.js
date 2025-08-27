@@ -1,8 +1,12 @@
 // index.js $lib/lib_zeelte/ui
 
 // Documents
-export { collectDocsMenu         } from './Documents/inc.documents.js'
+export { doc_md_collect_files, doc_md_create_DocToc_menu } from './Documents/doc_md_files.js'
+export { doc_md_custom_marked, doc_md_collect_headings   } from './Documents/doc_md_files.js'
+
 export { default as DocToc       } from './Documents/DocToc.svelte'
+
+//export { customMarked, collectHeadings } from './Documents/marked'
 export { default as Marked       } from './Documents/Marked.svelte'
 
 // Loader

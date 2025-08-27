@@ -6,50 +6,58 @@
           children
      } = $props();
 
+     console.log('toc_data', toc_data)
+
 </script>
 
 <main>
-     <nav>
+     <div class="toc">
           {#each toc_data as topic}
                <div>
                     <span>{topic.label}</span>
                     {#each topic.articles as article}
-                         <a href="/docs/{article.href}/{article?.anchor ? '#'+validAnchorID(article.anchor) : ''}" class="a-topic">{article.label}</a>
+                         <a href="/docs/{topic.route}{article.anchor ? '#'+validAnchorID(article.anchor) : ''}" class="a-topic">{article.label}</a>
                          {#each article.tocs as toc}
-                             <a href="/docs/{article.href}/{toc?.anchor ? '#'+validAnchorID(toc.anchor) : ''}" class="a-toc">{toc.label}</a>
+                             <a href="/docs/{topic.route}{toc?.anchor ? '#'+validAnchorID(toc.anchor) : ''}" class="a-toc">{toc.label}</a>
                          {/each}
                     {/each}
                </div>
           {:else}
-               no data
+               -no toc data-
           {/each}
-     </nav>
+     </div>
 
-      <section>
+     <article>
           {@render children()}
-      </section>
+     </article>
 </main>
 
 <style>
-
      main {
           display: grid;
           grid-template-columns: auto 1fr;
-          gap: 0.5rem;
+          /**grid-template-rows: 1fr;*/
+          gap: 0;
+          height: 100%;
+          min-height: 0
      }
 
-     nav {
+     .toc {
           background-color: none;
+          width: fit-content;
+          overflow: auto;
+          max-height: 100%;
+          padding: 0.5em;
+          min-height: 0;
      }
 
-     div {
+     .toc > div {
+          background-color: none;
           display: grid;
           grid-template-columns: 1;
           margin:  0;
           padding: 0;
-          padding-bottom: 1rem;
-          background-color: none;
-          padding-bottom: 2rem;
+          margin-bottom: 2rem;
      }
 
      span {
@@ -57,10 +65,6 @@
           padding: 0;
           font-size: 1.25rem;
           font-weight: bold;
-     }
-
-     a {
-          background-color: none;
      }
 
      .a-topic {
@@ -72,10 +76,18 @@
           font-size: 1rem;
      }
 
-     section {
-          background-color: yellowgreen;
+     article {
+          background-color: none;
           overflow: auto;
-          max-height: 30em;
+          max-height: 100%;
+          min-height: 0;
+     }
+
+     a {
+          text-decoration: none;
+     }
+     a:hover {
+          text-decoration: underline;
      }
 
 </style>

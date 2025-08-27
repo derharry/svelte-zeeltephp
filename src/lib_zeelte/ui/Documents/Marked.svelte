@@ -1,6 +1,6 @@
 <script>
 
-     import { customMarked  } from './marked.js'
+     import { doc_md_custom_marked } from 'zeelte'
 
      let {
            markdown  = '',
@@ -19,7 +19,7 @@
 </script>
 
 
-<div class="markdown">{@html customMarked(markdown)}</div>
+<div class="markdown">{@html doc_md_custom_marked(markdown)}</div>
 
 
 <style>
@@ -35,6 +35,7 @@
           height: 100%;
           margin:  0;
           padding: 0.5em;
+          overflow: auto;
      }
 
 </style>

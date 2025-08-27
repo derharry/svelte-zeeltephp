@@ -21,30 +21,63 @@
 
 </script>
 
-<nav {...attrsNAV}>
-     <ul {...attrsUL}>
+<div class="nav" {...attrsNAV}>
 
+     <div class="slot-logo">
+     <slot name="logo">Default Logo</slot>
+     </div>
+
+     <div class="slot-middle">
+     <slot name="middle">
           {#each data_nav as navObj}
-
-               <li {...attrsLI}>
-                    <a 
-                         {...attrsA}
-                         href={navObj.url}
-                         onclick={()=> route = navObj.url}
-                         class:active={route == navObj.url}
-                    >{@html navObj.label}</a>
-                    <!--<br>{route}-->
-               </li>
-
+               <a 
+                    {...attrsA}
+                    href={navObj.url}
+                    onclick={()=> route = navObj.url}
+                    class:active={route == navObj.url}
+               >{@html navObj.label}</a>
           {/each}
+     </slot>
+     </div>
 
-     </ul>
-</nav>
+     <div class="slot-right">
+     <slot name="right">
+     </slot>
+     </div>
+
+</div>
 
 <style>
 
+     .nav {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          padding: 0.5em;
+          height: fit-content;
+          vertical-align: middle;
+          align-items: center;
+     }
+
+     .slot-logo {
+          /*/background: red;/**/
+     }
+
+     .slot-middle {
+          /*/background: blue;/**/
+          display: flex;
+          justify-content: center;
+          gap: 1em;
+          flex-direction: row;
+          align-items: middle;
+          text-align: center;
+     }
+
+     .slot-right {
+          /*/background: yellow;/**/
+          text-align: right;
+     }
+
      .active {
-          background: red;
      }
 
 </style>
