@@ -1,34 +1,78 @@
+/**************************/
+/** main **/
+/**************************/
 html, body {
       width:  100%;
       height: 100%;
       overflow: hidden;
       padding: 0;
       margin:  0;
+      color: #cacbce;
+      background-color: #333333 !important;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.center {
-      text-align: center;
-      justify-content: center;
-}
-.right {
-      text-align: right;
-      justify-content: right;
+
+/**************************/
+/** Navigation **/
+/**************************/
+.nav {
+      background-color: #4f5b93;
+      background-color: #4f5b93;
+      color: #dee3ff;
 }
 
-.top {
-      vertical-align: top;
+.nav a,
+.nav .slot-logo {
+      color: white;
+      text-decoration: none;
+      
 }
 
-.nowrap {
-      white-space: nowrap;
-}
-.wrap {
-      white-space: normal;
+.nav .slot-logo {
+      font-size: 1.15em;
+      font-weight: bold;
+      font-style: italic;
 }
 
-.pad {
-      padding-left: 1.5em !important;
+.nav .slot-logo a:hover {
+      color: white;
 }
+
+.nav .slot-logo a:active,
+.nav .slot-logo .active {
+      background-color: #475284 !important;
+}
+
+
+/**************************/
+/** Main/Article **/
+/**************************/
+article a {
+      color: #87b7e7;
+}
+
+article a:hover {
+      color: #FF3E00; /*#92a9c0;*/
+}
+
+article h1,
+article h2, 
+article h3, 
+article h4, 
+article h5, 
+article h6 {
+      color: #e5e5e6;
+}
+
+article h1 { font-size: 1.5em  }
+article h2 { font-size: 1.4em  }
+article h3 { font-size: 1.3em  }
+article h4 { font-size: 1.2em  }
+article h5 { font-size: 1.1em  }
+article h6 { font-size: 1.05em }
+
+
 
 .defaultPadding {
       padding: 0em 1em !important;
@@ -101,10 +145,6 @@ html, body {
       position: absolute;
 }
 
-h1 {
-      font-size: 1.25em;
-}
-
 
 .layoutApp_off {
       max-width:850px; 
@@ -114,4 +154,10 @@ h1 {
 BUTTON {
       padding-left:  0.5em;
       padding-right: 0.5em;
+}
+
+INPUT {
+      padding: 0;
+      margin:  0;
+      max-height: 1.5em;
 }
