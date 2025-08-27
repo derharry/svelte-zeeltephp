@@ -8,7 +8,7 @@ These global variables are accessible from anywhere in your PHP code.
 - **$db**:   Shared DB-Connection. 
 
 
-## PHP error log
+## Error Log
 - Errors are logged to `/php_log`, `/BUILD/api/zeeltephp/php_log/` when `ini_set('error_log')` is allowed.
 - At error output or response  thhe paths are changed for readability 
   - the path `/api/zeeltephp` is shortened to `/api`.
@@ -17,7 +17,7 @@ These global variables are accessible from anywhere in your PHP code.
   - the method **zp_log( $content )** writes the content into `log.log`.
 
 
-## PHP.exe
+## php.exe
 ZeeltePHP runs on CLI/php.exe when the .env.ZEELTEPHP_EXE=/path/to/php.exe variable is set. 
 A httpd is then not required. See [.env Configuration](#env-configuration) for details.
 

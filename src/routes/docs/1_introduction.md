@@ -17,7 +17,7 @@ ZeeltePHP requires you to have basic know-how of Svelte, SvelteKit and PHP.
 2. For projects in co-existence, SvelteKit + PHP
 
 
-### Use-Cases
+### Use Cases
 1. SvelteKit    
    - hosting:    NodeJS
    - stack:      SvelteKit-native

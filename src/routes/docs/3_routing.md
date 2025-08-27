@@ -1,9 +1,10 @@
-## Usage Examples
+# Routing
 
 
-### Namespaces of +server files
+## Namespaces (php)
 All +server.php files within the /routes directory must declare a unique namespace and be assigned to the variable $zpns. 
 This convention allows SveltePHP to properly load your server route files and utilize the same method conventions, such as load().
+
 ```php
 <?php 
       namespace uniqNameSpace; 
@@ -11,7 +12,7 @@ This convention allows SveltePHP to properly load your server route files and ut
 ```
 
 
-### PHP: `+page.server.php`
+## +page.server.php
 ```php
 <?php namespace zp111; $zpns=__NAMESPACE__;
 
@@ -62,7 +63,8 @@ This convention allows SveltePHP to properly load your server route files and ut
 ?>
 ```
 
-### PHP: `+layout.server.php`
+
+## +layout.server.php
 ```php
 <?php namespace zp222; $zpns=__NAMESPACE__;
 
@@ -81,7 +83,7 @@ This convention allows SveltePHP to properly load your server route files and ut
 ```
 
 
-### Svelte: `+page.js`
+## +page.js
 ```js
 import { zp_fetch_api } from "zeeltephp";
 
@@ -101,7 +103,8 @@ export async function load({ fetch, url }) {
 }
 ```
 
-### Svelte: `+page.svelte`
+
+## +page.svelte
 ```html
 <script>
       import { zp_fetch_api } from "zeeltephp";
@@ -144,9 +147,10 @@ export async function load({ fetch, url }) {
 </form>
 ```
 
-### PHP: `+server.php`
+
+## +server.php
 ```php
-<?php
+<?php namespace zp123; $zpns=__NAMESPACE__;
 
       // same for POST, PUT, PATCH, DELETE, HEAD
       function GET() {
@@ -165,7 +169,9 @@ export async function load({ fetch, url }) {
       }
 ?>
 ```
-### Svelte: `+page.svelte`
+
+
+## +page.svelte
 ```html
 <script>
       import { zp_fetch_api } from "zeeltephp";
