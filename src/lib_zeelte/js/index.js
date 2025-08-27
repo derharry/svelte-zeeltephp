@@ -11,7 +11,8 @@ export { tinyid, uid, validAnchorID } from './id/id.js'
 export { isDir           } from './io/dir.js'
 export { scandir, scandir_toTreeview } from './io/scandir.js'
 // io/file
-export { isFile, readFile, readJsonFile, writeJsonFile } from './io/file.js'
+export { isFile, readFile, writeFile } from './io/file.js'
+export { readJsonFile, writeJsonFile } from './io/file.js'
 
 // route
 export { page_route } from './route/route.js'

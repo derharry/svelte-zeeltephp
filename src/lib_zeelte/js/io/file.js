@@ -27,6 +27,20 @@ export function readFile(filePath) {
      }
 }
 
+/**
+ * Save string to file
+ * @param {string} filePath - Path to the file
+ * @param {string} data - string to save
+ */
+export function writeFile(filePath, data) {
+  try {
+    fs.writeFileSync(filePath, data, 'utf-8');
+  } catch (error) {
+    console.error('Error saving file:', error);
+    throw error;
+  }
+}
+
 
 export function readJsonFile(filePath) {
      try {
@@ -40,15 +54,14 @@ export function readJsonFile(filePath) {
 }
 
 /**
- * Save an object as JSON to a file synchronously
+ * Save an object as JSON to a file
  * @param {string} filePath - Path to the JSON file
  * @param {Object} data - JavaScript object to save
  */
-export function writeJsonFile(filePath, data) {
+export function writeJsonFile(filePath, data, prettyPrint = 0) {
   try {
-    const jsonString = JSON.stringify(data, null, 2); // pretty print with 2 spaces
+    const jsonString = JSON.stringify(data, null, prettyPrint);
     fs.writeFileSync(filePath, jsonString, 'utf-8');
-    console.log(`JSON saved successfully to ${filePath}`);
   } catch (error) {
     console.error('Error saving JSON file:', error);
     throw error;

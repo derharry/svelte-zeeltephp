@@ -7,7 +7,6 @@ export async function load({}) {
      const mdFiles = doc_md_collect_files(docsDir)
      const mainToc = doc_md_create_DocToc_menu(mdFiles)
 
-     console.log('mainToc', mainToc)
      return {
           mainToc
      }
