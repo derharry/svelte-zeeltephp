@@ -70,10 +70,7 @@
 		"svelte-switch-case": "^2.0.0",
 		"typescript": "^5.9.2",
 		"vite": "^6.3.5",
-		"@picocss/pico": "^2.1.1",	
 		"github-markdown-css": "^5.8.1",
 		"marked": "^16.2.0"
-	},
-	"dependencies": {
 	}
 }
