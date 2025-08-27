@@ -9,6 +9,9 @@ export { default as DocToc       } from './Documents/DocToc.svelte'
 //export { customMarked, collectHeadings } from './Documents/marked'
 export { default as Marked       } from './Documents/Marked.svelte'
 
+// Icons
+export { default as LucideIcon } from './Icons/LucideIcon.svelte'
+
 // Loader
 export { default as HTML_Marquee } from './Loader/HTML_Marquee.svelte'
 
