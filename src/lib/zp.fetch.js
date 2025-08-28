@@ -47,6 +47,9 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
     return zp_fetch(router, { data, method, headers, debug, fetch });
 }
 
+export function zp(fetch, router, options) {
+    return zp_fetch(router, { ...options, fetch })
+}
 
 /**
  * Fetches data from ZeeltePHP, resolves the response and forwards the data.

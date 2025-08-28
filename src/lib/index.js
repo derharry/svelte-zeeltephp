@@ -1,7 +1,7 @@
 // index.js $lib
 
 // export functions
-export { zp_fetch, zp_fetch_api }  from './zp.fetch.js';
+export { zp, zp_fetch, zp_fetch_api }  from './zp.fetch.js';
 export { page_route }              from 'zeelte';
 
 // export classes
