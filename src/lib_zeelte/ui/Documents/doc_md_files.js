@@ -78,3 +78,15 @@ export function doc_md_collect_headings(markdown) {
      }
      return collected;
 }
+
+export function doc_md_generate_toc(markdown) {
+     const tocNew = []
+     const tocMD  = doc_md_collect_headings(markdown)
+     for (const item of tocMD) {
+               const chars  = ' '.repeat(item.level)
+               const indent = chars == ' ' ? '' : chars
+               const anchor = validAnchorID(item.label)
+               tocNew.push(`${indent}- [${item.label}](#${anchor})`)
+     }
+     return tocNew.join("\n")
+}

@@ -4,12 +4,12 @@ import fsp  from 'fs/promises';
 
 /**
  * dir does not exist or error
- * @param {string} path 
+ * @param {string} filePath 
  * @returns boolean
  */
-export function isFile(path, consoleError = false) {
+export function isFile(filePath, consoleError = false) {
      try {
-          const stats = fs.statSync(path);
+          const stats = fs.statSync(filePath);
           return stats.isFile();
      } catch (error) {
           consoleError && console.error(error)

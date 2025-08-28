@@ -22,9 +22,9 @@ export function validAnchorID(toid) {
 	if (typeof toid !== 'string') return toid
 	let anchored = toid.toLowerCase()
 	.trim()
-	.replace(/[^\w\s+]/g, '') // Remove invalid chars
-	.replace(/\s+|\./g, '-')     // spaces
-	.replace(/^-+|-+$/g, '-') // Trim hyphens from ends
+	.replace(/[^\w\s-_]/g,  '') // remove invalid chars
+	.replace(/\s+|\./g,    '-') // trim spaces
+	.replace(/^-+|-+$/g,   '-') // trim hyphens
 	if (/^\d/.test(anchored)) 
 		anchored = 'h-' + anchored
 	return anchored

@@ -3,6 +3,7 @@
 // Documents
 export { doc_md_collect_files, doc_md_create_DocToc_menu } from './Documents/doc_md_files.js'
 export { doc_md_custom_marked, doc_md_collect_headings   } from './Documents/doc_md_files.js'
+export { doc_md_generate_toc   } from './Documents/doc_md_files.js'
 
 export { default as DocToc       } from './Documents/DocToc.svelte'
 

@@ -6,8 +6,6 @@
           children
      } = $props();
 
-     console.log('toc_data', toc_data)
-
 </script>
 
 <main>
@@ -43,7 +41,6 @@
      }
 
      .toc {
-          background-color: none;
           width: fit-content;
           overflow: auto;
           max-height: 100%;
