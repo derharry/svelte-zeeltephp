@@ -10,7 +10,8 @@
      function wrap_fetch(e, method) {
           e.preventDefault()
           init_ZPDev(e)
-          $promise_fetch = zp_fetch('/zpdev', { method: method })
+          //$promise_fetch = zp_fetch('/zpdev', { method: method })
+          $promise_fetch = zp_fetch(page_route(), { method: method })
           /*
           -- the origin from to using data,form,error Stores and new response-layer 25-08-06,
           -- - within zeeltephp/zp_fetch.js // data, form, error
