@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile, writeFile } from 'zeelte'
-import { doc_md_collect_files, doc_md_collect_headings } from 'zeelte/ui/index.js';
+import { doc_md_collect_files, doc_md_collect_headings, doc_md_generate_toc } from 'zeelte/ui/index.js';
 
 const docsDir = path.resolve('src/routes/docs');
 
@@ -21,15 +21,16 @@ export async function load({ params }) {
      let markdownText = ''
      let markdownToc  = []
 
-     if (params?.route) {
-          const mdFile  = find_md_file(params.route)
+     if (params && params.route) {
+          const routeSlugName = params.route.replace('/','')
+          const mdFile  = find_md_file(routeSlugName)
           markdownText  = readFile(mdFile)
           markdownToc   = doc_md_collect_headings(markdownText)
      }
 
      return {
           markdown: markdownText,
-         // toc: markdownToc
+          toc: markdownToc
      }
 }
 
@@ -38,9 +39,9 @@ export async function load({ params }) {
 export const actions = {
 
 	saveChanges: async ({event, request, params}) => {
-		const formData = await request.formData();
+		const formData    = await request.formData();
           const newMarkdown = formData.get('newMarkdown')
-          const mdFile      = find_md_file(params.route)
+          const mdFile      = find_md_file(params.route.replace('/',''))
           if (newMarkdown) {
                writeFile(mdFile, newMarkdown)
                const markdownText = readFile(mdFile)
