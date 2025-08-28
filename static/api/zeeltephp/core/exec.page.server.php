@@ -13,13 +13,14 @@ use function ZeeltePHP\Error\log_debug;
       * @throws Error If no valid handler is found (801, 802, 501)
       */
      function exec_PlusPageServer($fqdn, $options = []) {
-          global $zpAR, $data, $db;
+          global $zpAR, $data, $db, $zpTime;
+          $zpTime->start('exec_PlusPageServer()');
+          log_debug('exec_PlusPageServer()');
           $response = new \stdClass();
           $response->zpxc  = $zpAR->context;
           $response->form  = null;
           $response->error = null;
           $response->data  = null;
-          log_debug('zp_exec_pageServerPHP()');
           try {
                // Normalize: threat string "null" as null
                $action = $zpAR->action;
@@ -48,18 +49,19 @@ use function ZeeltePHP\Error\log_debug;
                     }
                }
                else {
-                    $load = "$fqdn\load";
-                    if (function_exists($load)) {
-                         $response->data = $load();                    
-                    }
-                    throw new \Error(801); // 801 no load() function
+                    $callbackFunction = "$fqdn\load";
+                    if (function_exists($callbackFunction)) {
+                         $response->data = $callbackFunction();                    
+                    } else throw new \Error(801); // 801 no load() function
                }
           }
           catch (\Exception $exp) {
                $response->error = $exp;
                handle_error($exp);
+          } finally {
+               log_debug($zpTime->endN('exec_PlusPageServer()'));
+               log_debug('//exec_PlusPageServer()');
           }
-          log_debug('//zp_exec_pageServerPHP()');
           return $response;
      }
 

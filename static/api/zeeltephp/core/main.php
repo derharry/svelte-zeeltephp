@@ -122,6 +122,7 @@ function resolve_routes() {
           }
           log_debug('responseLayer is context '.$zpAR->context);
           log_debug($zpTime->endN('resolve_routes()'));
+          log_debug('//resolve_routes()');
      }
      log_debug('//resolve_routes() ');
      return $response;

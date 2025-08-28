@@ -15,9 +15,10 @@ use function ZeeltePHP\Core\Lib\change_full_paths_to_zp_relative;
           $zeeltephp_errors = [
                400 => ['no route requested', ''],  // bad request
                404 => ['no +.php in route' , ''],  // not found
-               801 => ['no load() in '     , $zp_route],
+               801 => ['no load() in +page.server.php', $zp_route],
                802 => ["no action( $zp_action ) in ", $zp_route],
-               803 => ['missing namespace in route', '']
+               803 => ['missing namespace in route', ''],
+               804 => ['no load() in +layout.server.php', $zp_route]
           ];
           if (isset($zeeltephp_errors[$input])) 
                return [ $input, ...$zeeltephp_errors[$input] ];

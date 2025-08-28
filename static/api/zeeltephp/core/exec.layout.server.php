@@ -27,8 +27,7 @@ use function ZeeltePHP\Error\log_debug;
           $callbackFunction = "$fqdn\load";
           if (function_exists($callbackFunction)) {
                $response->data  = $callbackFunction($response->data);
-               //throw new \Error(801); // 801 no load() function
-          }
+          } else throw new \Error(804); // 804 no load() function
           return $response;
      }
 

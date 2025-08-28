@@ -11,11 +11,9 @@ use ZeeltePHP\Core\zpTime;
       */
      function load_php_lib(string $path): void {
           global $zpTime;
-          $zpTime->start('load_php_lib/()');
           log_debug("load_php_lib($path)");
           $zpTime->start('load_php_lib()');
           $phpFiles = scan_dir($path, '#\.php$#'); # '/\.php$/');
-          $zpTime->start('load_php_lib()');
           foreach ($phpFiles as $file) {
                if ($file !== '.' && $file !== '..') {
                     $fullPath = PATH_ZPLIB . $file;
@@ -26,7 +24,7 @@ use ZeeltePHP\Core\zpTime;
                }
           }
           log_debug($zpTime->endN('load_php_lib()'));
-          log_debug($zpTime->endN('load_php_lib/()'));
+          log_debug("//load_php_lib()");
      }
 
      /**
@@ -71,7 +69,9 @@ use ZeeltePHP\Core\zpTime;
       * @throws RuntimeException If environment configuration is invalid
       */
      function load_DotEnv_file(): array {
+          global $zpTime;
           $cfg = [];
+          $zpTime->start('load_DotEnv_file()');
           log_debug('load_DotEnv_file()');
           try {
                // Production environment
@@ -89,8 +89,10 @@ use ZeeltePHP\Core\zpTime;
           } catch (\Throwable $e) {
                log_debug('Environment Error: ' . $e->getMessage());
                throw $e;
+          } finally {
+               log_debug($zpTime->endN('load_DotEnv_file()'));
+               log_debug('//load_DotEnv_file()');
           }
-          log_debug('//load_DotEnv_file()');
           return $cfg;
      }
 
