@@ -88,7 +88,7 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
  * @returns {Promise<any>} A promise resolving to Stores `$data`, `$form`, and `$error`.
  */
 export function zp_fetch(route, options) {
-    return zp(options.fetch || fetch, route, options)
+    return zp(fetch, route, options)
 }
 
 /**
