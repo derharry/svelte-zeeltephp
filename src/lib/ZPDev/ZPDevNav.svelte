@@ -1,7 +1,9 @@
 <script>
 // ZPDevNav.svelte
-     import { HTML_Marquee  } from "zeelte";
      import { page } from '$app/state';
+     import { resolve } from '$app/paths';
+     import { PUBLIC_ZEELTEPHP_BASE } from "$env/static/public";
+     import { HTML_Marquee  } from "zeelte";
      import { 
           promise_fetch,
           appTabs, dumpTabs,
@@ -66,6 +68,6 @@
      </div>
 
      <div>
-          <a href="http://localhost:5173/api?{page.url.pathname || page.route.id}" target="_blank">{page.url.pathname || page.route.id}</a>
+          <a href="{resolve(PUBLIC_ZEELTEPHP_BASE)}?{page.url.pathname || page.route.id}" target="_blank">{page.url.pathname || page.route.id}</a>
      </div>
 </div>

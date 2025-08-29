@@ -8,7 +8,6 @@ import { writable        } from "svelte/store";
 import { ZP_ApiRouter    } from "$lib/class.zp.apirouter.js" 
 import { EventDetails    } from "zeelte";
 
-
 export const statuscode = writable(0)
 export const data  = writable({})
 export const form  = writable({})
@@ -16,7 +15,7 @@ export const error = writable({})
 //console.log('Init-state of ZP-Fetch-Stores:', { data, form, error, statuscode });
 
 /**
- * returns EventDetails  from a browser event.
+ * returns EventDetails from any event.
  * @param   {*} event - any Dom Event
  * @returns {EventDetails} Parsed event details
  */
@@ -25,7 +24,7 @@ export function zp_get_eventDetails(event) {
 }
 
 /**
- * *deprecated*  zp_fetch() is the new method to prefer. 
+ * *deprecated*  zp() is the new method to prefer. 
  * For backwards compability zp_fetch_api() forwards to zp_fetch() and will remain at least for next 2 updates.
  * 
  * Overloads:
@@ -47,11 +46,8 @@ export function zp_fetch_api(fetch, router, data = undefined, method = undefined
     return zp_fetch(router, { data, method, headers, debug, fetch });
 }
 
-export function zp(fetch, router, options) {
-    return zp_fetch(router, { ...options, fetch })
-}
-
 /**
+ * *deprecated*  zp(fetch, route, options) is the new method to prefer. 
  * Fetches data from ZeeltePHP, resolves the response and forwards the data.
  * The response will be destructed into Stores $data, $form, $error.
  * 
@@ -91,12 +87,38 @@ export function zp(fetch, router, options) {
  * @param {boolean}  [options.debug   = false ]  - If true, logs debug information.
  * @returns {Promise<any>} A promise resolving to Stores `$data`, `$form`, and `$error`.
  */
-export function zp_fetch(route, options = { 
+export function zp_fetch(route, options) {
+    return zp(options.fetch || fetch, route, options)
+}
+
+/**
+ * Overloads:
+ *   zp_fetch_api(fetch, Event [, ..])             AnyEvent - will be parsed by EventDetails
+ *   zp_fetch_api(fetch, URL|URLParams   [, ..])   Will be parsed by EventDetails
+ *   zp_fetch_api(fetch, ZP_ApiRouter    [, ..])   If you created ZP_ApiRouter earlier.
+ *   zp_fetch_api(fetch, EventDetails [, ..])   If you created EventDetails earlier.
+ * 
+ * @param {Function} fetch - SvelteKit's fetch function (include from +page.js or +page.svelte) (connot be imported seperatly)
+ * @param {ZP_ApiRouter|EventDetails|Event|URL|URLParams|string} route - Router, event, or URL describing the request
+ * @param {object} options - Optional, additional headers for the request
+ * @returns {Promise<any>} Resolves the backend response or the response object on error
+ */
+export function zp(fetch, route, options = { 
     method:  'POST', 
     data:    undefined, 
     headers: {}, 
     debug:   false
 }) {
+    /* Passing Svelte's fetch: 
+     * to avoid browser message: 
+     * 
+     * 
+     * previous methods:
+     *   zp_fetch_api(fetch, ...)   v0.0.1 - v1.0.3         forced to use Svelte's fetch
+     *   zp_fetch(..., {fetch})     v1.0.4 (not released)   idea: optionally pass Svelte's fetch and use browser-fetch
+     * new method:
+     *   zp(fetch, ..)              v1.0.4                  forces to use Svelte's fetch and still has zp.fetch in its name
+     */
     let debug = false
     try {
         const defaultOptions = {
@@ -130,9 +152,7 @@ export function zp_fetch(route, options = {
                 return
             }
 
-            let fetchFn = zp_fetch_options.fetch ?? fetch;
-
-            fetchFn(zpar.fetch_url, zpar.fetch_options) 
+            fetch(zpar.fetch_url, zpar.fetch_options) 
                 .then(response => {
                     // -- if (contentLength && Number(contentLength) > 0) 
                     // -- else return response.headers // GET, HEAD
