@@ -1,16 +1,16 @@
 # ZeeltePHP (v1.0.3.1 rc1)
 
----
-## Note to ZeeltePHP (SveltePHP) v1.0.4
-The next version is under development and a focus on a complete documentation.
----
-
 A SvelteKit adapter-static plugin that enables seamless PHP backend integration using SvelteKit-style file conventions (e.g., `+page.server.php`).
 
 **Combine the best of Svelte and PHP in your project.**
 - Use `+.php` files in your project just like SvelteKit’s `+server.js|ts`.
 - Develop as if you’re using SvelteKit natively, including hot-reloading.
 - Easily port existing PHP projects into the SvelteKit project structure, or move SvelteKit-native projects to a PHP backend.
+
+---
+
+### *Info: the next version v1.0.4 is in development, together with a new documentation format.*
+
 
 ---
 
